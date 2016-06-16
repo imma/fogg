@@ -4,7 +4,7 @@ function main {
   local shome="${_fogg_home:-"$(cd -P -- "${BASH_SOURCE%/*}/.." && pwd -P)"}"
   source "$shome/script/profile"
 
-  ln -nfs ../module-aws-global/global.tf .
+  ln -nfs ../global-xxx/global.tf .
 }
 
 source sub "$BASH_SOURCE" "$@"
