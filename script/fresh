@@ -1,0 +1,14 @@
+#!/usr/bin/env bash
+
+function main {
+  local shome="${_fluentd_home:-"$(cd -P -- "${BASH_SOURCE%/*}/.." && pwd -P)"}"
+  source "$shome/script/profile"
+
+  if [[ -x "$(type -P hcltool)" ]]; then
+    return 0
+  fi
+
+  return 1
+}
+
+source sub "$0" "$@"
