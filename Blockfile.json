@@ -1,5 +1,8 @@
 {
   "require": [
-    "python"
+    "python",
+    "app-xxx",
+    "env-xxx",
+    "global-xxx"
   ]
 }
