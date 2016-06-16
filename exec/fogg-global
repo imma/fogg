@@ -5,6 +5,7 @@ function main {
   source "$shome/script/profile"
 
   ln -nfs ../global-xxx/global.tf .
+  ln -nfs ../global-xxx/fogg.tf .
 }
 
 source sub "$BASH_SOURCE" "$@"
