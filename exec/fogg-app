@@ -6,6 +6,7 @@ function main {
 
   ln -nfs ../app-xxx/env.tf .
   ln -nfs ../app-xxx/service.tf .
+  ln -nfs ../app-xxx/fogg.tf .
 }
 
 source sub "$BASH_SOURCE" "$@"
