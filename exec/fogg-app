@@ -5,6 +5,7 @@ function main {
   source "$shome/script/profile"
 
   ln -nfs ../app-xxx/env.tf .
+  ln -nfs ../app-xxx/app.tf .
   ln -nfs ../app-xxx/service.tf .
   ln -nfs ../app-xxx/fogg.tf .
 }
