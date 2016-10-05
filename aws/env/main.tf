@@ -31,7 +31,7 @@ resource "aws_security_group" "env" {
 }
 
 resource "aws_security_group" "env_private" {
-  name        = "${var.env_name}"
+  name        = "${var.env_name}-private"
   description = "Environment ${var.env_name} Private"
   vpc_id      = "${aws_vpc.env.id}"
 
@@ -43,7 +43,7 @@ resource "aws_security_group" "env_private" {
 }
 
 resource "aws_security_group" "env_public" {
-  name        = "${var.env_name}"
+  name        = "${var.env_name}-public"
   description = "Environment ${var.env_name} Public"
   vpc_id      = "${aws_vpc.env.id}"
 
@@ -56,7 +56,7 @@ resource "aws_security_group" "env_public" {
 }
 
 resource "aws_security_group" "env_lb" {
-  name        = "${var.env_name}"
+  name        = "${var.env_name}-lb"
   description = "Environment ${var.env_name} LB"
   vpc_id      = "${aws_vpc.env.id}"
 
@@ -68,7 +68,7 @@ resource "aws_security_group" "env_lb" {
 }
 
 resource "aws_security_group" "env_lb_private" {
-  name        = "${var.env_name}"
+  name        = "${var.env_name}-lb-private"
   description = "Environment ${var.env_name} LB Private"
   vpc_id      = "${aws_vpc.env.id}"
 
@@ -81,7 +81,7 @@ resource "aws_security_group" "env_lb_private" {
 }
 
 resource "aws_security_group" "env_lb_public" {
-  name        = "${var.env_name}"
+  name        = "${var.env_name}-lb-public"
   description = "Environment ${var.env_name} LB Public"
   vpc_id      = "${aws_vpc.env.id}"
 
