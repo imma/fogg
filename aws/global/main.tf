@@ -1,29 +1,5 @@
 provider "aws" {}
 
-resource "aws_iam_policy" "remote_state" {
-  name   = "remote-state"
-  policy = "${file("${path.module}/iam/remote_state.json")}"
-}
-
-resource "aws_iam_role" "remote_state" {
-  name               = "remote-state"
-  assume_role_policy = "${file("${path.module}/iam/remote_state_instance_profile.json")}"
-}
-
-resource "aws_iam_role_policy_attachment" "remote_state" {
-  role       = "${aws_iam_role.remote_state.name}"
-  policy_arn = "${aws_iam_policy.remote_state.arn}"
-}
-
-resource "aws_iam_group" "remote_state" {
-  name = "remote-state"
-}
-
-resource "aws_iam_group_policy_attachment" "remote_state" {
-  group      = "${aws_iam_group.remote_state.name}"
-  policy_arn = "${aws_iam_policy.remote_state.arn}"
-}
-
 resource "aws_iam_group" "administrators" {
   name = "administrators"
 }
