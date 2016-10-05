@@ -11,8 +11,26 @@
     "global_remote_state": {}
   },
   "output": {
-    "domain_name": {
-      "value": "${module.env.domain_name}"
+    "igw_id": {
+      "value": "${module.env.igw_id}"
+    },
+    "private_zone_id": {
+      "value": "${module.env.private_zone_id}"
+    },
+    "private_zone_name": {
+      "value": "${module.env.private_zone_name}"
+    },
+    "private_zone_servers": {
+      "value": "${module.env.private_zone_servers}"
+    },
+    "public_zone_id": {
+      "value": "${module.env.public_zone_id}"
+    },
+    "public_zone_name": {
+      "value": "${module.env.public_zone_name}"
+    },
+    "public_zone_servers": {
+      "value": "${module.env.public_zone_servers}"
     },
     "vpc_id": {
       "value": "${module.env.vpc_id}"
