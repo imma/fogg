@@ -1,27 +1,5 @@
 provider "aws" {}
 
-variable "s3_remote_state" {}
-
-variable "aws_account_id" {}
-
-output "aws_account_id" {
-  value = "${var.aws_account_id}"
-}
-
-variable "domain_name" {}
-
-output "domain_name" {
-  value = "${var.domain_name}"
-}
-
-output "public_zone_id" {
-  value = ["${aws_route53_zone.public.zone_id}"]
-}
-
-output "public_name_servers" {
-  value = ["${aws_route53_zone.public.name_servers}"]
-}
-
 resource "aws_iam_policy" "remote_state" {
   name   = "remote-state"
   policy = "${file("${path.module}/iam/remote_state.json")}"
