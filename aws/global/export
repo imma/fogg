@@ -1,0 +1,21 @@
+variable "aws_account_id" {}
+
+variable "domain_name" {}
+
+variable "s3_remote_state" {}
+
+output "aws_account_id" {
+  value = "${module.global.aws_account_id}"
+}
+
+output "domain_name" {
+  value = "${module.global.domain_name}"
+}
+
+output "public_zone_id" {
+  value = ["${module.global.public_zone_id}"]
+}
+
+output "public_name_servers" {
+  value = ["${module.global.public_name_servers}"]
+}
