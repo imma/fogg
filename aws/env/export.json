@@ -1,10 +1,21 @@
 {
   "variable": {
+    "env_cidr": {},
+    "env_domain_name": {
+      "default": ""
+    },
+    "env_name": {},
+    "env_zone": {
+      "default": ""
+    },
     "global_remote_state": {}
   },
   "output": {
-    "test": {
-      "value": "${module.env.test}"
+    "domain_name": {
+      "value": "${module.env.domain_name}"
+    },
+    "vpc_id": {
+      "value": "${module.env.vpc_id}"
     }
   }
 }
