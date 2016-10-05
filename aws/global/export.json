@@ -16,6 +16,9 @@
     },
     "public_zone_id": {
       "value": "${module.global.public_zone_id}"
+    },
+    "s3_remote_state": {
+      "value": "${module.global.s3_remote_state}"
     }
   }
 }
