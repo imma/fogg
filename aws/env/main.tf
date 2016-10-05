@@ -30,6 +30,15 @@ resource "aws_security_group" "env" {
   }
 }
 
+resource "aws_security_group_rule" "env_egress" {
+  type              = "egress"
+  from_port         = 0
+  to_port           = 0
+  protocol          = "-1"
+  cidr_blocks       = ["0.0.0.0/0"]
+  security_group_id = "${aws_security_group.env.id}"
+}
+
 resource "aws_security_group" "env_private" {
   name        = "${var.env_name}-private"
   description = "Environment ${var.env_name} Private"
@@ -40,6 +49,24 @@ resource "aws_security_group" "env_private" {
     "Env"       = "${var.env_name}"
     "ManagedBy" = "terraform"
   }
+}
+
+resource "aws_security_group_rule" "ping_private" {
+  type              = "ingress"
+  from_port         = 9
+  to_port           = -1
+  protocol          = "icmp"
+  cidr_blocks       = ["${var.env_cidr}"]
+  security_group_id = "${aws_security_group.env_private.id}"
+}
+
+resource "aws_security_group_rule" "ssh_private" {
+  type              = "ingress"
+  from_port         = 22
+  to_port           = 22
+  protocol          = "tcp"
+  cidr_blocks       = ["${var.env_cidr}"]
+  security_group_id = "${aws_security_group.env_private.id}"
 }
 
 resource "aws_security_group" "env_public" {
@@ -65,6 +92,15 @@ resource "aws_security_group" "env_lb" {
     "Env"       = "${var.env_name}"
     "ManagedBy" = "terraform"
   }
+}
+
+resource "aws_security_group_rule" "env_lb_egress" {
+  type              = "egress"
+  from_port         = 0
+  to_port           = 0
+  protocol          = "-1"
+  cidr_blocks       = ["0.0.0.0/0"]
+  security_group_id = "${aws_security_group.env_lb.id}"
 }
 
 resource "aws_security_group" "env_lb_private" {
