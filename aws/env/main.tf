@@ -18,6 +18,81 @@ resource "aws_vpc" "env" {
   }
 }
 
+resource "aws_security_group" "env" {
+  name        = "${var.env_name}"
+  description = "Environment ${var.env_name}"
+  vpc_id      = "${aws_vpc.env.id}"
+
+  tags {
+    "Name"      = "${var.env_name}"
+    "Env"       = "${var.env_name}"
+    "ManagedBy" = "terraform"
+  }
+}
+
+resource "aws_security_group" "env_private" {
+  name        = "${var.env_name}"
+  description = "Environment ${var.env_name} Private"
+  vpc_id      = "${aws_vpc.env.id}"
+
+  tags {
+    "Name"      = "${var.env_name}"
+    "Env"       = "${var.env_name}"
+    "ManagedBy" = "terraform"
+  }
+}
+
+resource "aws_security_group" "env_public" {
+  name        = "${var.env_name}"
+  description = "Environment ${var.env_name} Public"
+  vpc_id      = "${aws_vpc.env.id}"
+
+  tags {
+    "Name"      = "${var.env_name}"
+    "Env"       = "${var.env_name}"
+    "ManagedBy" = "terraform"
+    "Network"   = "public"
+  }
+}
+
+resource "aws_security_group" "env_lb" {
+  name        = "${var.env_name}"
+  description = "Environment ${var.env_name} LB"
+  vpc_id      = "${aws_vpc.env.id}"
+
+  tags {
+    "Name"      = "${var.env_name}"
+    "Env"       = "${var.env_name}"
+    "ManagedBy" = "terraform"
+  }
+}
+
+resource "aws_security_group" "env_lb_private" {
+  name        = "${var.env_name}"
+  description = "Environment ${var.env_name} LB Private"
+  vpc_id      = "${aws_vpc.env.id}"
+
+  tags {
+    "Name"      = "${var.env_name}"
+    "Env"       = "${var.env_name}"
+    "ManagedBy" = "terraform"
+    "Network"   = "public"
+  }
+}
+
+resource "aws_security_group" "env_lb_public" {
+  name        = "${var.env_name}"
+  description = "Environment ${var.env_name} LB Public"
+  vpc_id      = "${aws_vpc.env.id}"
+
+  tags {
+    "Name"      = "${var.env_name}"
+    "Env"       = "${var.env_name}"
+    "ManagedBy" = "terraform"
+    "Network"   = "public"
+  }
+}
+
 resource "aws_internet_gateway" "env" {
   vpc_id = "${aws_vpc.env.id}"
 

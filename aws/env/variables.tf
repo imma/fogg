@@ -57,3 +57,27 @@ output "private_zone_servers" {
 output "private_zone_name" {
   value = "${lookup(map("1",var.env_zone,"0",var.env_name),format("%d",signum(length(var.env_zone))))}.${lookup(map("1",var.env_domain_name,"0",data.terraform_remote_state.global.domain_name),format("%d",signum(length(var.env_domain_name))))}"
 }
+
+output "sg_env" {
+  value = "${aws_security_group.env.id}"
+}
+
+output "sg_env_private" {
+  value = "${aws_security_group.env_private.id}"
+}
+
+output "sg_env_public" {
+  value = "${aws_security_group.env_public.id}"
+}
+
+output "sg_env_lb" {
+  value = "${aws_security_group.env_lb.id}"
+}
+
+output "sg_env_lb_private" {
+  value = "${aws_security_group.env_lb_private.id}"
+}
+
+output "sg_env_lb_public" {
+  value = "${aws_security_group.env_lb_public.id}"
+}

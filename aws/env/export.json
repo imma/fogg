@@ -46,6 +46,24 @@
     "public_zone_servers": {
       "value": "${module.env.public_zone_servers}"
     },
+    "sg_env": {
+      "value": "${module.env.sg_env}"
+    },
+    "sg_env_lb": {
+      "value": "${module.env.sg_env_lb}"
+    },
+    "sg_env_lb_private": {
+      "value": "${module.env.sg_env_lb_private}"
+    },
+    "sg_env_lb_public": {
+      "value": "${module.env.sg_env_lb_public}"
+    },
+    "sg_env_private": {
+      "value": "${module.env.sg_env_private}"
+    },
+    "sg_env_public": {
+      "value": "${module.env.sg_env_public}"
+    },
     "vpc_id": {
       "value": "${module.env.vpc_id}"
     }
