@@ -1,0 +1,10 @@
+{
+  "variable": {
+    "global_remote_state": {}
+  },
+  "output": {
+    "test": {
+      "value": "${module.env.test}"
+    }
+  }
+}
