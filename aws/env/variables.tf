@@ -6,10 +6,6 @@ variable "env_name" {}
 
 variable "az_count" {}
 
-variable "az_names" {
-  default = [0]
-}
-
 variable "nat_bits" {
   default = "12"
 }
@@ -92,4 +88,8 @@ output "env_name" {
 
 output "env_cidr" {
   value = "${var.env_cidr}"
+}
+
+output "key_name" {
+  value = "${aws_key_pair.env.key_name}"
 }

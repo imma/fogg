@@ -6,6 +6,8 @@ data "terraform_remote_state" "global" {
   }
 }
 
+data "aws_availability_zones" "azs" {}
+
 resource "aws_vpc" "env" {
   cidr_block           = "${var.env_cidr}"
   enable_dns_support   = true
@@ -16,6 +18,11 @@ resource "aws_vpc" "env" {
     "Env"       = "${var.env_name}"
     "ManagedBy" = "terraform"
   }
+}
+
+resource "aws_key_pair" "env" {
+  key_name   = "${var.env_name}"
+  public_key = "${file("etc/key-pair.pub")}"
 }
 
 resource "aws_security_group" "env" {
@@ -146,7 +153,7 @@ resource "aws_eip" "nat" {
 
 resource "aws_subnet" "nat" {
   vpc_id                  = "${aws_vpc.env.id}"
-  availability_zone       = "${element(var.az_names,count.index)}"
+  availability_zone       = "${element(data.aws_availability_zones.azs.names,count.index)}"
   cidr_block              = "${cidrsubnet(var.env_cidr,var.nat_bits,element(var.nat_nets,count.index))}"
   map_public_ip_on_launch = true
   count                   = "${var.az_count}"

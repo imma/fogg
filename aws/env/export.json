@@ -1,11 +1,6 @@
 {
   "variable": {
     "az_count": {},
-    "az_names": {
-      "default": [
-        0
-      ]
-    },
     "env_cidr": {},
     "env_domain_name": {
       "default": ""
@@ -33,6 +28,9 @@
     },
     "igw_id": {
       "value": "${module.env.igw_id}"
+    },
+    "key_name": {
+      "value": "${module.env.key_name}"
     },
     "nat_gateways": {
       "value": "${module.env.nat_gateways}"
