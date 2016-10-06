@@ -169,7 +169,7 @@ resource "aws_launch_configuration" "service" {
   iam_instance_profile = "${var.app_name}-${var.service_name}"
   key_name             = "${data.terraform_remote_state.env.key_name}"
   user_data            = "${element(var.user_data,count.index)}"
-  security_groups      = ["${concat(list(aws_security_group.service.id),var.security_groups)}"]
+  security_groups      = ["${concat(list(data.terraform_remote_state.env.sg_env,aws_security_group.service.id),var.security_groups)}"]
   count                = "${var.asg_count}"
 
   lifecycle {
