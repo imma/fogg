@@ -25,8 +25,17 @@
     }
   },
   "output": {
+    "env_cidr": {
+      "value": "${module.env.env_cidr}"
+    },
+    "env_name": {
+      "value": "${module.env.env_name}"
+    },
     "igw_id": {
       "value": "${module.env.igw_id}"
+    },
+    "nat_gateways": {
+      "value": "${module.env.nat_gateways}"
     },
     "private_zone_id": {
       "value": "${module.env.private_zone_id}"

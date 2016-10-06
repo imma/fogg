@@ -1,3 +1,5 @@
+variable "env_cidr" {}
+
 variable "global_remote_state" {}
 
 variable "env_name" {}
@@ -7,8 +9,6 @@ variable "az_count" {}
 variable "az_names" {
   default = [0]
 }
-
-variable "env_cidr" {}
 
 variable "nat_bits" {
   default = "12"
@@ -80,4 +80,16 @@ output "sg_env_lb_private" {
 
 output "sg_env_lb_public" {
   value = "${aws_security_group.env_lb_public.id}"
+}
+
+output "nat_gateways" {
+  value = ["${aws_nat_gateway.env.*.id}"]
+}
+
+output "env_name" {
+  value = "${var.env_name}"
+}
+
+output "env_cidr" {
+  value = "${var.env_cidr}"
 }
