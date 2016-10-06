@@ -20,7 +20,7 @@ resource "aws_security_group" "app" {
   vpc_id      = "${data.terraform_remote_state.env.vpc_id}"
 
   tags {
-    "Name"      = "${var.app_name}"
+    "Name"      = "${data.terraform_remote_state.env.env_name}-${var.app_name}"
     "Env"       = "${data.terraform_remote_state.env.env_name}"
     "ManagedBy" = "terraform"
   }

@@ -61,7 +61,7 @@ resource "aws_security_group" "service" {
   }
 
   tags {
-    "Name"      = "${data.terraform_remote_state.env.env_name}-${var.service_name}"
+    "Name"      = "${data.terraform_remote_state.env.env_name}-${var.app_name}-${var.service_name}"
     "Env"       = "${data.terraform_remote_state.env.env_name}"
     "App"       = "${var.app_name}"
     "Service"   = "${var.service_name}"
