@@ -1,14 +1,6 @@
 {
   "variable": {
-    "app_bits": {
-      "default": "12"
-    },
     "app_name": {},
-    "app_nets": {
-      "default": [
-        0
-      ]
-    },
     "az_count": {},
     "az_names": {
       "default": [

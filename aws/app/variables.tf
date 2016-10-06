@@ -10,14 +10,6 @@ variable "az_names" {
   default = [0]
 }
 
-variable "app_bits" {
-  default = "12"
-}
-
-variable "app_nets" {
-  default = [0]
-}
-
 output "s3_remote_state" {
   value = "${data.terraform_remote_state.global.s3_remote_state}"
 }

@@ -1,0 +1,26 @@
+{
+  "variable": {
+    "app_name": {},
+    "az_count": {},
+    "az_names": {
+      "default": [
+        0
+      ]
+    },
+    "display_name": {
+      "default": ""
+    },
+    "env_remote_state": {},
+    "global_remote_state": {},
+    "service_bits": {
+      "default": "12"
+    },
+    "service_name": {},
+    "service_nets": {
+      "default": [
+        0
+      ]
+    }
+  },
+  "output": {}
+}
