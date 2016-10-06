@@ -1,5 +1,3 @@
-variable "env_remote_state" {}
-
 variable "global_remote_state" {}
 
 variable "app_name" {}

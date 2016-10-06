@@ -2,7 +2,6 @@
   "variable": {
     "app_name": {},
     "az_count": {},
-    "env_remote_state": {},
     "global_remote_state": {}
   },
   "output": {
