@@ -107,6 +107,34 @@ resource "aws_route_table_association" "service" {
   count          = "${var.az_count}"
 }
 
+resource "aws_iam_role" "service" {
+  name = "${var.app_name}-${var.service_name}"
+
+  assume_role_policy = <<EOF
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Action": "sts:AssumeRole",
+      "Principal": { 
+        "Service": "ec2.amazonaws.com"
+      },
+      "Effect": "Allow"
+    }
+  ]
+}
+EOF
+}
+
+resource "aws_iam_instance_profile" "service" {
+  name  = "${var.app_name}-${var.service_name}"
+  roles = ["${aws_iam_role.service.name}"]
+}
+
+resource "aws_iam_group" "service" {
+  name = "${var.app_name}-${var.service_name}"
+}
+
 resource "aws_launch_configuration" "service" {
   name_prefix          = "${var.app_name}-${var.service_name}-${element(var.asg_name,count.index)}"
   instance_type        = "${element(var.instance_type,count.index)}"
