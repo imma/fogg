@@ -136,7 +136,7 @@ resource "aws_iam_group" "service" {
 }
 
 resource "aws_launch_configuration" "service" {
-  name_prefix          = "${var.app_name}-${var.service_name}-${element(var.asg_name,count.index)-}"
+  name_prefix          = "${var.app_name}-${var.service_name}-${element(var.asg_name,count.index)}-"
   instance_type        = "${element(var.instance_type,count.index)}"
   image_id             = "${coalesce(element(var.image_id,count.index),data.aws_ami.service.id)}"
   iam_instance_profile = "${var.app_name}-${var.service_name}"
