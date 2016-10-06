@@ -1,3 +1,17 @@
+variable "env_remote_state" {}
+
+variable "global_remote_state" {}
+
+variable "app_name" {}
+
+variable "display_name" {
+  default = ""
+}
+
+variable "service_name" {}
+
+variable "az_count" {}
+
 data "terraform_remote_state" "global" {
   backend = "local"
 
@@ -12,6 +26,29 @@ data "terraform_remote_state" "env" {
   config {
     path = "${var.env_remote_state}"
   }
+}
+
+data "aws_availability_zones" "azs" {}
+
+data "aws_ami" "service" {
+  most_recent = true
+
+  filter {
+    name   = "name"
+    values = ["ubuntu/images/hvm-ssd/ubuntu-xenial-16.04-amd64-server-*"]
+  }
+
+  filter {
+    name   = "virtualization-type"
+    values = ["hvm"]
+  }
+
+  filter {
+    name   = "block-device-mapping.volume-type"
+    values = ["gp2"]
+  }
+
+  owners = ["099720109477"] # Canonical
 }
 
 resource "aws_security_group" "service" {
@@ -30,7 +67,7 @@ resource "aws_security_group" "service" {
 
 resource "aws_subnet" "service" {
   vpc_id                  = "${data.terraform_remote_state.env.vpc_id}"
-  availability_zone       = "${element(var.az_names,count.index)}"
+  availability_zone       = "${element(data.aws_availability_zones.azs.names,count.index)}"
   cidr_block              = "${cidrsubnet(data.terraform_remote_state.env.env_cidr,var.service_bits,element(var.service_nets,count.index))}"
   map_public_ip_on_launch = true
   count                   = "${var.az_count}"
@@ -68,4 +105,74 @@ resource "aws_route_table_association" "service" {
   subnet_id      = "${element(aws_subnet.service.*.id,count.index)}"
   route_table_id = "${element(aws_route_table.service.*.id,count.index)}"
   count          = "${var.az_count}"
+}
+
+resource "aws_launch_configuration" "service" {
+  name_prefix          = "${var.app_name}-${var.service_name}-${element(var.asg_name,count.index)}"
+  instance_type        = "${element(var.instance_type,count.index)}"
+  image_id             = "${coalesce(element(var.image_id,count.index),data.aws_ami.service.id)}"
+  iam_instance_profile = "${var.app_name}-${var.service_name}"
+  key_name             = "${data.terraform_remote_state.env.key_name}"
+  user_data            = "${element(var.user_data,count.index)}"
+  security_groups      = ["${concat(list(aws_security_group.service.id),var.security_groups)}"]
+  count                = "${var.asg_count}"
+
+  root_block_device {
+    volume_type = "gp2"
+    volume_size = "${element(var.root_volume_size,count.index)}"
+  }
+
+  ephemeral_block_device {
+    device_name  = "/dev/sdb"
+    virtual_name = "ephemeral0"
+  }
+
+  ephemeral_block_device {
+    device_name  = "/dev/sdc"
+    virtual_name = "ephemeral1"
+  }
+
+  ephemeral_block_device {
+    device_name  = "/dev/sdd"
+    virtual_name = "ephemeral2"
+  }
+
+  ephemeral_block_device {
+    device_name  = "/dev/sde"
+    virtual_name = "ephemeral3"
+  }
+}
+
+resource "aws_autoscaling_group" "service" {
+  name                 = "${var.app_name}-${var.service_name}-${element(var.asg_name,count.index)}"
+  launch_configuration = "${element(aws_launch_configuration.service.*.name,count.index)}"
+  vpc_zone_identifier  = ["${aws_subnet.service.*.id}"]
+  min_size             = "${element(var.min_size,count.index)}"
+  max_size             = "${element(var.max_size,count.index)}"
+  termination_policies = ["${var.termination_policies}"]
+  count                = "${var.asg_count}"
+
+  tag {
+    key                 = "Name"
+    value               = "${var.app_name}-${var.service_name}-${element(var.asg_name,count.index)}"
+    propagate_at_launch = true
+  }
+
+  tag {
+    key                 = "Env"
+    value               = "${data.terraform_remote_state.env.env_name}"
+    propagate_at_launch = true
+  }
+
+  tag {
+    key                 = "App"
+    value               = "${var.app_name}"
+    propagate_at_launch = true
+  }
+
+  tag {
+    key                 = "ManagedBy"
+    value               = "asg ${var.app_name}-${var.service_name}-${element(var.asg_name,count.index)}"
+    propagate_at_launch = true
+  }
 }

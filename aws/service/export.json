@@ -1,24 +1,66 @@
 {
   "variable": {
-    "app_name": {},
-    "az_count": {},
-    "az_names": {
+    "asg_count": {
+      "default": 2
+    },
+    "asg_name": {
+      "default": [
+        "blue",
+        "green"
+      ]
+    },
+    "image_id": {
+      "default": [
+        "",
+        ""
+      ]
+    },
+    "instance_type": {
+      "default": [
+        "t2.small",
+        "t2.small"
+      ]
+    },
+    "max_size": {
+      "default": [
+        "1",
+        "1"
+      ]
+    },
+    "min_size": {
+      "default": [
+        "0",
+        "0"
+      ]
+    },
+    "root_volume_size": {
+      "default": [
+        "100",
+        "100"
+      ]
+    },
+    "security_groups": {
       "default": [
         0
       ]
     },
-    "display_name": {
-      "default": ""
-    },
-    "env_remote_state": {},
-    "global_remote_state": {},
     "service_bits": {
       "default": "12"
     },
-    "service_name": {},
     "service_nets": {
       "default": [
         0
+      ]
+    },
+    "termination_policies": {
+      "default": [
+        "OldestInstance"
+      ]
+    },
+    "user_data": {
+      "default": [
+        "",
+        ""
       ]
     }
   },
