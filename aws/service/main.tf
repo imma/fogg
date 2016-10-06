@@ -69,7 +69,7 @@ resource "aws_subnet" "service" {
   vpc_id                  = "${data.terraform_remote_state.env.vpc_id}"
   availability_zone       = "${element(data.aws_availability_zones.azs.names,count.index)}"
   cidr_block              = "${cidrsubnet(data.terraform_remote_state.env.env_cidr,var.service_bits,element(var.service_nets,count.index))}"
-  map_public_ip_on_launch = true
+  map_public_ip_on_launch = false
   count                   = "${var.az_count}"
 
   tags {
