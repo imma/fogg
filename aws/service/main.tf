@@ -52,12 +52,12 @@ data "aws_ami" "service" {
 }
 
 resource "aws_security_group" "service" {
-  name        = "${var.app_name}-${var.service_name}"
+  name        = "${data.terraform_remote_state.env.env_name}-${var.app_name}-${var.service_name}"
   description = "Service ${var.app_name}-${var.service_name}"
   vpc_id      = "${data.terraform_remote_state.env.vpc_id}"
 
   tags {
-    "Name"      = "${var.service_name}"
+    "Name"      = "${data.terraform_remote_state.env.env_name}-${var.service_name}"
     "Env"       = "${data.terraform_remote_state.env.env_name}"
     "App"       = "${var.app_name}"
     "Service"   = "${var.service_name}"
@@ -73,7 +73,7 @@ resource "aws_subnet" "service" {
   count                   = "${var.az_count}"
 
   tags {
-    "Name"      = "${var.service_name}"
+    "Name"      = "${data.terraform_remote_state.env.env_name}-${var.app_name}-${var.service_name}"
     "Env"       = "${data.terraform_remote_state.env.env_name}"
     "App"       = "${var.app_name}"
     "Service"   = "${var.service_name}"
@@ -86,7 +86,7 @@ resource "aws_route_table" "service" {
   count  = "${var.az_count*(signum(var.public_network)-1)*-1}"
 
   tags {
-    "Name"      = "${var.service_name}"
+    "Name"      = "${data.terraform_remote_state.env.env_name}-${var.app_name}-${var.service_name}"
     "Env"       = "${data.terraform_remote_state.env.env_name}"
     "App"       = "${var.app_name}"
     "Service"   = "${var.service_name}"
@@ -112,7 +112,7 @@ resource "aws_route_table" "service_public" {
   count  = "${var.az_count*signum(var.public_network)}"
 
   tags {
-    "Name"      = "${var.service_name}"
+    "Name"      = "${data.terraform_remote_state.env.env_name}-${var.app_name}-${var.service_name}"
     "Env"       = "${data.terraform_remote_state.env.env_name}"
     "App"       = "${var.app_name}"
     "Service"   = "${var.service_name}"
@@ -163,7 +163,7 @@ resource "aws_iam_group" "service" {
 }
 
 resource "aws_launch_configuration" "service" {
-  name_prefix          = "${var.app_name}-${var.service_name}-${element(var.asg_name,count.index)}-"
+  name_prefix          = "${data.terraform_remote_state.env.env_name}-${var.app_name}-${var.service_name}-${element(var.asg_name,count.index)}-"
   instance_type        = "${element(var.instance_type,count.index)}"
   image_id             = "${coalesce(element(var.image_id,count.index),data.aws_ami.service.id)}"
   iam_instance_profile = "${var.app_name}-${var.service_name}"
@@ -203,7 +203,7 @@ resource "aws_launch_configuration" "service" {
 }
 
 resource "aws_autoscaling_group" "service" {
-  name                 = "${var.app_name}-${var.service_name}-${element(var.asg_name,count.index)}"
+  name                 = "${data.terraform_remote_state.env.env_name}-${var.app_name}-${var.service_name}-${element(var.asg_name,count.index)}"
   launch_configuration = "${element(aws_launch_configuration.service.*.name,count.index)}"
   vpc_zone_identifier  = ["${aws_subnet.service.*.id}"]
   min_size             = "${element(var.min_size,count.index)}"
@@ -213,7 +213,7 @@ resource "aws_autoscaling_group" "service" {
 
   tag {
     key                 = "Name"
-    value               = "${var.app_name}-${var.service_name}-${element(var.asg_name,count.index)}"
+    value               = "${data.terraform_remote_state.env.env_name}-${var.app_name}-${var.service_name}-${element(var.asg_name,count.index)}"
     propagate_at_launch = true
   }
 
