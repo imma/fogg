@@ -56,6 +56,10 @@ resource "aws_security_group" "service" {
   description = "Service ${var.app_name}-${var.service_name}"
   vpc_id      = "${data.terraform_remote_state.env.vpc_id}"
 
+  lifecycle {
+    create_before_destroy = true
+  }
+
   tags {
     "Name"      = "${data.terraform_remote_state.env.env_name}-${var.service_name}"
     "Env"       = "${data.terraform_remote_state.env.env_name}"
