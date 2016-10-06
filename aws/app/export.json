@@ -18,5 +18,9 @@
     "env_remote_state": {},
     "global_remote_state": {}
   },
-  "output": {}
+  "output": {
+    "s3_remote_state": {
+      "value": "${module.app.s3_remote_state}"
+    }
+  }
 }

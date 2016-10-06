@@ -17,3 +17,7 @@ variable "app_bits" {
 variable "app_nets" {
   default = [0]
 }
+
+output "s3_remote_state" {
+  value = "${data.terraform_remote_state.global.s3_remote_state}"
+}
