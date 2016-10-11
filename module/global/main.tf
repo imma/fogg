@@ -1,5 +1,3 @@
-provider "aws" {}
-
 resource "aws_iam_group" "administrators" {
   name = "administrators"
 }

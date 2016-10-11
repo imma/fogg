@@ -7,9 +7,6 @@
   "output": {
     "app_sg": {
       "value": "${module.app.app_sg}"
-    },
-    "s3_remote_state": {
-      "value": "${module.app.s3_remote_state}"
     }
   }
 }

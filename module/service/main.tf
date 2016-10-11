@@ -215,6 +215,10 @@ resource "aws_autoscaling_group" "service" {
   termination_policies = ["${var.termination_policies}"]
   count                = "${var.asg_count}"
 
+  lifecycle {
+    ignore_changes = ["${compact(var.ignore_asg_changes)}"]
+  }
+
   tag {
     key                 = "Name"
     value               = "${data.terraform_remote_state.env.env_name}-${var.app_name}-${var.service_name}-${element(var.asg_name,count.index)}"

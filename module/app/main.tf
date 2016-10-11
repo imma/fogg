@@ -16,6 +16,10 @@ data "terraform_remote_state" "env" {
   }
 }
 
+output "s3_remote_state" {
+  value = "${data.terraform_remote_state.global.s3_remote_state}"
+}
+
 resource "aws_security_group" "app" {
   name        = "${var.app_name}"
   description = "Application ${var.app_name}"

@@ -9,6 +9,11 @@
         "green"
       ]
     },
+    "ignore_asg_changes": {
+      "default": [
+        ""
+      ]
+    },
     "image_id": {
       "default": [
         "",
