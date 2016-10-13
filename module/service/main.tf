@@ -172,7 +172,7 @@ data "template_file" "key_pair_service" {
 
 resource "aws_key_pair" "service" {
   key_name   = "${data.terraform_remote_state.env.env_name}-${var.app_name}-${var.service_name}"
-  public_key = "$(data.template_file.key_pair_service.rendered)"
+  public_key = "${data.template_file.key_pair_service.rendered}"
 }
 
 resource "aws_launch_configuration" "service" {
