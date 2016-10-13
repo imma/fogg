@@ -166,12 +166,21 @@ resource "aws_iam_group" "service" {
   name = "${var.app_name}-${var.service_name}"
 }
 
+data "template_file" "key_pair_service" {
+  template = "${file(var.public_key)}"
+}
+
+resource "aws_key_pair" "service" {
+  key_name   = "${data.terraform_remote_state.env.env_name}-${var.app_name}-${var.service_name}"
+  public_key = "$(data.template_file.key_pair_service.rendered)"
+}
+
 resource "aws_launch_configuration" "service" {
   name_prefix          = "${data.terraform_remote_state.env.env_name}-${var.app_name}-${var.service_name}-${element(var.asg_name,count.index)}-"
   instance_type        = "${element(var.instance_type,count.index)}"
   image_id             = "${coalesce(element(var.image_id,count.index),data.aws_ami.service.id)}"
   iam_instance_profile = "${var.app_name}-${var.service_name}"
-  key_name             = "${data.terraform_remote_state.env.key_name}"
+  key_name             = "${aws_key_pair.service.key_name}"
   user_data            = "${element(var.user_data,count.index)}"
   security_groups      = ["${concat(list(data.terraform_remote_state.env.sg_env,lookup(map("1",data.terraform_remote_state.env.sg_env_public,"0",data.terraform_remote_state.env.sg_env_private),format("%d",signum(var.public_network))),aws_security_group.service.id),var.security_groups)}"]
   count                = "${var.asg_count}"

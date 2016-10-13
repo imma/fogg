@@ -7,5 +7,5 @@ export: export.json
 	@true
 
 export.json: variables.tf
-	hcltool variables.tf | jq --arg tfmod $(shell basename $(PWD)) '{provider: .provider, variable: (.variable//{} as $$vars | reduce (.variable | keys[]) as $$v ({}; .[$$v] = $$vars[$$v])), output: (.output//{} | reduce keys[] as $$o ({}; .[$$o] = {value: "$${module.\($$tfmod).\($$o)}"}))}' > export.json.1
+	hcltool variables.tf | jq --arg tfmod $(shell basename $(PWD)) '{provider: (.provider//{}), variable: (.variable//{} as $$vars | reduce (.variable | keys[]) as $$v ({}; .[$$v] = $$vars[$$v])), output: (.output//{} | reduce keys[] as $$o ({}; .[$$o] = {value: "$${module.\($$tfmod).\($$o)}"}))}' > export.json.1
 	mv export.json.1 export.json

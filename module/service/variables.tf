@@ -53,3 +53,7 @@ variable "public_network" {
 variable "ignore_asg_changes" {
   default = [""]
 }
+
+variable "public_key" {
+  default = "etc/ssh-key-pair.pub"
+}

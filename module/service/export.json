@@ -1,4 +1,5 @@
 {
+  "provider": {},
   "variable": {
     "asg_count": {
       "default": 2
@@ -37,6 +38,9 @@
         "0",
         "0"
       ]
+    },
+    "public_key": {
+      "default": "etc/ssh-key-pair.pub"
     },
     "public_network": {
       "default": "0"
