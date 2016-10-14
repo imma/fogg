@@ -14,10 +14,6 @@ variable "asg_name" {
   default = ["blue", "green"]
 }
 
-variable "user_data" {
-  default = ["", ""]
-}
-
 variable "instance_type" {
   default = ["t2.small", "t2.small"]
 }
@@ -56,4 +52,8 @@ variable "ignore_asg_changes" {
 
 variable "public_key" {
   default = "etc/ssh-key-pair.pub"
+}
+
+variable "user_data" {
+  default = "etc/user-data.template"
 }
