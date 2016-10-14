@@ -168,6 +168,10 @@ resource "aws_iam_group" "service" {
 
 data "template_file" "user_data_service" {
   template = "${file(var.user_data)}"
+
+  vars {
+    public_key = "${data.template_file.key_pair_service.rendered}"
+  }
 }
 
 data "template_file" "key_pair_service" {
