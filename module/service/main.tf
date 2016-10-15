@@ -198,6 +198,10 @@ resource "aws_launch_configuration" "service" {
   security_groups      = ["${concat(list(data.terraform_remote_state.env.sg_env,lookup(map("1",data.terraform_remote_state.env.sg_env_public,"0",data.terraform_remote_state.env.sg_env_private),format("%d",signum(var.public_network))),aws_security_group.service.id),var.security_groups)}"]
   count                = "${var.asg_count}"
 
+  lifecycle {
+    create_before_destroy = true
+  }
+
   root_block_device {
     volume_type = "gp2"
     volume_size = "${element(var.root_volume_size,count.index)}"
