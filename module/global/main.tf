@@ -13,8 +13,9 @@ resource "aws_iam_group_policy_attachment" "administrators_administrator_access"
 }
 
 resource "aws_s3_bucket" "remote_state" {
-  bucket = "${var.s3_remote_state}"
-  acl    = "private"
+  bucket   = "${var.s3_remote_state}"
+  acl      = "private"
+  provider = "aws.us_west_1"
 
   versioning {
     enabled = true

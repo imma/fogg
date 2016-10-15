@@ -1,6 +1,9 @@
 {
   "provider": {
-    "aws": {},
+    "aws": {
+      "alias": "us_east_1",
+      "region": "us-east-1"
+    },
     "consul": {
       "datacenter": "${var.consul_dc}"
     }
