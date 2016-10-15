@@ -8,6 +8,10 @@ variable "display_name" {
   default = ""
 }
 
+variable "want_fs" {
+  default = "0"
+}
+
 variable "service_name" {}
 
 variable "az_count" {}
@@ -259,4 +263,13 @@ resource "aws_autoscaling_group" "service" {
     value               = "asg ${var.app_name}-${var.service_name}-${element(var.asg_name,count.index)}"
     propagate_at_launch = true
   }
+}
+
+module "fs" {
+  source           = "../fs"
+  fs_name          = "${var.app_name}-${var.service_name}"
+  env_remote_state = "${var.env_remote_state}"
+  subnets          = ["${aws_subnet.service.*.id}"]
+  az_count         = "${var.az_count}"
+  want_fs          = "${var.want_fs}"
 }
