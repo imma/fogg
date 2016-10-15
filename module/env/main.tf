@@ -94,7 +94,7 @@ resource "aws_security_group_rule" "ssh_defn" {
   from_port         = 22
   to_port           = 22
   protocol          = "tcp"
-  cidr_blocks       = ["24.6.2.81/32"]
+  cidr_blocks       = ["0.0.0.0/0"]
   security_group_id = "${aws_security_group.env_public.id}"
 }
 
