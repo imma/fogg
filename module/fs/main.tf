@@ -35,7 +35,7 @@ resource "aws_security_group" "fs" {
 }
 
 resource "aws_security_group_rule" "fs" {
-  type              = "ingree"
+  type              = "ingress"
   from_port         = 2049
   to_port           = 2049
   protocol          = "tcp"
