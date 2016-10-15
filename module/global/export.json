@@ -1,5 +1,5 @@
 {
-  "provider": null,
+  "provider": {},
   "variable": {
     "aws_account_id": {},
     "domain_name": {},

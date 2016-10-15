@@ -50,4 +50,3 @@ resource "aws_route53_zone" "public" {
     "Env"       = "global"
   }
 }
-
