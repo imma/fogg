@@ -89,6 +89,15 @@ resource "aws_security_group" "env_public" {
   }
 }
 
+resource "aws_security_group_rule" "ssh_defn" {
+  type              = "ingress"
+  from_port         = 22
+  to_port           = 22
+  protocol          = "tcp"
+  cidr_blocks       = ["24.6.2.81/32"]
+  security_group_id = "${aws_security_group.env_public.id}"
+}
+
 resource "aws_security_group" "env_lb" {
   name        = "${var.env_name}-lb"
   description = "Environment ${var.env_name} LB"

@@ -78,7 +78,7 @@ resource "aws_subnet" "service" {
 
   lifecycle {
     create_before_destroy = true
-  } 
+  }
 
   tags {
     "Name"      = "${data.terraform_remote_state.env.env_name}-${var.app_name}-${var.service_name}"
@@ -233,7 +233,7 @@ resource "aws_autoscaling_group" "service" {
   count                = "${var.asg_count}"
 
   lifecycle {
-    ignore_changes        = ["${compact(var.ignore_asg_changes)}"]
+    ignore_changes = ["${compact(var.ignore_asg_changes)}"]
   }
 
   tag {
