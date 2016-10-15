@@ -175,7 +175,7 @@ data "template_file" "user_data_service" {
 
   vars {
     public_key = "${data.template_file.key_pair_service.rendered}"
-    vpc_cidr = "${data.terraform_remote_state.env.env_cidr}"
+    vpc_cidr   = "${data.terraform_remote_state.env.env_cidr}"
   }
 }
 
