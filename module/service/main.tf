@@ -60,10 +60,6 @@ resource "aws_security_group" "service" {
   description = "Service ${var.app_name}-${var.service_name}"
   vpc_id      = "${data.terraform_remote_state.env.vpc_id}"
 
-  lifecycle {
-    create_before_destroy = true
-  }
-
   tags {
     "Name"      = "${data.terraform_remote_state.env.env_name}-${var.app_name}-${var.service_name}"
     "Env"       = "${data.terraform_remote_state.env.env_name}"
@@ -79,6 +75,10 @@ resource "aws_subnet" "service" {
   cidr_block              = "${cidrsubnet(data.terraform_remote_state.env.env_cidr,var.service_bits,element(var.service_nets,count.index))}"
   map_public_ip_on_launch = "${lookup(map("1","true","0","false"),format("%d",signum(var.public_network)))}"
   count                   = "${var.az_count}"
+
+  lifecycle {
+    create_before_destroy = true
+  } 
 
   tags {
     "Name"      = "${data.terraform_remote_state.env.env_name}-${var.app_name}-${var.service_name}"
@@ -143,7 +143,7 @@ resource "aws_route_table_association" "service_public" {
 }
 
 resource "aws_iam_role" "service" {
-  name = "${var.app_name}-${var.service_name}"
+  name = "${data.terraform_remote_state.env.env_name}-${var.app_name}-${var.service_name}"
 
   assume_role_policy = <<EOF
 {
@@ -162,12 +162,12 @@ EOF
 }
 
 resource "aws_iam_instance_profile" "service" {
-  name  = "${var.app_name}-${var.service_name}"
+  name  = "${data.terraform_remote_state.env.env_name}-${var.app_name}-${var.service_name}"
   roles = ["${aws_iam_role.service.name}"]
 }
 
 resource "aws_iam_group" "service" {
-  name = "${var.app_name}-${var.service_name}"
+  name = "${data.terraform_remote_state.env.env_name}-${var.app_name}-${var.service_name}"
 }
 
 data "template_file" "user_data_service" {
@@ -196,10 +196,6 @@ resource "aws_launch_configuration" "service" {
   user_data            = "${data.template_file.user_data_service.rendered}"
   security_groups      = ["${concat(list(data.terraform_remote_state.env.sg_env,lookup(map("1",data.terraform_remote_state.env.sg_env_public,"0",data.terraform_remote_state.env.sg_env_private),format("%d",signum(var.public_network))),aws_security_group.service.id),var.security_groups)}"]
   count                = "${var.asg_count}"
-
-  lifecycle {
-    create_before_destroy = true
-  }
 
   root_block_device {
     volume_type = "gp2"
@@ -237,7 +233,7 @@ resource "aws_autoscaling_group" "service" {
   count                = "${var.asg_count}"
 
   lifecycle {
-    ignore_changes = ["${compact(var.ignore_asg_changes)}"]
+    ignore_changes        = ["${compact(var.ignore_asg_changes)}"]
   }
 
   tag {

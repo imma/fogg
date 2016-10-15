@@ -21,7 +21,7 @@ output "s3_remote_state" {
 }
 
 resource "aws_security_group" "app" {
-  name        = "${var.app_name}"
+  name        = "${data.terraform_remote_state.env.env_name}-${var.app_name}"
   description = "Application ${var.app_name}"
   vpc_id      = "${data.terraform_remote_state.env.vpc_id}"
 
@@ -33,7 +33,7 @@ resource "aws_security_group" "app" {
 }
 
 resource "aws_iam_role" "app" {
-  name = "${var.app_name}"
+  name = "${data.terraform_remote_state.env.env_name}-${var.app_name}"
 
   assume_role_policy = <<EOF
 {
@@ -52,5 +52,5 @@ EOF
 }
 
 resource "aws_iam_group" "app" {
-  name = "${var.app_name}"
+  name = "${data.terraform_remote_state.env.env_name}-${var.app_name}"
 }
