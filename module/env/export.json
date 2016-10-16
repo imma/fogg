@@ -48,6 +48,9 @@
     "private_zone_servers": {
       "value": "${module.env.private_zone_servers}"
     },
+    "sg_efs": {
+      "value": "${module.env.sg_efs}"
+    },
     "sg_env": {
       "value": "${module.env.sg_env}"
     },

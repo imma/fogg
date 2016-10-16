@@ -50,6 +50,10 @@ output "private_zone_name" {
   value = "${lookup(map("1",var.env_zone,"0",var.env_name),format("%d",signum(length(var.env_zone))))}.${lookup(map("1",var.env_domain_name,"0",data.terraform_remote_state.global.domain_name),format("%d",signum(length(var.env_domain_name))))}"
 }
 
+output "sg_efs" {
+  value = "${module.fs.efs_sg}"
+}
+
 output "sg_env" {
   value = "${aws_security_group.env.id}"
 }

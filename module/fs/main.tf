@@ -62,3 +62,7 @@ resource "aws_efs_mount_target" "fs" {
 output "efs_dns_names" {
   value = ["${aws_efs_mount_target.fs.*.dns_name}"]
 }
+
+output "efs_sg" {
+  value = "${aws_security_group.fs.id}"
+}
