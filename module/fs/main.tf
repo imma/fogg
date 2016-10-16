@@ -1,5 +1,3 @@
-variable env_remote_state {}
-
 variable fs_name {}
 
 variable az_count {}
@@ -16,14 +14,6 @@ variable "vpc_id" {}
 
 variable "env_name" {}
 
-data "terraform_remote_state" "env" {
-  backend = "local"
-
-  config {
-    path = "${var.env_remote_state}"
-  }
-}
-
 data "aws_vpc" "current" {
   id = "${var.vpc_id}"
 }
@@ -34,7 +24,7 @@ resource "aws_security_group" "fs" {
   vpc_id      = "${data.aws_vpc.current.id}"
 
   tags {
-    "Name"      = "${var.env_name} ${var.fs_name}"
+    "Name"      = "${var.env_name}-${var.fs_name}"
     "Env"       = "${var.env_name}"
     "ManagedBy" = "terraform"
   }
@@ -54,7 +44,7 @@ resource "aws_security_group_rule" "fs" {
 
 resource "aws_efs_file_system" "fs" {
   tags {
-    "Name"      = "${var.env_name} ${var.fs_name}"
+    "Name"      = "${var.env_name}-${var.fs_name}"
     "Env"       = "${var.env_name}"
     "ManagedBy" = "terraform"
   }
