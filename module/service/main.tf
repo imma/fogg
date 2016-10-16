@@ -283,3 +283,12 @@ module "fs" {
   az_count = "${var.az_count}"
   want_fs  = "${var.want_fs}"
 }
+
+esource "aws_security_group_rule" "allow_service_mount" {
+  type                     = "ingress"
+  from_port                = 2049
+  to_port                  = 2049
+  protocol                 = "tcp"
+  source_security_group_id = "${aws_security_group.service.id}"
+  security_group_id        = "${moduel.fs.efs_sg}"
+}

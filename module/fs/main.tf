@@ -32,16 +32,6 @@ resource "aws_security_group" "fs" {
   count = "${var.want_fs}"
 }
 
-resource "aws_security_group_rule" "fs" {
-  type              = "ingress"
-  from_port         = 2049
-  to_port           = 2049
-  protocol          = "tcp"
-  cidr_blocks       = ["${data.aws_vpc.current.cidr_block}"]
-  security_group_id = "${aws_security_group.fs.id}"
-  count             = "${var.want_fs}"
-}
-
 resource "aws_efs_file_system" "fs" {
   tags {
     "Name"      = "${var.env_name}-${var.fs_name}"
