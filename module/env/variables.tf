@@ -30,18 +30,6 @@ output "igw_id" {
   value = "${aws_internet_gateway.env.id}"
 }
 
-output "public_zone_id" {
-  value = "${aws_route53_zone.public.zone_id}"
-}
-
-output "public_zone_servers" {
-  value = "${aws_route53_zone.public.name_servers}"
-}
-
-output "public_zone_name" {
-  value = "${lookup(map("1",var.env_zone,"0",var.env_name),format("%d",signum(length(var.env_zone))))}.${lookup(map("1",var.env_domain_name,"0",data.terraform_remote_state.global.domain_name),format("%d",signum(length(var.env_domain_name))))}"
-}
-
 output "private_zone_id" {
   value = "${aws_route53_zone.private.zone_id}"
 }
