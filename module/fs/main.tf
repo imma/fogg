@@ -23,6 +23,10 @@ resource "aws_security_group" "fs" {
   description = "${var.fs_name}"
   vpc_id      = "${data.aws_vpc.current.id}"
 
+  lifecycle {
+    create_before_destroy = true
+  }
+
   tags {
     "Name"      = "${var.fs_name}"
     "Env"       = "${var.env_name}"

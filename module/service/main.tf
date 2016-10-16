@@ -276,7 +276,7 @@ resource "aws_autoscaling_group" "service" {
 
 module "fs" {
   source   = "../fs"
-  fs_name  = "${var.app_name}-${var.service_name}"
+  fs_name  = "${data.terraform_remote_state.env.env_name}-${var.app_name}-${var.service_name}"
   vpc_id   = "${data.terraform_remote_state.env.vpc_id}"
   env_name = "${data.terraform_remote_state.env.env_name}"
   subnets  = ["${aws_subnet.service.*.id}"]
