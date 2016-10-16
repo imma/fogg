@@ -86,10 +86,6 @@ output "env_name" {
   value = "${var.env_name}"
 }
 
-output "env_cidr" {
-  value = "${var.env_cidr}"
-}
-
 output "key_name" {
   value = "${aws_key_pair.env.key_name}"
 }

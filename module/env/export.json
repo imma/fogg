@@ -1,4 +1,6 @@
 {
+  "data": {},
+  "provider": {},
   "variable": {
     "az_count": {},
     "env_cidr": {},
@@ -20,9 +22,6 @@
     }
   },
   "output": {
-    "env_cidr": {
-      "value": "${module.env.env_cidr}"
-    },
     "env_name": {
       "value": "${module.env.env_name}"
     },

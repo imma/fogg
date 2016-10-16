@@ -55,10 +55,14 @@ data "aws_ami" "service" {
   owners = ["099720109477"] # Canonical
 }
 
+data "aws_vpc" "current" {
+  id = "${data.terraform_remote_state.env.vpc_id}"
+}
+
 resource "aws_security_group" "service" {
   name        = "${data.terraform_remote_state.env.env_name}-${var.app_name}-${var.service_name}"
   description = "Service ${var.app_name}-${var.service_name}"
-  vpc_id      = "${data.terraform_remote_state.env.vpc_id}"
+  vpc_id      = "${data.aws_vpc.current.id}"
 
   tags {
     "Name"      = "${data.terraform_remote_state.env.env_name}-${var.app_name}-${var.service_name}"
@@ -70,9 +74,9 @@ resource "aws_security_group" "service" {
 }
 
 resource "aws_subnet" "service" {
-  vpc_id                  = "${data.terraform_remote_state.env.vpc_id}"
+  vpc_id                  = "${data.aws_vpc.current.id}"
   availability_zone       = "${element(data.aws_availability_zones.azs.names,count.index)}"
-  cidr_block              = "${cidrsubnet(data.terraform_remote_state.env.env_cidr,var.service_bits,element(var.service_nets,count.index))}"
+  cidr_block              = "${cidrsubnet(data.aws_vpc.current.cidr_block,var.service_bits,element(var.service_nets,count.index))}"
   map_public_ip_on_launch = "${lookup(map("1","true","0","false"),format("%d",signum(var.public_network)))}"
   count                   = "${var.az_count}"
 
@@ -90,7 +94,7 @@ resource "aws_subnet" "service" {
 }
 
 resource "aws_route_table" "service" {
-  vpc_id = "${data.terraform_remote_state.env.vpc_id}"
+  vpc_id = "${data.aws_vpc.current.id}"
   count  = "${var.az_count*(signum(var.public_network)-1)*-1}"
 
   tags {
@@ -116,7 +120,7 @@ resource "aws_route_table_association" "service" {
 }
 
 resource "aws_route_table" "service_public" {
-  vpc_id = "${data.terraform_remote_state.env.vpc_id}"
+  vpc_id = "${data.aws_vpc.current.id}"
   count  = "${var.az_count*signum(var.public_network)}"
 
   tags {
@@ -175,7 +179,7 @@ data "template_file" "user_data_service" {
 
   vars {
     public_key = "${data.template_file.key_pair_service.rendered}"
-    vpc_cidr   = "${data.terraform_remote_state.env.env_cidr}"
+    vpc_cidr   = "${data.aws_vpc.current.cidr_block}"
   }
 }
 
@@ -192,7 +196,7 @@ resource "aws_launch_configuration" "service" {
   name_prefix          = "${data.terraform_remote_state.env.env_name}-${var.app_name}-${var.service_name}-${element(var.asg_name,count.index)}-"
   instance_type        = "${element(var.instance_type,count.index)}"
   image_id             = "${coalesce(element(var.image_id,count.index),data.aws_ami.service.id)}"
-  iam_instance_profile = "${var.app_name}-${var.service_name}"
+  iam_instance_profile = "${data.terraform_remote_state.env.env_name}-${var.app_name}-${var.service_name}"
   key_name             = "${aws_key_pair.service.key_name}"
   user_data            = "${data.template_file.user_data_service.rendered}"
   security_groups      = ["${concat(list(data.terraform_remote_state.env.sg_env,lookup(map("1",data.terraform_remote_state.env.sg_env_public,"0",data.terraform_remote_state.env.sg_env_private),format("%d",signum(var.public_network))),aws_security_group.service.id),var.security_groups)}"]

@@ -6,6 +6,10 @@ data "terraform_remote_state" "global" {
   }
 }
 
+data "aws_vpc" "current" {
+  id = "${aws_vpc.env.id}"
+}
+
 data "aws_availability_zones" "azs" {}
 
 resource "aws_vpc" "env" {
@@ -63,7 +67,7 @@ resource "aws_security_group_rule" "ping_private" {
   from_port         = 9
   to_port           = -1
   protocol          = "icmp"
-  cidr_blocks       = ["${var.env_cidr}"]
+  cidr_blocks       = ["${data.aws_vpc.current.cidr_block}"]
   security_group_id = "${aws_security_group.env_private.id}"
 }
 
@@ -72,7 +76,7 @@ resource "aws_security_group_rule" "ssh_private" {
   from_port         = 22
   to_port           = 22
   protocol          = "tcp"
-  cidr_blocks       = ["${var.env_cidr}"]
+  cidr_blocks       = ["${data.aws_vpc.current.cidr_block}"]
   security_group_id = "${aws_security_group.env_private.id}"
 }
 
@@ -163,7 +167,7 @@ resource "aws_eip" "nat" {
 resource "aws_subnet" "nat" {
   vpc_id                  = "${aws_vpc.env.id}"
   availability_zone       = "${element(data.aws_availability_zones.azs.names,count.index)}"
-  cidr_block              = "${cidrsubnet(var.env_cidr,var.nat_bits,element(var.nat_nets,count.index))}"
+  cidr_block              = "${cidrsubnet(data.aws_vpc.current.cidr_block,var.nat_bits,element(var.nat_nets,count.index))}"
   map_public_ip_on_launch = true
   count                   = "${var.az_count}"
 
