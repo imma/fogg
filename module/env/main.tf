@@ -62,24 +62,6 @@ resource "aws_security_group" "env_private" {
   }
 }
 
-resource "aws_security_group_rule" "ping_private" {
-  type              = "ingress"
-  from_port         = 9
-  to_port           = -1
-  protocol          = "icmp"
-  cidr_blocks       = ["${data.aws_vpc.current.cidr_block}"]
-  security_group_id = "${aws_security_group.env_private.id}"
-}
-
-resource "aws_security_group_rule" "ssh_private" {
-  type              = "ingress"
-  from_port         = 22
-  to_port           = 22
-  protocol          = "tcp"
-  cidr_blocks       = ["${data.aws_vpc.current.cidr_block}"]
-  security_group_id = "${aws_security_group.env_private.id}"
-}
-
 resource "aws_security_group" "env_public" {
   name        = "${var.env_name}-public"
   description = "Environment ${var.env_name} Public"
@@ -91,15 +73,6 @@ resource "aws_security_group" "env_public" {
     "ManagedBy" = "terraform"
     "Network"   = "public"
   }
-}
-
-resource "aws_security_group_rule" "ssh_defn" {
-  type              = "ingress"
-  from_port         = 22
-  to_port           = 22
-  protocol          = "tcp"
-  cidr_blocks       = ["0.0.0.0/0"]
-  security_group_id = "${aws_security_group.env_public.id}"
 }
 
 resource "aws_security_group" "env_lb" {
