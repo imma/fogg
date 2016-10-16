@@ -19,12 +19,12 @@ data "aws_vpc" "current" {
 }
 
 resource "aws_security_group" "fs" {
-  name        = "${var.env_name}-${var.fs_name}-efs"
-  description = "Environment ${var.env_name} ${var.fs_name}"
+  name        = "${var.fs_name}-efs"
+  description = "${var.fs_name}"
   vpc_id      = "${data.aws_vpc.current.id}"
 
   tags {
-    "Name"      = "${var.env_name}-${var.fs_name}"
+    "Name"      = "${var.fs_name}"
     "Env"       = "${var.env_name}"
     "ManagedBy" = "terraform"
   }
@@ -34,7 +34,7 @@ resource "aws_security_group" "fs" {
 
 resource "aws_efs_file_system" "fs" {
   tags {
-    "Name"      = "${var.env_name}-${var.fs_name}"
+    "Name"      = "${var.fs_name}"
     "Env"       = "${var.env_name}"
     "ManagedBy" = "terraform"
   }
