@@ -121,7 +121,7 @@ resource "aws_internet_gateway" "env" {
   vpc_id = "${aws_vpc.env.id}"
 
   tags {
-    "Name"      = "${var.env_name}"
+    "Name"      = "${var.env_name} nat"
     "Env"       = "${var.env_name}"
     "ManagedBy" = "terraform"
   }
@@ -140,7 +140,7 @@ resource "aws_subnet" "nat" {
   count                   = "${var.az_count}"
 
   tags {
-    "Name"      = "${var.env_name}"
+    "Name"      = "${var.env_name} nat"
     "Env"       = "${var.env_name}"
     "ManagedBy" = "terraform"
     "Network"   = "public"
@@ -169,10 +169,48 @@ resource "aws_route_table" "nat" {
   vpc_id = "${aws_vpc.env.id}"
 
   tags {
-    "Name"      = "${var.env_name}"
+    "Name"      = "${var.env_name} nat"
     "Env"       = "${var.env_name}"
     "ManagedBy" = "terraform"
     "Network"   = "public"
+  }
+}
+
+resource "aws_subnet" "common" {
+  vpc_id                  = "${aws_vpc.env.id}"
+  availability_zone       = "${element(data.aws_availability_zones.azs.names,count.index)}"
+  cidr_block              = "${cidrsubnet(data.aws_vpc.current.cidr_block,var.common_bits,element(var.common_nets,count.index))}"
+  map_public_ip_on_launch = false
+  count                   = "${var.az_count}"
+
+  tags {
+    "Name"      = "${var.env_name} common"
+    "Env"       = "${var.env_name}"
+    "ManagedBy" = "terraform"
+  }
+}
+
+resource "aws_route" "common" {
+  route_table_id         = "${aws_route_table.common.id}"
+  destination_cidr_block = "0.0.0.0/0"
+  gateway_id             = "${aws_internet_gateway.env.id}"
+  nat_gateway_id         = "${element(aws_nat_gateway.env.*.id,count.index)}"
+  count                  = "${var.az_count}"
+}
+
+resource "aws_route_table_association" "common" {
+  subnet_id      = "${element(aws_subnet.common.*.id,count.index)}"
+  route_table_id = "${element(aws_route_table.common.*.id,count.index)}"
+  count          = "${var.az_count}"
+}
+
+resource "aws_route_table" "common" {
+  vpc_id = "${aws_vpc.env.id}"
+
+  tags {
+    "Name"      = "${var.env_name} common"
+    "Env"       = "${var.env_name}"
+    "ManagedBy" = "terraform"
   }
 }
 

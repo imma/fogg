@@ -14,6 +14,14 @@ variable "nat_nets" {
   default = [0]
 }
 
+variable "common_bits" {
+  default = "8"
+}
+
+variable "common_nets" {
+  default = [0]
+}
+
 variable "env_zone" {
   default = ""
 }
