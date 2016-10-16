@@ -12,6 +12,10 @@ variable want_fs {
   default = "1"
 }
 
+variable "vpc_id" {}
+
+variable "env_name" {}
+
 data "terraform_remote_state" "env" {
   backend = "local"
 
@@ -21,17 +25,17 @@ data "terraform_remote_state" "env" {
 }
 
 data "aws_vpc" "current" {
-  id = "${data.terraform_remote_state.env.vpc_id}"
+  id = "${var.vpc_id}"
 }
 
 resource "aws_security_group" "fs" {
-  name        = "${data.terraform_remote_state.env.env_name}-${var.fs_name}-efs"
-  description = "Environment ${data.terraform_remote_state.env.env_name} ${var.fs_name}"
+  name        = "${var.env_name}-${var.fs_name}-efs"
+  description = "Environment ${var.env_name} ${var.fs_name}"
   vpc_id      = "${data.aws_vpc.current.id}"
 
   tags {
-    "Name"      = "${data.terraform_remote_state.env.env_name} ${var.fs_name}"
-    "Env"       = "${data.terraform_remote_state.env.env_name}"
+    "Name"      = "${var.env_name} ${var.fs_name}"
+    "Env"       = "${var.env_name}"
     "ManagedBy" = "terraform"
   }
 
@@ -50,8 +54,8 @@ resource "aws_security_group_rule" "fs" {
 
 resource "aws_efs_file_system" "fs" {
   tags {
-    "Name"      = "${data.terraform_remote_state.env.env_name} ${var.fs_name}"
-    "Env"       = "${data.terraform_remote_state.env.env_name}"
+    "Name"      = "${var.env_name} ${var.fs_name}"
+    "Env"       = "${var.env_name}"
     "ManagedBy" = "terraform"
   }
 
