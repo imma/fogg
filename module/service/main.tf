@@ -146,7 +146,7 @@ resource "aws_route" "service_public" {
 
 resource "aws_route_table_association" "service_public" {
   subnet_id      = "${element(aws_subnet.service.*.id,count.index)}"
-  route_table_id = "${element(aws_route_table.service_public.*.id,0)}"
+  route_table_id = "${element(aws_route_table.service_public.*.id,count.index)}"
   count          = "${var.az_count*signum(var.public_network)}"
 }
 
