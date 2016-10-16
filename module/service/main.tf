@@ -290,5 +290,5 @@ resource "aws_security_group_rule" "allow_service_mount" {
   to_port                  = 2049
   protocol                 = "tcp"
   source_security_group_id = "${aws_security_group.service.id}"
-  security_group_id        = "${moduel.fs.efs_sg}"
+  security_group_id        = "${module.fs.efs_sg}"
 }
