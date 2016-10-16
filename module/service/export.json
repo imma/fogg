@@ -74,9 +74,5 @@
       "default": "etc/user-data.template"
     }
   },
-  "output": {
-    "sg_service": {
-      "value": "${module.service.sg_service}"
-    }
-  }
+  "output": {}
 }

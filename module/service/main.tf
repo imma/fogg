@@ -73,6 +73,10 @@ resource "aws_security_group" "service" {
   }
 }
 
+output "service_sg" {
+  value = "${aws_security_group.service.id}"
+}
+
 resource "aws_subnet" "service" {
   vpc_id                  = "${data.aws_vpc.current.id}"
   availability_zone       = "${element(data.aws_availability_zones.azs.names,count.index)}"
