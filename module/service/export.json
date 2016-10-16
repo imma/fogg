@@ -48,8 +48,8 @@
     },
     "root_volume_size": {
       "default": [
-        "100",
-        "100"
+        "20",
+        "20"
       ]
     },
     "security_groups": {
