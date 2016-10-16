@@ -41,12 +41,3 @@ resource "aws_s3_bucket" "remote_state" {
     "Env"       = "global"
   }
 }
-
-resource "aws_route53_zone" "public" {
-  name = "${var.domain_name}"
-
-  tags {
-    "ManagedBy" = "terraform"
-    "Env"       = "global"
-  }
-}

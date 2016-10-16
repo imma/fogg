@@ -1,4 +1,5 @@
 {
+  "data": {},
   "provider": {},
   "variable": {
     "aws_account_id": {},
@@ -11,12 +12,6 @@
     },
     "domain_name": {
       "value": "${module.global.domain_name}"
-    },
-    "public_name_servers": {
-      "value": "${module.global.public_name_servers}"
-    },
-    "public_zone_id": {
-      "value": "${module.global.public_zone_id}"
     },
     "s3_remote_state": {
       "value": "${module.global.s3_remote_state}"
