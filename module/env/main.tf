@@ -234,3 +234,12 @@ module "fs" {
   az_count = "${var.az_count}"
   want_fs  = "1"
 }
+
+resource "aws_route53_record" "fs" {
+  zone_id = "${aws_route53_zone.private.zone_id}"
+  name    = "efs-${element(data.aws_availability_zones.azs.names,count.index)}.${lookup(map("1",var.env_zone,"0",var.env_name),format("%d",signum(length(var.env_zone))))}.${lookup(map("1",var.env_domain_name,"0",data.terraform_remote_state.global.domain_name),format("%d",signum(length(var.env_domain_name))))}"
+  type    = "CNAME"
+  ttl     = "60"
+  records = ["${element(module.fs.efs_dns_names,count.index)}"]
+  count   = "${var.az_count}"
+}

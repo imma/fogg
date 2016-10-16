@@ -58,3 +58,7 @@ resource "aws_efs_mount_target" "fs" {
   security_groups = ["${aws_security_group.fs.id}"]
   count           = "${var.az_count*var.want_fs}"
 }
+
+output "efs_dns_names" {
+  value = ["${aws_efs_mount_target.fs.*.dns_name}"]
+}
