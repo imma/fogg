@@ -43,7 +43,7 @@ resource "aws_security_group_rule" "fs" {
   from_port         = 2049
   to_port           = 2049
   protocol          = "tcp"
-  cidr_blocks       = ["${data.terraform_remote_state.env.env_cidr}"]
+  cidr_blocks       = ["${data.aws_vpc.current.cidr_block}"]
   security_group_id = "${aws_security_group.fs.id}"
   count             = "${var.want_fs}"
 }
