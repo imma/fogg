@@ -85,7 +85,3 @@ output "nat_gateways" {
 output "env_name" {
   value = "${var.env_name}"
 }
-
-output "key_name" {
-  value = "${aws_key_pair.env.key_name}"
-}

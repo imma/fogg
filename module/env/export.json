@@ -28,9 +28,6 @@
     "igw_id": {
       "value": "${module.env.igw_id}"
     },
-    "key_name": {
-      "value": "${module.env.key_name}"
-    },
     "nat_gateways": {
       "value": "${module.env.nat_gateways}"
     },
