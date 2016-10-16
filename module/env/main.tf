@@ -205,6 +205,7 @@ resource "aws_route_table_association" "common" {
 
 resource "aws_route_table" "common" {
   vpc_id = "${aws_vpc.env.id}"
+  count  = "${var.az_count}"
 
   tags {
     "Name"      = "${var.env_name}-common"
