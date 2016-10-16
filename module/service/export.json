@@ -1,4 +1,5 @@
 {
+  "data": {},
   "provider": {},
   "variable": {
     "asg_count": {
@@ -73,5 +74,9 @@
       "default": "etc/user-data.template"
     }
   },
-  "output": {}
+  "output": {
+    "sg_service": {
+      "value": "${module.service.sg_service}"
+    }
+  }
 }

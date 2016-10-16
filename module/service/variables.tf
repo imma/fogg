@@ -57,3 +57,7 @@ variable "public_key" {
 variable "user_data" {
   default = "etc/user-data.template"
 }
+
+output "sg_service" {
+  value = "${aws_security_group.service.id}"
+}
