@@ -24,11 +24,6 @@ resource "aws_vpc" "env" {
   }
 }
 
-resource "aws_key_pair" "env" {
-  key_name   = "${var.env_name}"
-  public_key = "${file("etc/key-pair.pub")}"
-}
-
 resource "aws_security_group" "env" {
   name        = "${var.env_name}"
   description = "Environment ${var.env_name}"
