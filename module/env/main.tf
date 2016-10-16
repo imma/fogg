@@ -224,3 +224,13 @@ resource "aws_route53_zone" "private" {
     "ManagedBy" = "terraform"
   }
 }
+
+module "fs" {
+  source   = "../fs"
+  fs_name  = "${var.env_name}"
+  vpc_id   = "${aws_vpc.env.id}"
+  env_name = "${var.env_name}"
+  subnets  = ["${aws_subnet.common.*.id}"]
+  az_count = "${var.az_count}"
+  want_fs  = "1"
+}
