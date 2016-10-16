@@ -191,7 +191,7 @@ resource "aws_subnet" "common" {
 }
 
 resource "aws_route" "common" {
-  route_table_id         = "${aws_route_table.common.id}"
+  route_table_id         = "${element(aws_route_table.common.*.id,count.index)}"
   destination_cidr_block = "0.0.0.0/0"
   nat_gateway_id         = "${element(aws_nat_gateway.env.*.id,count.index)}"
   count                  = "${var.az_count}"
