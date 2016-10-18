@@ -12,6 +12,16 @@ data "aws_vpc" "current" {
 
 data "aws_availability_zones" "azs" {}
 
+variable "env_cidr" {}
+
+variable "nat_nets" {
+  default = []
+}
+
+variable "common_nets" {
+  default = []
+}
+
 resource "aws_vpc" "env" {
   cidr_block           = "${var.env_cidr}"
   enable_dns_support   = true

@@ -1,5 +1,3 @@
-variable "env_cidr" {}
-
 variable "global_remote_state" {}
 
 variable "env_name" {}
@@ -10,16 +8,8 @@ variable "nat_bits" {
   default = "12"
 }
 
-variable "nat_nets" {
-  default = [0]
-}
-
 variable "common_bits" {
   default = "8"
-}
-
-variable "common_nets" {
-  default = [0]
 }
 
 variable "env_zone" {
