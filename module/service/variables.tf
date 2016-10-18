@@ -42,10 +42,6 @@ variable "security_groups" {
   default = [0]
 }
 
-variable "public_network" {
-  default = "0"
-}
-
 variable "ignore_asg_changes" {
   default = [""]
 }

@@ -8,6 +8,10 @@ variable "display_name" {
   default = ""
 }
 
+variable "public_network" {
+  default = "0"
+}
+
 variable "want_fs" {
   default = "0"
 }
