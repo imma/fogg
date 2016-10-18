@@ -1,8 +1,12 @@
 {
+  "data": {},
+  "provider": {},
   "variable": {
     "app_name": {},
     "az_count": {},
-    "global_remote_state": {}
+    "global_remote_state": {
+      "default": ".global.tfstate"
+    }
   },
   "output": {
     "app_sg": {

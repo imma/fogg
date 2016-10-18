@@ -1,4 +1,6 @@
-variable "global_remote_state" {}
+variable "global_remote_state" {
+  default = ".global.tfstate"
+}
 
 variable "env_name" {}
 
