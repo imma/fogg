@@ -12,6 +12,10 @@ variable "want_fs" {
   default = "0"
 }
 
+variable "want_nat" {
+  default = "1"
+}
+
 variable "public_key" {
   default = "etc/ssh-key-pair.pub"
 }
