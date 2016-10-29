@@ -1,0 +1,19 @@
+#!/usr/bin/env bash
+
+function gen {
+  local tmp_seed="$1"; shift
+  local tmp_modules="$1"; shift
+
+	jq -n \
+     --argfile seed     "$tmp_seed" \
+     --argfile modules  "$tmp_modules" \
+        '$seed * $modules'
+}
+
+function main {
+  local shome="$(cd -P -- "${BASH_SOURCE%/*}/.." && pwd -P)"
+  source "$shome/script/profile"
+  source _imma "$@"
+}
+
+source sub "$BASH_SOURCE" "$@"

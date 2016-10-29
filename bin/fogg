@@ -3,6 +3,33 @@
 function main {
   local shome="$(cd -P -- "${BASH_SOURCE%/*}/.." && pwd -P)"
   source "$shome/script/profile"
+  source normalize
+
+  local pth_config="$(echo "$PWD" | perl -pe 's{.*?/org/}{}; s{/+}{-}g')"
+
+  case "$pth_config" in
+    *-*-*-*)
+      set -- service \
+        "$(echo "$pth_config" | cut -d- -f2)" \
+        "$(echo "$pth_config" | cut -d- -f3)" \
+        "${pth_config##*-}"
+      ;;
+    *-*-*)
+      set -- app \
+        "$(echo "$pth_config" | cut -d- -f2)" \
+        "${pth_config##*-}"
+      ;;
+    *-*)
+      set -- env \
+        "${pth_config##*-}"
+      ;;
+    *)
+      set -- global
+      ;;
+  esac
+  
+  fogg gen "$@" > terraform.tf.json.1
+  mv terraform.tf.json.1 terraform.tf.json
 }
 
 source sub "$BASH_SOURCE" "$@"

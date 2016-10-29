@@ -1,9 +1,27 @@
-variable "service_bits" {
-  default = "12"
+variable "service_name" {}
+
+variable "display_name" {
+  default = ""
 }
 
-variable "service_nets" {
-  default = [0]
+variable "public_network" {
+  default = "0"
+}
+
+variable "want_fs" {
+  default = "0"
+}
+
+variable "public_key" {
+  default = "etc/ssh-key-pair.pub"
+}
+
+variable "user_data" {
+  default = "etc/user-data.template"
+}
+
+variable "service_bits" {
+  default = "12"
 }
 
 variable "asg_count" {
@@ -15,7 +33,7 @@ variable "asg_name" {
 }
 
 variable "instance_type" {
-  default = ["t2.small", "t2.small"]
+  default = ["t2.nano", "t2.nano"]
 }
 
 variable "image_id" {
@@ -38,18 +56,6 @@ variable "termination_policies" {
   default = ["OldestInstance"]
 }
 
-variable "security_groups" {
-  default = [0]
-}
-
 variable "ignore_asg_changes" {
   default = [""]
-}
-
-variable "public_key" {
-  default = "etc/ssh-key-pair.pub"
-}
-
-variable "user_data" {
-  default = "etc/user-data.template"
 }

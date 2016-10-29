@@ -1,10 +1,10 @@
-variable "global_remote_state" {
-  default = ".global.tfstate"
-}
-
 variable "env_name" {}
 
 variable "az_count" {}
+
+variable "nat_count" {
+  default = "0"
+}
 
 variable "nat_bits" {
   default = "12"
@@ -20,6 +20,14 @@ variable "env_zone" {
 
 variable "env_domain_name" {
   default = ""
+}
+
+variable "want_fs" {
+  default = "1"
+}
+
+variable "want_nat" {
+  default = "1"
 }
 
 output "vpc_id" {

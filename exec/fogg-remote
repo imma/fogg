@@ -1,0 +1,25 @@
+#!/usr/bin/env bash
+
+function remote_bucket {
+  echo "b-$(aws eu-west-1 iam get-user --user-name defn | jq -r '.User.Arn | split(":")[4]' | perl -pe 's{\s*$}{}' | shasum | awk '{print $1}' | cut -b1-8)-global-tf-remote-state"
+}
+
+function remote_region {
+  hcltool $adj_config/terraform.tfvars | jq -r '.aws_region'
+}
+
+function main {
+  local shome="$(cd -P -- "${BASH_SOURCE%/*}/.." && pwd -P)"
+  source "$shome/script/profile"
+  source normalize
+
+  local pth_config="$(echo "$PWD" | perl -pe 's{.*?/org/}{}; s{/+}{-}g')"
+  local adj_config="./$(echo "$pth_config" | perl -pe 's{[^-]+$}{}; s{[^-]+}{..}g; s{-}{/}g')"
+
+  terraform remote config -backend=s3 \
+    -backend-config="bucket=$(remote_bucket)" \
+    -backend-config="region=$(remote_region)" \
+    -backend-config="key=$pth_config/terraform.tfstate"
+}
+
+source sub "$BASH_SOURCE" "$@"

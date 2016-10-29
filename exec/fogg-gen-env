@@ -1,0 +1,25 @@
+#!/usr/bin/env bash
+
+function gen {
+  local tmp_seed="$1"; shift
+  local tmp_modules="$1"; shift
+  local nm_env="$1"
+
+	jq -n \
+     --argfile seed     "$tmp_seed" \
+     --argfile modules  "$tmp_modules" \
+     --arg     az_count "$(az_count)" \
+	   --arg     env_name "$nm_env" \
+        '$seed * $modules | .variable |= .*
+            { az_count:            { default: "\($az_count)" },
+              env_name:            { default: "\($env_name)" }
+            }'
+}
+
+function main {
+  local shome="$(cd -P -- "${BASH_SOURCE%/*}/.." && pwd -P)"
+  source "$shome/script/profile"
+  source _imma "$@"
+}
+
+source sub "$BASH_SOURCE" "$@"

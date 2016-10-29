@@ -1,0 +1,53 @@
+#!/usr/bin/env bash
+
+function use_module {
+  local nm_module="$1"; shift
+  hcltool "$shome/module/${nm_module}/variables.tf" \
+    | jq --arg tfmod "$nm_module" '{
+          data: (.data//{}), 
+          provider: (.provider//{}), 
+          variable: (.variable//{} as $vars | reduce (.variable | keys[]) as $v ({}; .[$v] = $vars[$v])), 
+          output: (.output//{} | reduce keys[] as $o ({}; .[$o] = {value: "${module.\($tfmod).\($o)}"}))
+        }'
+}
+
+function az_count {
+  aws ec2 describe-availability-zones --region $(cat ../.terraform/terraform.tfstate | jq -r --arg env_name "$nm_env" '.modules[0].outputs.env_region.value[$env_name]') | jq -r '.AvailabilityZones | length'
+}
+
+function gen_global { 
+  hcltool "$shome/common/${FUNCNAME##gen_}.tf" 
+}
+
+function gen_env { 
+  shift
+  hcltool "$shome/common/${FUNCNAME##gen_}.tf" 
+}
+
+function gen_app {
+  shift
+  shift
+  hcltool "$shome/common/${FUNCNAME##gen_}.tf" 
+}
+
+function gen_service {
+  shift
+  shift
+  shift
+  hcltool "$shome/common/${FUNCNAME##gen_}.tf"
+}
+
+function merge_map {
+  jq -s 'reduce .[] as $e ({}; . * $e)'
+}
+
+function _main {
+  source normalize
+
+  gen \
+    <("gen_${BASH_SOURCE[2]##*-}" "$@" | merge_map) \
+    <(use_module "${BASH_SOURCE[2]##*-}") \
+    "$@" | jq -S .
+}
+
+_main "$@"

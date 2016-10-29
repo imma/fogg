@@ -1,3 +1,17 @@
+variable "aws_region" {}
+
+variable "global_remote_state" {}
+
+variable "env_cidr" {}
+
+variable "nat_nets" {
+  default = []
+}
+
+variable "common_nets" {
+  default = []
+}
+
 data "terraform_remote_state" "global" {
   backend = "local"
 
@@ -11,16 +25,6 @@ data "aws_vpc" "current" {
 }
 
 data "aws_availability_zones" "azs" {}
-
-variable "env_cidr" {}
-
-variable "nat_nets" {
-  default = []
-}
-
-variable "common_nets" {
-  default = []
-}
 
 resource "aws_vpc" "env" {
   cidr_block           = "${var.env_cidr}"
@@ -139,7 +143,7 @@ resource "aws_internet_gateway" "env" {
 
 resource "aws_eip" "nat" {
   vpc   = true
-  count = "${var.az_count}"
+  count = "${var.want_nat*(var.az_count*(signum(var.nat_count)-1)*-1+var.nat_count)}"
 }
 
 resource "aws_subnet" "nat" {
@@ -172,7 +176,7 @@ resource "aws_route_table_association" "nat" {
 resource "aws_nat_gateway" "env" {
   subnet_id     = "${element(aws_subnet.nat.*.id,count.index)}"
   allocation_id = "${element(aws_eip.nat.*.id,count.index)}"
-  count         = "${var.az_count}"
+  count         = "${var.want_nat*(var.az_count*(signum(var.nat_count)-1)*-1+var.nat_count)}"
 }
 
 resource "aws_route_table" "nat" {
@@ -203,8 +207,8 @@ resource "aws_subnet" "common" {
 resource "aws_route" "common" {
   route_table_id         = "${element(aws_route_table.common.*.id,count.index)}"
   destination_cidr_block = "0.0.0.0/0"
-  nat_gateway_id         = "${element(aws_nat_gateway.env.*.id,count.index)}"
-  count                  = "${var.az_count}"
+  nat_gateway_id         = "${element(aws_nat_gateway.env.*.id,count.index%(var.az_count*(signum(var.nat_count)-1)*-1+var.nat_count))}"
+  count                  = "${var.want_nat*var.az_count}"
 }
 
 resource "aws_route_table_association" "common" {
@@ -242,7 +246,7 @@ module "fs" {
   env_name = "${var.env_name}"
   subnets  = ["${aws_subnet.common.*.id}"]
   az_count = "${var.az_count}"
-  want_fs  = "1"
+  want_fs  = "${var.want_fs}"
 }
 
 resource "aws_route53_record" "fs" {
@@ -251,5 +255,133 @@ resource "aws_route53_record" "fs" {
   type    = "CNAME"
   ttl     = "60"
   records = ["${element(module.fs.efs_dns_names,count.index)}"]
-  count   = "${var.az_count}"
+  count   = "${var.az_count*var.want_fs}"
+}
+
+#resource "aws_vpc_endpoint" "s3" {
+
+#  vpc_id       = "${aws_vpc.env.id}"
+
+#  service_name = "com.amazonaws.${var.aws_region}.s3"
+
+#}
+
+resource "aws_s3_bucket" "lb" {
+  bucket = "b-${format("%.8s",sha1(data.terraform_remote_state.global.aws_account_id))}-${var.env_name}-lb"
+  acl    = "private"
+
+  versioning {
+    enabled = true
+  }
+
+  tags {
+    "ManagedBy" = "terraform"
+    "Env"       = "${var.env_name}"
+  }
+}
+
+resource "aws_cloudwatch_log_group" "flow_log" {
+  name = "${var.env_name}-flow-log"
+}
+
+data "aws_iam_policy_document" "flow_log" {
+  statement {
+    actions = [
+      "sts:AssumeRole",
+    ]
+
+    principals {
+      type        = "Service"
+      identifiers = ["vpc-flow-logs.amazonaws.com"]
+    }
+  }
+}
+
+resource "aws_iam_role" "flow_log" {
+  name               = "${var.env_name}-flow-log"
+  assume_role_policy = "${data.aws_iam_policy_document.flow_log.json}"
+}
+
+data "aws_iam_policy_document" "flow_log_logs" {
+  statement {
+    actions = [
+      "logs:CreateLogGroup",
+      "logs:CreateLogStream",
+      "logs:PutLogEvents",
+      "logs:DescribeLogGroups",
+      "logs:DescribeLogStreams",
+    ]
+
+    resources = ["*"]
+  }
+}
+
+resource "aws_iam_role_policy" "flow_log" {
+  name   = "${var.env_name}-flow-log"
+  role   = "${aws_iam_role.flow_log.id}"
+  policy = "${data.aws_iam_policy_document.flow_log_logs.json}"
+}
+
+resource "aws_flow_log" "env" {
+  log_group_name = "${aws_cloudwatch_log_group.flow_log.name}"
+  iam_role_arn   = "${aws_iam_role.flow_log.arn}"
+  vpc_id         = "${aws_vpc.env.id}"
+  traffic_type   = "ALL"
+}
+
+resource "aws_s3_bucket" "s3-meta" {
+  bucket = "b-${format("%.8s",sha1(data.terraform_remote_state.global.aws_account_id))}-${var.env_name}-s3-meta"
+  acl    = "log-delivery-write"
+
+  versioning {
+    enabled = true
+  }
+
+  tags {
+    "ManagedBy" = "terraform"
+    "Env"       = "${var.env_name}"
+  }
+}
+
+resource "aws_s3_bucket" "s3" {
+  bucket = "b-${format("%.8s",sha1(data.terraform_remote_state.global.aws_account_id))}-${var.env_name}-s3"
+  acl    = "log-delivery-write"
+
+  logging {
+    target_bucket = "b-${format("%.8s",sha1(data.terraform_remote_state.global.aws_account_id))}-${var.env_name}-s3-meta"
+    target_prefix = "log/"
+  }
+
+  versioning {
+    enabled = true
+  }
+
+  tags {
+    "ManagedBy" = "terraform"
+    "Env"       = "${var.env_name}"
+  }
+}
+
+resource "aws_s3_bucket" "website" {
+  bucket = "b-${format("%.8s",sha1(data.terraform_remote_state.global.aws_account_id))}-${var.env_name}-website"
+  acl    = "private"
+
+  logging {
+    target_bucket = "b-${format("%.8s",sha1(data.terraform_remote_state.global.aws_account_id))}-${var.env_name}-s3"
+    target_prefix = "log/"
+  }
+
+  website {
+    index_document = "index.html"
+    error_document = "error.html"
+  }
+
+  versioning {
+    enabled = true
+  }
+
+  tags {
+    "ManagedBy" = "terraform"
+    "Env"       = "${var.env_name}"
+  }
 }

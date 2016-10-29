@@ -1,22 +1,8 @@
-variable "env_remote_state" {}
-
 variable "global_remote_state" {}
 
-variable "app_name" {}
+variable "env_remote_state" {}
 
-variable "display_name" {
-  default = ""
-}
-
-variable "public_network" {
-  default = "0"
-}
-
-variable "want_fs" {
-  default = "0"
-}
-
-variable "service_name" {}
+variable "app_remote_state" {}
 
 variable "az_count" {}
 
@@ -33,6 +19,14 @@ data "terraform_remote_state" "env" {
 
   config {
     path = "${var.env_remote_state}"
+  }
+}
+
+data "terraform_remote_state" "app" {
+  backend = "local"
+
+  config {
+    path = "${var.app_remote_state}"
   }
 }
 
@@ -64,14 +58,14 @@ data "aws_vpc" "current" {
 }
 
 resource "aws_security_group" "service" {
-  name        = "${data.terraform_remote_state.env.env_name}-${var.app_name}-${var.service_name}"
-  description = "Service ${var.app_name}-${var.service_name}"
+  name        = "${data.terraform_remote_state.env.env_name}-${data.terraform_remote_state.app.app_name}-${var.service_name}"
+  description = "Service ${data.terraform_remote_state.app.app_name}-${var.service_name}"
   vpc_id      = "${data.aws_vpc.current.id}"
 
   tags {
-    "Name"      = "${data.terraform_remote_state.env.env_name}-${var.app_name}-${var.service_name}"
+    "Name"      = "${data.terraform_remote_state.env.env_name}-${data.terraform_remote_state.app.app_name}-${var.service_name}"
     "Env"       = "${data.terraform_remote_state.env.env_name}"
-    "App"       = "${var.app_name}"
+    "App"       = "${data.terraform_remote_state.app.app_name}"
     "Service"   = "${var.service_name}"
     "ManagedBy" = "terraform"
   }
@@ -84,7 +78,7 @@ output "service_sg" {
 resource "aws_subnet" "service" {
   vpc_id                  = "${data.aws_vpc.current.id}"
   availability_zone       = "${element(data.aws_availability_zones.azs.names,count.index)}"
-  cidr_block              = "${cidrsubnet(data.aws_vpc.current.cidr_block,var.service_bits,element(var.service_nets,count.index))}"
+  cidr_block              = "${cidrsubnet(data.aws_vpc.current.cidr_block,var.service_bits,element(data.terraform_remote_state.global.service_nets[var.service_name],count.index))}"
   map_public_ip_on_launch = "${lookup(map("1","true","0","false"),format("%d",signum(var.public_network)))}"
   count                   = "${var.az_count}"
 
@@ -93,9 +87,9 @@ resource "aws_subnet" "service" {
   }
 
   tags {
-    "Name"      = "${data.terraform_remote_state.env.env_name}-${var.app_name}-${var.service_name}"
+    "Name"      = "${data.terraform_remote_state.env.env_name}-${data.terraform_remote_state.app.app_name}-${var.service_name}"
     "Env"       = "${data.terraform_remote_state.env.env_name}"
-    "App"       = "${var.app_name}"
+    "App"       = "${data.terraform_remote_state.app.app_name}"
     "Service"   = "${var.service_name}"
     "ManagedBy" = "terraform"
   }
@@ -106,9 +100,9 @@ resource "aws_route_table" "service" {
   count  = "${var.az_count*(signum(var.public_network)-1)*-1}"
 
   tags {
-    "Name"      = "${data.terraform_remote_state.env.env_name}-${var.app_name}-${var.service_name}"
+    "Name"      = "${data.terraform_remote_state.env.env_name}-${data.terraform_remote_state.app.app_name}-${var.service_name}"
     "Env"       = "${data.terraform_remote_state.env.env_name}"
-    "App"       = "${var.app_name}"
+    "App"       = "${data.terraform_remote_state.app.app_name}"
     "Service"   = "${var.service_name}"
     "ManagedBy" = "terraform"
   }
@@ -132,9 +126,9 @@ resource "aws_route_table" "service_public" {
   count  = "${var.az_count*signum(var.public_network)}"
 
   tags {
-    "Name"      = "${data.terraform_remote_state.env.env_name}-${var.app_name}-${var.service_name}"
+    "Name"      = "${data.terraform_remote_state.env.env_name}-${data.terraform_remote_state.app.app_name}-${var.service_name}"
     "Env"       = "${data.terraform_remote_state.env.env_name}"
-    "App"       = "${var.app_name}"
+    "App"       = "${data.terraform_remote_state.app.app_name}"
     "Service"   = "${var.service_name}"
     "ManagedBy" = "terraform"
     "Network"   = "public"
@@ -154,32 +148,31 @@ resource "aws_route_table_association" "service_public" {
   count          = "${var.az_count*signum(var.public_network)}"
 }
 
-resource "aws_iam_role" "service" {
-  name = "${data.terraform_remote_state.env.env_name}-${var.app_name}-${var.service_name}"
+data "aws_iam_policy_document" "service" {
+  statement {
+    actions = [
+      "sts:AssumeRole",
+    ]
 
-  assume_role_policy = <<EOF
-{
-  "Version": "2012-10-17",
-  "Statement": [
-    {
-      "Action": "sts:AssumeRole",
-      "Principal": { 
-        "Service": "ec2.amazonaws.com"
-      },
-      "Effect": "Allow"
+    principals {
+      type        = "Service"
+      identifiers = ["ec2.amazonaws.com"]
     }
-  ]
+  }
 }
-EOF
+
+resource "aws_iam_role" "service" {
+  name               = "${data.terraform_remote_state.env.env_name}-${data.terraform_remote_state.app.app_name}-${var.service_name}"
+  assume_role_policy = "${data.aws_iam_policy_document.service.json}"
 }
 
 resource "aws_iam_instance_profile" "service" {
-  name  = "${data.terraform_remote_state.env.env_name}-${var.app_name}-${var.service_name}"
+  name  = "${data.terraform_remote_state.env.env_name}-${data.terraform_remote_state.app.app_name}-${var.service_name}"
   roles = ["${aws_iam_role.service.name}"]
 }
 
 resource "aws_iam_group" "service" {
-  name = "${data.terraform_remote_state.env.env_name}-${var.app_name}-${var.service_name}"
+  name = "${data.terraform_remote_state.env.env_name}-${data.terraform_remote_state.app.app_name}-${var.service_name}"
 }
 
 data "template_file" "user_data_service" {
@@ -196,18 +189,21 @@ data "template_file" "key_pair_service" {
 }
 
 resource "aws_key_pair" "service" {
-  key_name   = "${data.terraform_remote_state.env.env_name}-${var.app_name}-${var.service_name}"
   public_key = "${data.template_file.key_pair_service.rendered}"
+
+  lifecycle {
+    create_before_destroy = true
+  }
 }
 
 resource "aws_launch_configuration" "service" {
-  name_prefix          = "${data.terraform_remote_state.env.env_name}-${var.app_name}-${var.service_name}-${element(var.asg_name,count.index)}-"
+  name_prefix          = "${data.terraform_remote_state.env.env_name}-${data.terraform_remote_state.app.app_name}-${var.service_name}-${element(var.asg_name,count.index)}-"
   instance_type        = "${element(var.instance_type,count.index)}"
   image_id             = "${coalesce(element(var.image_id,count.index),data.aws_ami.service.id)}"
-  iam_instance_profile = "${data.terraform_remote_state.env.env_name}-${var.app_name}-${var.service_name}"
+  iam_instance_profile = "${data.terraform_remote_state.env.env_name}-${data.terraform_remote_state.app.app_name}-${var.service_name}"
   key_name             = "${aws_key_pair.service.key_name}"
   user_data            = "${data.template_file.user_data_service.rendered}"
-  security_groups      = ["${concat(list(data.terraform_remote_state.env.sg_env,lookup(map("1",data.terraform_remote_state.env.sg_env_public,"0",data.terraform_remote_state.env.sg_env_private),format("%d",signum(var.public_network))),aws_security_group.service.id),var.security_groups)}"]
+  security_groups      = ["${concat(list(data.terraform_remote_state.env.sg_env,lookup(map("1",data.terraform_remote_state.env.sg_env_public,"0",data.terraform_remote_state.env.sg_env_private),format("%d",signum(var.public_network))),aws_security_group.service.id),list(data.terraform_remote_state.app.app_sg))}"]
   count                = "${var.asg_count}"
 
   lifecycle {
@@ -241,7 +237,7 @@ resource "aws_launch_configuration" "service" {
 }
 
 resource "aws_autoscaling_group" "service" {
-  name                 = "${data.terraform_remote_state.env.env_name}-${var.app_name}-${var.service_name}-${element(var.asg_name,count.index)}"
+  name                 = "${data.terraform_remote_state.env.env_name}-${data.terraform_remote_state.app.app_name}-${var.service_name}-${element(var.asg_name,count.index)}"
   launch_configuration = "${element(aws_launch_configuration.service.*.name,count.index)}"
   vpc_zone_identifier  = ["${aws_subnet.service.*.id}"]
   min_size             = "${element(var.min_size,count.index)}"
@@ -255,7 +251,7 @@ resource "aws_autoscaling_group" "service" {
 
   tag {
     key                 = "Name"
-    value               = "${data.terraform_remote_state.env.env_name}-${var.app_name}-${var.service_name}-${element(var.asg_name,count.index)}"
+    value               = "${data.terraform_remote_state.env.env_name}-${data.terraform_remote_state.app.app_name}-${var.service_name}-${element(var.asg_name,count.index)}"
     propagate_at_launch = true
   }
 
@@ -267,20 +263,20 @@ resource "aws_autoscaling_group" "service" {
 
   tag {
     key                 = "App"
-    value               = "${var.app_name}"
+    value               = "${data.terraform_remote_state.app.app_name}"
     propagate_at_launch = true
   }
 
   tag {
     key                 = "ManagedBy"
-    value               = "asg ${var.app_name}-${var.service_name}-${element(var.asg_name,count.index)}"
+    value               = "asg ${data.terraform_remote_state.app.app_name}-${var.service_name}-${element(var.asg_name,count.index)}"
     propagate_at_launch = true
   }
 }
 
 module "fs" {
   source   = "../fs"
-  fs_name  = "${data.terraform_remote_state.env.env_name}-${var.app_name}-${var.service_name}"
+  fs_name  = "${data.terraform_remote_state.env.env_name}-${data.terraform_remote_state.app.app_name}-${var.service_name}"
   vpc_id   = "${data.terraform_remote_state.env.vpc_id}"
   env_name = "${data.terraform_remote_state.env.env_name}"
   subnets  = ["${aws_subnet.service.*.id}"]
@@ -300,7 +296,7 @@ resource "aws_security_group_rule" "allow_service_mount" {
 
 resource "aws_route53_record" "fs" {
   zone_id = "${data.terraform_remote_state.env.private_zone_id}"
-  name    = "${var.app_name}-${var.service_name}-efs-${element(data.aws_availability_zones.azs.names,count.index)}.${data.terraform_remote_state.env.private_zone_name}"
+  name    = "${data.terraform_remote_state.app.app_name}-${var.service_name}-efs-${element(data.aws_availability_zones.azs.names,count.index)}.${data.terraform_remote_state.env.private_zone_name}"
   type    = "CNAME"
   ttl     = "60"
   records = ["${element(module.fs.efs_dns_names,count.index)}"]
