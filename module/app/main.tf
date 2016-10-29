@@ -1,12 +1,12 @@
-variable "global_remote_state" {}
+variable "org_remote_state" {}
 
 variable "env_remote_state" {}
 
-data "terraform_remote_state" "global" {
+data "terraform_remote_state" "org" {
   backend = "local"
 
   config {
-    path = "${var.global_remote_state}"
+    path = "${var.org_remote_state}"
   }
 }
 

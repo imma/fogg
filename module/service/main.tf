@@ -1,4 +1,4 @@
-variable "global_remote_state" {}
+variable "org_remote_state" {}
 
 variable "env_remote_state" {}
 
@@ -6,11 +6,11 @@ variable "app_remote_state" {}
 
 variable "az_count" {}
 
-data "terraform_remote_state" "global" {
+data "terraform_remote_state" "org" {
   backend = "local"
 
   config {
-    path = "${var.global_remote_state}"
+    path = "${var.org_remote_state}"
   }
 }
 
@@ -78,7 +78,7 @@ output "service_sg" {
 resource "aws_subnet" "service" {
   vpc_id                  = "${data.aws_vpc.current.id}"
   availability_zone       = "${element(data.aws_availability_zones.azs.names,count.index)}"
-  cidr_block              = "${cidrsubnet(data.aws_vpc.current.cidr_block,var.service_bits,element(data.terraform_remote_state.global.service_nets[var.service_name],count.index))}"
+  cidr_block              = "${cidrsubnet(data.aws_vpc.current.cidr_block,var.service_bits,element(data.terraform_remote_state.org.service_nets[var.service_name],count.index))}"
   map_public_ip_on_launch = "${lookup(map("1","true","0","false"),format("%d",signum(var.public_network)))}"
   count                   = "${var.az_count}"
 

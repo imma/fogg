@@ -15,7 +15,7 @@ function az_count {
   aws ec2 describe-availability-zones --region $(cat ../.terraform/terraform.tfstate | jq -r --arg env_name "$nm_env" '.modules[0].outputs.env_region.value[$env_name]') | jq -r '.AvailabilityZones | length'
 }
 
-function gen_global { 
+function gen_org { 
   hcltool "$shome/common/${FUNCNAME##gen_}.tf" 
 }
 

@@ -6,7 +6,7 @@ provider "aws" {
 module "app" {
   source              = "../../../../fogg/module/app"
 
-  global_remote_state = "${data.terraform_remote_state.global.config["path"]}"
+  org_remote_state = "${data.terraform_remote_state.org.config["path"]}"
   env_remote_state    = "${data.terraform_remote_state.env.config["path"]}"
 
   az_count            = "${var.az_count}"
@@ -14,7 +14,7 @@ module "app" {
 }
 
 # data
-data "terraform_remote_state" "global" {
+data "terraform_remote_state" "org" {
   backend = "local"
 
   config {
@@ -32,5 +32,5 @@ data "terraform_remote_state" "env" {
 
 # output
 output "env_region" {
-  value = "${data.terraform_remote_state.global.env_region}"
+  value = "${data.terraform_remote_state.org.env_region}"
 }
