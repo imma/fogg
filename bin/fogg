@@ -5,6 +5,11 @@ function main {
   source "$shome/script/profile"
   source normalize
 
+  if [[ "$#" -gt 0 ]]; then
+    echo "ERROR: this command doesn't take arguments" 1>&2
+    return 1
+  fi
+
   local pth_config="$(echo "$PWD" | perl -pe 's{.*?/org/}{}; s{/+}{-}g')"
 
   case "$pth_config" in
