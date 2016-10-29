@@ -15,7 +15,7 @@ resource "aws_iam_group_policy_attachment" "administrators_administrator_access"
 }
 
 resource "aws_s3_bucket" "s3-meta" {
-  bucket = "b-${format("%.8s",sha1(data.aws_caller_identity.current.account_id))}-org-s3-meta"
+  bucket = "b-${format("%.8s",sha1(data.aws_caller_identity.current.account_id))}-global-s3-meta"
   acl    = "log-delivery-write"
 
   versioning {
@@ -24,16 +24,16 @@ resource "aws_s3_bucket" "s3-meta" {
 
   tags {
     "ManagedBy" = "terraform"
-    "Env"       = "org"
+    "Env"       = "global"
   }
 }
 
 resource "aws_s3_bucket" "s3" {
-  bucket = "b-${format("%.8s",sha1(data.aws_caller_identity.current.account_id))}-org-s3"
+  bucket = "b-${format("%.8s",sha1(data.aws_caller_identity.current.account_id))}-global-s3"
   acl    = "log-delivery-write"
 
   logging {
-    target_bucket = "b-${format("%.8s",sha1(data.aws_caller_identity.current.account_id))}-org-s3-meta"
+    target_bucket = "b-${format("%.8s",sha1(data.aws_caller_identity.current.account_id))}-global-s3-meta"
     target_prefix = "log/"
   }
 
@@ -43,16 +43,16 @@ resource "aws_s3_bucket" "s3" {
 
   tags {
     "ManagedBy" = "terraform"
-    "Env"       = "org"
+    "Env"       = "global"
   }
 }
 
 resource "aws_s3_bucket" "tf_remote_state" {
-  bucket = "b-${format("%.8s",sha1(data.aws_caller_identity.current.account_id))}-org-tf-remote-state"
+  bucket = "b-${format("%.8s",sha1(data.aws_caller_identity.current.account_id))}-global-tf-remote-state"
   acl    = "private"
 
   logging {
-    target_bucket = "b-${format("%.8s",sha1(data.aws_caller_identity.current.account_id))}-org-s3"
+    target_bucket = "b-${format("%.8s",sha1(data.aws_caller_identity.current.account_id))}-global-s3"
     target_prefix = "log/"
   }
 
@@ -62,11 +62,11 @@ resource "aws_s3_bucket" "tf_remote_state" {
 
   tags {
     "ManagedBy" = "terraform"
-    "Env"       = "org"
+    "Env"       = "global"
   }
 }
 
-data "aws_billing_service_account" "org" {}
+data "aws_billing_service_account" "global" {}
 
 data "aws_iam_policy_document" "billing" {
   statement {
@@ -76,12 +76,12 @@ data "aws_iam_policy_document" "billing" {
     ]
 
     resources = [
-      "arn:aws:s3:::b-${format("%.8s",sha1(data.aws_caller_identity.current.account_id))}-org-billing",
+      "arn:aws:s3:::b-${format("%.8s",sha1(data.aws_caller_identity.current.account_id))}-global-billing",
     ]
 
     principals {
       type        = "AWS"
-      identifiers = ["arn:aws:iam::${data.aws_billing_service_account.org.id}:root"]
+      identifiers = ["arn:aws:iam::${data.aws_billing_service_account.global.id}:root"]
     }
   }
 
@@ -91,22 +91,22 @@ data "aws_iam_policy_document" "billing" {
     ]
 
     resources = [
-      "arn:aws:s3:::b-${format("%.8s",sha1(data.aws_caller_identity.current.account_id))}-org-billing/AWSLogs/*",
+      "arn:aws:s3:::b-${format("%.8s",sha1(data.aws_caller_identity.current.account_id))}-global-billing/AWSLogs/*",
     ]
 
     principals {
       type        = "AWS"
-      identifiers = ["arn:aws:iam::${data.aws_billing_service_account.org.id}:root"]
+      identifiers = ["arn:aws:iam::${data.aws_billing_service_account.global.id}:root"]
     }
   }
 }
 
 resource "aws_s3_bucket" "billing" {
-  bucket = "b-${format("%.8s",sha1(data.aws_caller_identity.current.account_id))}-org-billing"
+  bucket = "b-${format("%.8s",sha1(data.aws_caller_identity.current.account_id))}-global-billing"
   acl    = "private"
 
   logging {
-    target_bucket = "b-${format("%.8s",sha1(data.aws_caller_identity.current.account_id))}-org-s3"
+    target_bucket = "b-${format("%.8s",sha1(data.aws_caller_identity.current.account_id))}-global-s3"
     target_prefix = "log/"
   }
 
@@ -118,14 +118,14 @@ resource "aws_s3_bucket" "billing" {
 
   tags {
     "ManagedBy" = "terraform"
-    "Env"       = "org"
+    "Env"       = "global"
   }
 }
 
-resource "aws_cloudtrail" "org" {
-  name                          = "org-cloudtrail"
-  s3_bucket_name                = "b-${format("%.8s",sha1(data.aws_caller_identity.current.account_id))}-org-cloudtrail"
-  include_org_service_events = true
+resource "aws_cloudtrail" "global" {
+  name                          = "global-cloudtrail"
+  s3_bucket_name                = "b-${format("%.8s",sha1(data.aws_caller_identity.current.account_id))}-global-cloudtrail"
+  include_global_service_events = true
   is_multi_region_trail         = true
 }
 
@@ -137,7 +137,7 @@ data "aws_iam_policy_document" "cloudtrail" {
     ]
 
     resources = [
-      "arn:aws:s3:::b-${format("%.8s",sha1(data.aws_caller_identity.current.account_id))}-org-cloudtrail",
+      "arn:aws:s3:::b-${format("%.8s",sha1(data.aws_caller_identity.current.account_id))}-global-cloudtrail",
     ]
 
     principals {
@@ -152,7 +152,7 @@ data "aws_iam_policy_document" "cloudtrail" {
     ]
 
     resources = [
-      "arn:aws:s3:::b-${format("%.8s",sha1(data.aws_caller_identity.current.account_id))}-org-cloudtrail/*",
+      "arn:aws:s3:::b-${format("%.8s",sha1(data.aws_caller_identity.current.account_id))}-global-cloudtrail/*",
     ]
 
     principals {
@@ -169,6 +169,6 @@ data "aws_iam_policy_document" "cloudtrail" {
 }
 
 resource "aws_s3_bucket" "cloudtrail" {
-  bucket = "b-${format("%.8s",sha1(data.aws_caller_identity.current.account_id))}-org-cloudtrail"
+  bucket = "b-${format("%.8s",sha1(data.aws_caller_identity.current.account_id))}-global-cloudtrail"
   policy = "${data.aws_iam_policy_document.cloudtrail.json}"
 }

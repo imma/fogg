@@ -3,8 +3,8 @@ provider "aws" {
 }
 
 # module
-module "org" {
-  source          = "../../fogg/module/org"
+module "global" {
+  source          = "../../fogg/module/global"
 
   aws_region      = "${var.aws_region}"
   domain_name     = "${var.domain_name}"

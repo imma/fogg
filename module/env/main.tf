@@ -1,10 +1,10 @@
-variable "org_remote_state" {}
+variable "global_remote_state" {}
 
-data "terraform_remote_state" "org" {
+data "terraform_remote_state" "global" {
   backend = "local"
 
   config {
-    path = "${var.org_remote_state}"
+    path = "${var.global_remote_state}"
   }
 }
 
@@ -15,7 +15,7 @@ data "aws_vpc" "current" {
 data "aws_availability_zones" "azs" {}
 
 resource "aws_vpc" "env" {
-  cidr_block           = "${data.terraform_remote_state.org.env_cidr[var.env_name]}"
+  cidr_block           = "${data.terraform_remote_state.global.env_cidr[var.env_name]}"
   enable_dns_support   = true
   enable_dns_hostnames = true
 
@@ -137,7 +137,7 @@ resource "aws_eip" "nat" {
 resource "aws_subnet" "nat" {
   vpc_id                  = "${aws_vpc.env.id}"
   availability_zone       = "${element(data.aws_availability_zones.azs.names,count.index)}"
-  cidr_block              = "${cidrsubnet(data.aws_vpc.current.cidr_block,var.nat_bits,element(data.terraform_remote_state.org.sys_nets["nat"],count.index))}"
+  cidr_block              = "${cidrsubnet(data.aws_vpc.current.cidr_block,var.nat_bits,element(data.terraform_remote_state.global.sys_nets["nat"],count.index))}"
   map_public_ip_on_launch = true
   count                   = "${var.az_count}"
 
@@ -181,7 +181,7 @@ resource "aws_route_table" "nat" {
 resource "aws_subnet" "common" {
   vpc_id                  = "${aws_vpc.env.id}"
   availability_zone       = "${element(data.aws_availability_zones.azs.names,count.index)}"
-  cidr_block              = "${cidrsubnet(data.aws_vpc.current.cidr_block,var.common_bits,element(data.terraform_remote_state.org.sys_nets["common"],count.index))}"
+  cidr_block              = "${cidrsubnet(data.aws_vpc.current.cidr_block,var.common_bits,element(data.terraform_remote_state.global.sys_nets["common"],count.index))}"
   map_public_ip_on_launch = false
   count                   = "${var.az_count}"
 
@@ -217,7 +217,7 @@ resource "aws_route_table" "common" {
 }
 
 resource "aws_route53_zone" "private" {
-  name   = "${lookup(map("1",var.env_zone,"0",var.env_name),format("%d",signum(length(var.env_zone))))}.${lookup(map("1",var.env_domain_name,"0",data.terraform_remote_state.org.domain_name),format("%d",signum(length(var.env_domain_name))))}"
+  name   = "${lookup(map("1",var.env_zone,"0",var.env_name),format("%d",signum(length(var.env_zone))))}.${lookup(map("1",var.env_domain_name,"0",data.terraform_remote_state.global.domain_name),format("%d",signum(length(var.env_domain_name))))}"
   vpc_id = "${aws_vpc.env.id}"
 
   tags {
@@ -239,7 +239,7 @@ module "fs" {
 
 resource "aws_route53_record" "fs" {
   zone_id = "${aws_route53_zone.private.zone_id}"
-  name    = "efs-${element(data.aws_availability_zones.azs.names,count.index)}.${lookup(map("1",var.env_zone,"0",var.env_name),format("%d",signum(length(var.env_zone))))}.${lookup(map("1",var.env_domain_name,"0",data.terraform_remote_state.org.domain_name),format("%d",signum(length(var.env_domain_name))))}"
+  name    = "efs-${element(data.aws_availability_zones.azs.names,count.index)}.${lookup(map("1",var.env_zone,"0",var.env_name),format("%d",signum(length(var.env_zone))))}.${lookup(map("1",var.env_domain_name,"0",data.terraform_remote_state.global.domain_name),format("%d",signum(length(var.env_domain_name))))}"
   type    = "CNAME"
   ttl     = "60"
   records = ["${element(module.fs.efs_dns_names,count.index)}"]
@@ -255,7 +255,7 @@ resource "aws_route53_record" "fs" {
 #}
 
 resource "aws_s3_bucket" "lb" {
-  bucket = "b-${format("%.8s",sha1(data.terraform_remote_state.org.aws_account_id))}-${var.env_name}-lb"
+  bucket = "b-${format("%.8s",sha1(data.terraform_remote_state.global.aws_account_id))}-${var.env_name}-lb"
   acl    = "private"
 
   versioning {
@@ -318,7 +318,7 @@ resource "aws_flow_log" "env" {
 }
 
 resource "aws_s3_bucket" "s3-meta" {
-  bucket = "b-${format("%.8s",sha1(data.terraform_remote_state.org.aws_account_id))}-${var.env_name}-s3-meta"
+  bucket = "b-${format("%.8s",sha1(data.terraform_remote_state.global.aws_account_id))}-${var.env_name}-s3-meta"
   acl    = "log-delivery-write"
 
   versioning {
@@ -332,11 +332,11 @@ resource "aws_s3_bucket" "s3-meta" {
 }
 
 resource "aws_s3_bucket" "s3" {
-  bucket = "b-${format("%.8s",sha1(data.terraform_remote_state.org.aws_account_id))}-${var.env_name}-s3"
+  bucket = "b-${format("%.8s",sha1(data.terraform_remote_state.global.aws_account_id))}-${var.env_name}-s3"
   acl    = "log-delivery-write"
 
   logging {
-    target_bucket = "b-${format("%.8s",sha1(data.terraform_remote_state.org.aws_account_id))}-${var.env_name}-s3-meta"
+    target_bucket = "b-${format("%.8s",sha1(data.terraform_remote_state.global.aws_account_id))}-${var.env_name}-s3-meta"
     target_prefix = "log/"
   }
 
@@ -351,11 +351,11 @@ resource "aws_s3_bucket" "s3" {
 }
 
 resource "aws_s3_bucket" "website" {
-  bucket = "b-${format("%.8s",sha1(data.terraform_remote_state.org.aws_account_id))}-${var.env_name}-website"
+  bucket = "b-${format("%.8s",sha1(data.terraform_remote_state.global.aws_account_id))}-${var.env_name}-website"
   acl    = "private"
 
   logging {
-    target_bucket = "b-${format("%.8s",sha1(data.terraform_remote_state.org.aws_account_id))}-${var.env_name}-s3"
+    target_bucket = "b-${format("%.8s",sha1(data.terraform_remote_state.global.aws_account_id))}-${var.env_name}-s3"
     target_prefix = "log/"
   }
 

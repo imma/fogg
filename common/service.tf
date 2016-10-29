@@ -6,7 +6,7 @@ provider "aws" {
 module "service" {
   source              = "../../../../../fogg/module/service"
 
-  org_remote_state = "${data.terraform_remote_state.org.config["path"]}"
+  global_remote_state = "${data.terraform_remote_state.global.config["path"]}"
   env_remote_state    = "${data.terraform_remote_state.env.config["path"]}"
   app_remote_state    = "${data.terraform_remote_state.app.config["path"]}"
 
@@ -22,7 +22,7 @@ module "service" {
 }
 
 # data
-data "terraform_remote_state" "org" {
+data "terraform_remote_state" "global" {
   backend = "local"
 
   config {

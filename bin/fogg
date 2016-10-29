@@ -29,7 +29,7 @@ function main {
         "${pth_config##*-}"
       ;;
     *)
-      set -- org
+      set -- global
       ;;
   esac
   
