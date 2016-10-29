@@ -15,6 +15,7 @@ module "service" {
 
   public_network      = "${var.public_network}"
   want_fs             = "${var.want_fs}"
+  want_nat            = "${var.want_nat}"
   instance_type       = ["${var.instance_type}"]
   user_data           = "${var.user_data}"
   public_key          = "${var.public_key}"
