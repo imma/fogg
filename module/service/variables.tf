@@ -17,11 +17,11 @@ variable "want_nat" {
 }
 
 variable "public_key" {
-  default = "../../etc/ssh-key-pair.pub"
+  default = "../../../etc/ssh-key-pair.pub"
 }
 
 variable "user_data" {
-  default = "../../etc/user-data.template"
+  default = "../../../etc/user-data.template"
 }
 
 variable "service_bits" {
