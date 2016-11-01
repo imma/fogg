@@ -1,0 +1,17 @@
+#!/usr/bin/env bash
+
+function main {
+  local shome="$(cd -P -- "${BASH_SOURCE%/*}/.." && pwd -P)"
+
+  if [[ "$#" == 0 ]]; then
+    set -- 'map("\(.InstanceId) \(.Tags["aws:autoscaling:groupName"]) \(.PrivateIpAddress) \(.PublicDnsName)")'
+  fi
+
+  aws ec2 describe-instances \
+    | jq -S '[.Reservations[].Instances[]] | map(.Tags |= (reduce .[] as $t ({}; .[$t.Key] = $t.Value)))' \
+    | jq 'map(select(.Tags["aws:autoscaling:groupName"] | startswith(env.FOGG_PREFIX)))' \
+    | jq "$1" \
+    | jq -r '.[]'
+}
+
+source sub "$BASH_SOURCE" "$@"

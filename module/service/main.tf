@@ -268,6 +268,12 @@ resource "aws_autoscaling_group" "service" {
   }
 
   tag {
+    key                 = "Service"
+    value               = "${var.service_name}"
+    propagate_at_launch = true
+  }
+
+  tag {
     key                 = "ManagedBy"
     value               = "asg ${data.terraform_remote_state.app.app_name}-${var.service_name}-${element(var.asg_name,count.index)}"
     propagate_at_launch = true

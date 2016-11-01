@@ -45,3 +45,8 @@ data "terraform_remote_state" "app" {
     path = "../.terraform/terraform.tfstate"
   }
 }
+
+
+output "aws_region" {
+  value = "${data.terraform_remote_state.env.aws_region}"
+}
