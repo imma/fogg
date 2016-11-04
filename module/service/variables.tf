@@ -60,10 +60,6 @@ variable "termination_policies" {
   default = ["OldestInstance"]
 }
 
-variable "ignore_asg_changes" {
-  default = [""]
-}
-
 output "asg_names" {
   value = ["${aws_autoscaling_group.service.*.name}"]
 }

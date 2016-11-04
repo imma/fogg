@@ -7,6 +7,8 @@ function gen {
   local nm_app="$1"; shift
   local nm_service="$1"; shift
 
+  local want_nat="$(hcltool ../../terraform.tfvars | jq -r '.want_nat//1')"
+
 	jq -n \
         --argfile seed         "$tmp_seed" \
         --argfile modules      "$tmp_modules" \
@@ -14,11 +16,13 @@ function gen {
 	      --arg     env_name     "$nm_env" \
         --arg     app_name     "$nm_app" \
         --arg     service_name "$nm_service" \
+        --arg     want_nat     "$want_nat" \
         '$seed * $modules | .variable |= .*
             { az_count:     { default: "\($az_count)" },
               env_name:     { default: "\($env_name)" },
               app_name:     { default: "\($app_name)" },
-              service_name: { default: "\($service_name)" }
+              service_name: { default: "\($service_name)" },
+              want_nat:     { default: "\($want_nat)" }
             }'
 }
 
