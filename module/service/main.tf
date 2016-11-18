@@ -32,27 +32,6 @@ data "terraform_remote_state" "app" {
 
 data "aws_availability_zones" "azs" {}
 
-data "aws_ami" "service" {
-  most_recent = true
-
-  filter {
-    name   = "name"
-    values = ["ubuntu/images/hvm-ssd/ubuntu-xenial-16.04-amd64-server-*"]
-  }
-
-  filter {
-    name   = "virtualization-type"
-    values = ["hvm"]
-  }
-
-  filter {
-    name   = "block-device-mapping.volume-type"
-    values = ["gp2"]
-  }
-
-  owners = ["099720109477"] # Canonical
-}
-
 data "aws_vpc" "current" {
   id = "${data.terraform_remote_state.env.vpc_id}"
 }
@@ -199,7 +178,7 @@ resource "aws_key_pair" "service" {
 resource "aws_launch_configuration" "service" {
   name_prefix          = "${data.terraform_remote_state.env.env_name}-${data.terraform_remote_state.app.app_name}-${var.service_name}-${element(var.asg_name,count.index)}-"
   instance_type        = "${element(var.instance_type,count.index)}"
-  image_id             = "${coalesce(element(var.image_id,count.index),data.aws_ami.service.id)}"
+  image_id             = "${coalesce(element(var.image_id,count.index),data.terraform_remote_state.app.app_ami_id)}"
   iam_instance_profile = "${data.terraform_remote_state.env.env_name}-${data.terraform_remote_state.app.app_name}-${var.service_name}"
   key_name             = "${aws_key_pair.service.key_name}"
   user_data            = "${data.template_file.user_data_service.rendered}"

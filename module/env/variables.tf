@@ -85,3 +85,7 @@ output "nat_gateways" {
 output "env_name" {
   value = "${var.env_name}"
 }
+
+output "env_ami_id" {
+  value = "${data.aws_ami.env.id}"
+}

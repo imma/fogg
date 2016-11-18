@@ -4,7 +4,7 @@ provider "aws" {
 
 # module
 module "env" {
-  source              = "../../../fogg/module/env"
+  source              = "../../../module/env"
 
   global_remote_state = "${data.terraform_remote_state.global.config["path"]}"
 
