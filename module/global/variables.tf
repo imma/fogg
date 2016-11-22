@@ -9,3 +9,7 @@ output "aws_account_id" {
 output "domain_name" {
   value = "${var.domain_name}"
 }
+
+output "aws_region" {
+  value = "${var.aws_region}"
+}
