@@ -8,8 +8,8 @@ function main {
   fi
 
   aws ec2 describe-instances \
-    | jq -S '[.Reservations[].Instances[]] | map(.Tags |= (reduce .[] as $t ({}; .[$t.Key] = $t.Value)))' \
-    | jq 'map(select(.Tags["aws:autoscaling:groupName"] | startswith(env.FOGG_PREFIX)))' \
+    | jq -S '[.Reservations[].Instances[]] | map(.Tags |= (reduce (.//[])[] as $t ({}; .[$t.Key] = $t.Value)))' \
+    | jq 'map(select(.Tags["aws:autoscaling:groupName"]))' \
     | jq "$1" \
     | jq -r '.[]'
 }
