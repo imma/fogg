@@ -4,7 +4,7 @@ provider "aws" {
 
 # module
 module "service" {
-  source              = "../../../../module/service"
+  source              = "../../../../../module/service"
 
   global_remote_state = "${data.terraform_remote_state.global.config["path"]}"
   env_remote_state    = "${data.terraform_remote_state.env.config["path"]}"
