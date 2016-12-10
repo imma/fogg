@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
 function remote_bucket {
-  echo "b-$(aws eu-west-1 iam get-user --user-name defn | jq -r '.User.Arn | split(":")[4]' | perl -pe 's{\s*$}{}' | shasum | awk '{print $1}' | cut -b1-8)-global-tf-remote-state"
+  echo "b-$(hcltool terraform.tfvars  | jq -r '.s3_remote_state' | cut -d- -f2)-global-tf-remote-state"
 }
 
 function remote_region {
