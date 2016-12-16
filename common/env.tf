@@ -11,7 +11,7 @@ module "env" {
   az_count            = "${var.az_count}"
   env_name            = "${var.env_name}"
 
-  ublic_key          = "${var.public_key}"
+  public_key          = "${var.public_key}"
 
   nat_count           = "${var.nat_count}"
   want_fs             = "${var.want_fs}"
