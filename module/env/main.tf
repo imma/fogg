@@ -12,8 +12,7 @@ data "aws_vpc" "current" {
   id = "${aws_vpc.env.id}"
 }
 
-data "aws_availability_zones" "azs" {
-}
+data "aws_availability_zones" "azs" {}
 
 data "aws_ami" "env" {
   most_recent = true
@@ -407,4 +406,3 @@ resource "aws_key_pair" "service" {
     create_before_destroy = true
   }
 }
-
