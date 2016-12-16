@@ -16,10 +16,6 @@ variable "want_nat" {
   default = "1"
 }
 
-variable "public_key" {
-  default = "../../../.etc/ssh-key-pair.pub"
-}
-
 variable "user_data" {
   default = "../../../.etc/user-data.template"
 }

@@ -30,6 +30,10 @@ variable "want_nat" {
   default = "1"
 }
 
+variable "public_key" {
+  default = "../.etc/ssh-key-pair.pub"
+}
+
 output "vpc_id" {
   value = "${aws_vpc.env.id}"
 }
