@@ -395,3 +395,16 @@ resource "aws_s3_bucket" "website" {
     "Env"       = "${var.env_name}"
   }
 }
+
+data "template_file" "key_pair_service" {
+  template = "${file(var.public_key)}"
+}
+
+resource "aws_key_pair" "service" {
+  public_key = "${data.template_file.key_pair_service.rendered}"
+
+  lifecycle {
+    create_before_destroy = true
+  }
+}
+

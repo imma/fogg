@@ -89,3 +89,7 @@ output "env_name" {
 output "env_ami_id" {
   value = "${data.aws_ami.env.id}"
 }
+
+output "key_name" {
+  value = "${aws_key_pair.service.key_name}"
+}kjjj

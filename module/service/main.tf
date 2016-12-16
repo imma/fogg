@@ -158,20 +158,7 @@ data "template_file" "user_data_service" {
   template = "${file(var.user_data)}"
 
   vars {
-    public_key = "${data.template_file.key_pair_service.rendered}"
     vpc_cidr   = "${data.aws_vpc.current.cidr_block}"
-  }
-}
-
-data "template_file" "key_pair_service" {
-  template = "${file(var.public_key)}"
-}
-
-resource "aws_key_pair" "service" {
-  public_key = "${data.template_file.key_pair_service.rendered}"
-
-  lifecycle {
-    create_before_destroy = true
   }
 }
 
@@ -180,7 +167,7 @@ resource "aws_launch_configuration" "service" {
   instance_type        = "${element(var.instance_type,count.index)}"
   image_id             = "${coalesce(element(var.image_id,count.index),data.terraform_remote_state.app.app_ami_id)}"
   iam_instance_profile = "${data.terraform_remote_state.env.env_name}-${data.terraform_remote_state.app.app_name}-${var.service_name}"
-  key_name             = "${aws_key_pair.service.key_name}"
+  key_name             = "${data.terraform_remote_state.env.key_name}"
   user_data            = "${data.template_file.user_data_service.rendered}"
   security_groups      = ["${concat(list(data.terraform_remote_state.env.sg_env,lookup(map("1",data.terraform_remote_state.env.sg_env_public,"0",data.terraform_remote_state.env.sg_env_private),format("%d",signum(var.public_network))),aws_security_group.service.id),list(data.terraform_remote_state.app.app_sg))}"]
   count                = "${var.asg_count}"
