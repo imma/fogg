@@ -13,7 +13,7 @@ function main {
   source "$shome/script/profile"
   source normalize
 
-  local pth_config="$(echo "$PWD" | perl -pe 's{.*?[/-]org/}{}; s{/+}{-}g')"
+  local pth_config="$(echo "$PWD" | perl -pe 's{.*[/-]org/}{}; s{/+}{-}g')"
   local adj_config="./$(echo "$pth_config" | perl -pe 's{[^-]+$}{}; s{[^-]+}{..}g; s{-}{/}g')"
 
   terraform remote config -backend=s3 \
