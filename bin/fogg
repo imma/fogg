@@ -10,7 +10,7 @@ function main {
     return 1
   fi
 
-  local pth_config="$(echo "$PWD" | perl -pe 's{.*?/org/}{}; s{/+}{-}g')"
+  local pth_config="$(echo "$PWD" | perl -pe 's{.*[-/]org/}{}; s{/+}{-}g')"
 
   case "$pth_config" in
     *-*-*-*)
