@@ -8,6 +8,7 @@ module "global" {
 
   aws_region      = "${var.aws_region}"
   domain_name     = "${var.domain_name}"
+  s3_remote_state = "${var.s3_remote_state}"
 }
 
 # data
@@ -27,4 +28,8 @@ output sys_nets {
 
 output service_nets {
   value = "${var.service_nets}"
+}
+
+output s3_remote_state {
+  value = "${var.s3_remote_state}"
 }

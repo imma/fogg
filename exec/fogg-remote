@@ -1,7 +1,13 @@
 #!/usr/bin/env bash
 
 function remote_bucket {
-  echo "b-$(hcltool terraform.tfvars  | jq -r '.s3_remote_state' | cut -d- -f2)-global-tf-remote-state"
+  local id_account="$(hcltool terraform.tfvars 2>/dev/null | jq -r '.s3_remote_state//""' | cut -d- -f2)"
+
+  if [[ -z "${id_account}" ]]; then
+    id_account="$(cat $adj_config/.terraform/terraform.tfstate 2>/dev/null | jq -r '.modules | map(.outputs.s3_remote_state.value//"") | unique[]' | cut -d- -f2)"
+  fi
+  
+  echo "b-${id_account}-global-tf-remote-state"
 }
 
 function remote_region {
