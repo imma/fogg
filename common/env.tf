@@ -31,7 +31,3 @@ data "terraform_remote_state" "global" {
 output "aws_region" {
   value = "${data.terraform_remote_state.global.env_region[var.env_name]}"
 }
-
-output "env_region" {
-  value = "${data.terraform_remote_state.global.env_region}"
-}
