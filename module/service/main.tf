@@ -58,7 +58,7 @@ resource "aws_subnet" "service" {
   vpc_id                  = "${data.aws_vpc.current.id}"
   availability_zone       = "${element(data.aws_availability_zones.azs.names,count.index)}"
   cidr_block              = "${cidrsubnet(data.aws_vpc.current.cidr_block,var.service_bits,element(data.terraform_remote_state.global.service_nets[var.service_name],count.index))}"
-  map_public_ip_on_launch = "${lookup(map("1","true","0","false"),format("%d",signum(var.public_network)))}"
+  map_public_ip_on_launch = "${signum(var.public_network) == 1 ? "true" : "false"}"
   count                   = "${var.az_count}"
 
   lifecycle {
@@ -169,7 +169,7 @@ resource "aws_launch_configuration" "service" {
   iam_instance_profile = "${data.terraform_remote_state.env.env_name}-${data.terraform_remote_state.app.app_name}-${var.service_name}"
   key_name             = "${data.terraform_remote_state.env.key_name}"
   user_data            = "${data.template_file.user_data_service.rendered}"
-  security_groups      = ["${concat(list(data.terraform_remote_state.env.sg_env,lookup(map("1",data.terraform_remote_state.env.sg_env_public,"0",data.terraform_remote_state.env.sg_env_private),format("%d",signum(var.public_network))),aws_security_group.service.id),list(data.terraform_remote_state.app.app_sg))}"]
+  security_groups      = ["${concat(list(data.terraform_remote_state.env.sg_env,signum(var.public_network) == 1 ?  data.terraform_remote_state.env.sg_env_public : data.terraform_remote_state.env.sg_env_private,aws_security_group.service.id),list(data.terraform_remote_state.app.app_sg))}"]
   count                = "${var.asg_count}"
 
   lifecycle {
