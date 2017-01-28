@@ -14,12 +14,8 @@ module "global" {
 # data
 
 # output
-output env_cidr {
-  value = "${var.env_cidr}"
-}
-
-output env_region {
-  value = "${var.env_region}"
+output org {
+  value = "${data.external.org.result}"
 }
 
 output sys_nets {
