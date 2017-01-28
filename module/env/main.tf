@@ -260,7 +260,7 @@ module "fs" {
 
 resource "aws_route53_record" "fs" {
   zone_id = "${aws_route53_zone.private.zone_id}"
-  name    = "efs-${element(data.aws_availability_zones.azs.names,count.index)}.${signum(length(var.env_zone)) == 1 ? var.env_zone : var.env_name}.${signum(length(var.env_domain_name)) == 1 ? var.env_domain_name : var.env_domain_name}"
+  name    = "efs-${element(data.aws_availability_zones.azs.names,count.index)}.${signum(length(var.env_zone)) == 1 ? var.env_zone : var.env_name}.${signum(length(var.env_domain_name)) == 1 ? var.env_domain_name : data.terraform_remote_state.global.domain_name}"
   type    = "CNAME"
   ttl     = "60"
   records = ["${element(module.fs.efs_dns_names,count.index)}"]
