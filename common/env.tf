@@ -1,5 +1,5 @@
 provider "aws" {
-  region = "${data.terraform_remote_state.global.env_region[var.env_name]}"
+  region = "${data.terraform_remote_state.global.org["region_${var.env_name}"]}"
 }
 
 # module
@@ -29,5 +29,5 @@ data "terraform_remote_state" "global" {
 
 # output
 output "aws_region" {
-  value = "${data.terraform_remote_state.global.env_region[var.env_name]}"
+  value = "${data.terraform_remote_state.global.org["region_${var.env_name}"]}"
 }

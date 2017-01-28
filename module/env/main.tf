@@ -36,7 +36,7 @@ data "aws_ami" "env" {
 }
 
 resource "aws_vpc" "env" {
-  cidr_block           = "${data.terraform_remote_state.global.env_cidr[var.env_name]}"
+  cidr_block           = "${data.terraform_remote_state.global.org["cidr_${var.env_name}"]}"
   enable_dns_support   = true
   enable_dns_hostnames = true
 
