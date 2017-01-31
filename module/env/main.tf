@@ -356,6 +356,8 @@ resource "aws_s3_bucket" "s3" {
   bucket = "b-${format("%.8s",sha1(data.terraform_remote_state.global.aws_account_id))}-${var.env_name}-s3"
   acl    = "log-delivery-write"
 
+  depends_on = ["aws_s3_bucket.s3-meta"]
+
   logging {
     target_bucket = "b-${format("%.8s",sha1(data.terraform_remote_state.global.aws_account_id))}-${var.env_name}-s3-meta"
     target_prefix = "log/"
@@ -374,6 +376,8 @@ resource "aws_s3_bucket" "s3" {
 resource "aws_s3_bucket" "website" {
   bucket = "b-${format("%.8s",sha1(data.terraform_remote_state.global.aws_account_id))}-${var.env_name}-website"
   acl    = "private"
+
+  depends_on = ["aws_s3_bucket.s3"]
 
   logging {
     target_bucket = "b-${format("%.8s",sha1(data.terraform_remote_state.global.aws_account_id))}-${var.env_name}-s3"
