@@ -1,0 +1,59 @@
+#!/usr/bin/env bash
+
+function main {
+  local shome="$(cd -P -- "${BASH_SOURCE%/*}/.." && pwd -P)"
+  source "$shome/script/profile"
+  source normalize
+
+  local tmp_output="$(mktemp -t XXXXXX)"
+  trap "rm -f \"$tmp_output\"" EXIT
+
+  terraform output -json > "$tmp_output"
+  local nm_color="${BASH_SOURCE##*-}"
+  local nm_asg="$(cat "$tmp_output" | jq -r --arg color "$nm_color" '.asg_names.value | map(select(endswith("-\($color)"))) | .[]')"
+  local nm_region="$(cat "$tmp_output" | jq -r '.aws_region.value')"
+
+  if [[ -z "$nm_asg" ]]; then
+    echo "ERROR: no asg group matching color $nm_color" 1>&2
+    return 1
+  fi
+
+  case "${1:-}" in
+    "")
+      fogg "$nm_color" asg '\(.AutoScalingGroupName) min:\(.MinSize) desired:\(.DesiredCapacity) max:\(.MaxSize) \(.AutoScalingGroupARN)'
+      ;;
+
+    asg)
+      shift # asg
+      local jq_refine="${1:-\(.AutoScalingGroupName) min:\(.MinSize) desired:\(.DesiredCapacity) max:\(.MaxSize) \(.AutoScalingGroupARN)}"
+      aws "$nm_region" autoscaling describe-auto-scaling-groups --auto-scaling-group-names "$nm_asg" | jq '.AutoScalingGroups' | jq 'map("'"$jq_refine"'")' | jq -r '.[]'
+      ;;
+
+    instances)
+      shift # instances
+      local jq_refine="${1:-\(.InstanceId) \(.PrivateIpAddress)}"
+      fogg "$nm_color" asg '\(.)' | jq -r '.Instances[].InstanceId' | xargs -r aws "$nm_region" ec2 describe-instances --instance-ids | jq '[.Reservations[].Instances[]]' | jq 'map("'"$jq_refine"'")' | jq -r '.[]'
+      ;;
+
+    inc)
+      shift # inc
+      local inc_by="${1:-1}"
+      local cnt_desired="$(( $(fogg "$nm_color" asg '\(.DesiredCapacity)') + inc_by ))"
+      aws "$nm_region" autoscaling set-desired-capacity --auto-scaling-group-name "$nm_asg" --desired-capacity "$cnt_desired"
+      ;;
+
+    dec)
+      shift # dev
+      local dec_by="${1:-1}"
+      local cnt_desired="$(( $(fogg "$nm_color" asg '\(.DesiredCapacity)') - dec_by ))"
+      aws "$nm_region" autoscaling set-desired-capacity --auto-scaling-group-name "$nm_asg" --desired-capacity "$cnt_desired"
+      ;;
+
+    *)
+      echo "ERROR: no subcommand found for fogg $nm_color $1" 1>&2
+      return 1
+      ;;
+  esac
+}
+
+source sub "$BASH_SOURCE" "$@"
