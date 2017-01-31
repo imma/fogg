@@ -7,7 +7,7 @@ function main {
 
   fogg
   terraform get
-  terraform plan "$@"
+  terraform plan -no-color "$@"
 }
 
 source sub "$BASH_SOURCE" "$@"
