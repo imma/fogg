@@ -1,0 +1,11 @@
+#!/usr/bin/env bash
+
+function main {
+  local shome="$(cd -P -- "${BASH_SOURCE%/*}/.." && pwd -P)"
+  source "$shome/script/profile"
+  source normalize
+
+  find . -name '*.tfvars' -o -name '*.tf' -o -name '*.tf.json' | perl -pe 's{/[^/\s]+$}{}' | env LANG=C sort -u | runmany "$@"
+}
+
+source sub "$BASH_SOURCE" "$@"
