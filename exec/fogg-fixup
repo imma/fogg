@@ -1,0 +1,14 @@
+#!/usr/bin/env bash
+
+function main {
+  local shome="$(cd -P -- "${BASH_SOURCE%/*}/.." && pwd -P)"
+  source "$shome/script/profile"
+  source normalize
+
+  local nm_region="$1"; shift
+
+  cat terraform.tf.json | jq -r --arg region "$nm_region" '.provider.aws.region |= "\($region)"' > terraform.tf.json.$$
+  mv terraform.tf.json.$$ terraform.tf.json
+}
+
+source sub "$BASH_SOURCE" "$@"
