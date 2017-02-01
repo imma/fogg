@@ -14,27 +14,6 @@ data "aws_vpc" "current" {
 
 data "aws_availability_zones" "azs" {}
 
-data "aws_ami" "env" {
-  most_recent = true
-
-  filter {
-    name   = "name"
-    values = ["ubuntu/images/hvm-ssd/ubuntu-xenial-16.04-amd64-server-*"]
-  }
-
-  filter {
-    name   = "virtualization-type"
-    values = ["hvm"]
-  }
-
-  filter {
-    name   = "block-device-mapping.volume-type"
-    values = ["gp2"]
-  }
-
-  owners = ["099720109477"] # Canonical
-}
-
 resource "aws_vpc" "env" {
   cidr_block           = "${data.terraform_remote_state.global.org["cidr_${var.env_name}"]}"
   enable_dns_support   = true

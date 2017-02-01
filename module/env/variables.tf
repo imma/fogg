@@ -95,7 +95,7 @@ output "env_name" {
 }
 
 output "env_ami_id" {
-  value = "${coalesce(var.ami_id,data.aws_ami.env.id)}"
+  value = "${var.ami_id}"
 }
 
 output "key_name" {
