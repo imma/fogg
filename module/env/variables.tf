@@ -34,6 +34,10 @@ variable "public_key" {
   default = "../.etc/ssh-key-pair.pub"
 }
 
+variable "ami_id" {
+  default = ""
+}
+
 output "vpc_id" {
   value = "${aws_vpc.env.id}"
 }
@@ -91,7 +95,7 @@ output "env_name" {
 }
 
 output "env_ami_id" {
-  value = "${data.aws_ami.env.id}"
+  value = "${coalesce(var.ami_id,data.aws_ami.env.id)}"
 }
 
 output "key_name" {
