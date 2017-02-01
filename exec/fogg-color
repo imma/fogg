@@ -20,13 +20,13 @@ function main {
 
   case "${1:-}" in
     "")
-      fogg "$nm_color" asg '\(.AutoScalingGroupName) min:\(.MinSize) desired:\(.DesiredCapacity) max:\(.MaxSize) \(.AutoScalingGroupARN)'
+      fogg "$nm_color" asg '\(.AutoScalingGroupName) min:\(.MinSize) desired:\(.DesiredCapacity) max:\(.MaxSize)'
       fogg "$nm_color" instances '\(.InstanceId) \(.PrivateIpAddress) \(.PublicIpAddress//"")'
       ;;
 
     asg)
       shift # asg
-      local jq_refine="${1:-\(.AutoScalingGroupName) min:\(.MinSize) desired:\(.DesiredCapacity) max:\(.MaxSize) \(.AutoScalingGroupARN)}"
+      local jq_refine="${1:-\(.AutoScalingGroupName) min:\(.MinSize) desired:\(.DesiredCapacity) max:\(.MaxSize)}"
       aws "$nm_region" autoscaling describe-auto-scaling-groups --auto-scaling-group-names "$nm_asg" | jq '.AutoScalingGroups' | jq 'map("'"$jq_refine"'")' | jq -r '.[]'
       ;;
 
