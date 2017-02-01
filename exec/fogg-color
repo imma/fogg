@@ -8,6 +8,13 @@ function main {
   local tmp_output="$(mktemp -t XXXXXX)"
   trap "rm -f \"$tmp_output\"" EXIT
 
+  case "${1:-}" in
+    */)
+      local pth_service="$1"; shift
+      cd "$pth_service"
+      ;;
+  esac
+
   terraform output -json > "$tmp_output"
   local nm_color="${BASH_SOURCE##*-}"
   local nm_asg="$(cat "$tmp_output" | jq -r --arg color "$nm_color" '.asg_names.value | map(select(endswith("-\($color)"))) | .[]')"
@@ -36,20 +43,26 @@ function main {
       fogg "$nm_color" asg '\(.)' | jq -r '.Instances[].InstanceId' | gxargs -r aws "$nm_region" ec2 describe-instances --instance-ids | jq '[.Reservations[].Instances[]]' | jq 'map("'"$jq_refine"'")' | jq -r '.[]'
       ;;
 
-    inc)
-      shift # inc
+    inc|dec|desired)
+      local asg_cmd="$1"; shift
       local inc_by="${1:-1}"
-      local cnt_desired="$(( $(fogg "$nm_color" asg '\(.DesiredCapacity)') + inc_by ))"
+
+      local cnt_desired=
+      
+      case "$asg_cmd" in
+        inc)
+          cnt_desired="$(( $(fogg "$nm_color" asg '\(.DesiredCapacity)') + inc_by ))"
+          ;;
+        dec)
+          cnt_desired="$(( $(fogg "$nm_color" asg '\(.DesiredCapacity)') - inc_by ))"
+          ;;
+        desired)
+          cnt_desired="${inc_by}"
+          ;;
+      esac
+
       aws "$nm_region" autoscaling set-desired-capacity --auto-scaling-group-name "$nm_asg" --desired-capacity "$cnt_desired"
       ;;
-
-    dec)
-      shift # dev
-      local dec_by="${1:-1}"
-      local cnt_desired="$(( $(fogg "$nm_color" asg '\(.DesiredCapacity)') - dec_by ))"
-      aws "$nm_region" autoscaling set-desired-capacity --auto-scaling-group-name "$nm_asg" --desired-capacity "$cnt_desired"
-      ;;
-
     *)
       echo "ERROR: no subcommand found for fogg $nm_color $1" 1>&2
       return 1
