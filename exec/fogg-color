@@ -21,6 +21,7 @@ function main {
   case "${1:-}" in
     "")
       fogg "$nm_color" asg '\(.AutoScalingGroupName) min:\(.MinSize) desired:\(.DesiredCapacity) max:\(.MaxSize) \(.AutoScalingGroupARN)'
+      fogg "$nm_color" instances '\(.InstanceId) \(.PrivateIpAddress) \(.PublicIpAddress//"")'
       ;;
 
     asg)
