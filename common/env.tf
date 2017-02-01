@@ -12,6 +12,7 @@ module "env" {
   env_name            = "${var.env_name}"
 
   public_key          = "${var.public_key}"
+  ami_id              = "${var.ami_id}"
 
   nat_count           = "${var.nat_count}"
   want_fs             = "${var.want_fs}"
