@@ -29,7 +29,7 @@ data "aws_ami" "env" {
 
   filter {
     name   = "block-device-mapping.volume-type"
-    values = ["gp2"]
+    values = ["sc1"]
   }
 
   owners = ["099720109477"] # Canonical
