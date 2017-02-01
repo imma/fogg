@@ -33,7 +33,7 @@ function main {
     instances)
       shift # instances
       local jq_refine="${1:-\(.InstanceId) \(.PrivateIpAddress)}"
-      fogg "$nm_color" asg '\(.)' | jq -r '.Instances[].InstanceId' | xargs -r aws "$nm_region" ec2 describe-instances --instance-ids | jq '[.Reservations[].Instances[]]' | jq 'map("'"$jq_refine"'")' | jq -r '.[]'
+      fogg "$nm_color" asg '\(.)' | jq -r '.Instances[].InstanceId' | gxargs -r aws "$nm_region" ec2 describe-instances --instance-ids | jq '[.Reservations[].Instances[]]' | jq 'map("'"$jq_refine"'")' | jq -r '.[]'
       ;;
 
     inc)
