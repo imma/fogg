@@ -177,7 +177,7 @@ resource "aws_launch_configuration" "service" {
   }
 
   root_block_device {
-    volume_type = "gp2"
+    volume_type = "sc1"
     volume_size = "${element(var.root_volume_size,count.index)}"
   }
 
