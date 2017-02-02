@@ -237,7 +237,13 @@ resource "aws_autoscaling_group" "service" {
 
   tag {
     key                 = "ManagedBy"
-    value               = "asg ${data.terraform_remote_state.app.app_name}-${var.service_name}-${element(var.asg_name,count.index)}"
+    value               = "asg ${data.terraform_remote_state.env.env_name}-${data.terraform_remote_state.app.app_name}-${var.service_name}-${element(var.asg_name,count.index)}"
+    propagate_at_launch = true
+  }
+
+  tag {
+    key                 = "Color"
+    value               = "${element(var.asg_name,count.index)}"
     propagate_at_launch = true
   }
 }
