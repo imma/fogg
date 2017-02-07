@@ -18,14 +18,6 @@ output org {
   value = "${data.external.org.result}"
 }
 
-output sys_nets {
-  value = "${var.sys_nets}"
-}
-
-output service_nets {
-  value = "${var.service_nets}"
-}
-
 output s3_remote_state {
   value = "${var.s3_remote_state}"
 }
