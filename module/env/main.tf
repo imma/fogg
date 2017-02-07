@@ -123,7 +123,7 @@ resource "aws_internet_gateway" "env" {
   vpc_id = "${aws_vpc.env.id}"
 
   tags {
-    "Name"      = "${var.env_name}-nat"
+    "Name"      = "${var.env_name}"
     "Env"       = "${var.env_name}"
     "ManagedBy" = "terraform"
   }
