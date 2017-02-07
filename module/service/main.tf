@@ -57,7 +57,7 @@ output "service_sg" {
 resource "aws_subnet" "service" {
   vpc_id                  = "${data.aws_vpc.current.id}"
   availability_zone       = "${element(data.aws_availability_zones.azs.names,count.index)}"
-  cidr_block              = "${cidrsubnet(data.aws_vpc.current.cidr_block,var.service_bits,element(data.terraform_remote_state.global.service_nets[var.service_name],count.index))}"
+  cidr_block              = "${cidrsubnet(data.aws_vpc.current.cidr_block,var.service_bits,element(data.terraform_remote_state.global.service_nets["${data.terraform_remote_state.app.app_name}_${var.service_name}"],count.index))}"
   map_public_ip_on_launch = "${signum(var.public_network) == 1 ? "true" : "false"}"
   count                   = "${var.az_count}"
 
