@@ -137,7 +137,7 @@ resource "aws_eip" "nat" {
 resource "aws_subnet" "nat" {
   vpc_id                  = "${aws_vpc.env.id}"
   availability_zone       = "${element(data.aws_availability_zones.azs.names,count.index)}"
-  cidr_block              = "${cidrsubnet(data.aws_vpc.current.cidr_block,var.nat_bits,element(data.terraform_remote_state.global.sys_nets["nat"],count.index))}"
+  cidr_block              = "${cidrsubnet(data.aws_vpc.current.cidr_block,var.nat_bits,element(split(" ",data.terraform_remote_state.global.sys_nets["nat"]),count.index))}"
   map_public_ip_on_launch = true
   count                   = "${var.az_count}"
 
@@ -181,7 +181,7 @@ resource "aws_route_table" "nat" {
 resource "aws_subnet" "common" {
   vpc_id                  = "${aws_vpc.env.id}"
   availability_zone       = "${element(data.aws_availability_zones.azs.names,count.index)}"
-  cidr_block              = "${cidrsubnet(data.aws_vpc.current.cidr_block,var.common_bits,element(data.terraform_remote_state.global.sys_nets["common"],count.index))}"
+  cidr_block              = "${cidrsubnet(data.aws_vpc.current.cidr_block,var.common_bits,element(split(" ",data.terraform_remote_state.global.sys_nets["common"]),count.index))}"
   map_public_ip_on_launch = false
   count                   = "${var.az_count}"
 
