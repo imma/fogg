@@ -34,6 +34,10 @@ variable "public_key" { }
 
 variable "ami_id" { }
 
+variable "sg_extra" {
+  default = []
+}
+
 output "vpc_id" {
   value = "${aws_vpc.env.id}"
 }
@@ -80,6 +84,10 @@ output "sg_env_lb_private" {
 
 output "sg_env_lb_public" {
   value = "${aws_security_group.env_lb_public.id}"
+}
+
+output "sg_extra" {
+  value = ["${var.sg_extra}"]
 }
 
 output "nat_gateways" {
