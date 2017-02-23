@@ -38,6 +38,10 @@ variable "sg_extra" {
   default = []
 }
 
+variable "iam_extra" {
+  default = []
+}
+
 output "vpc_id" {
   value = "${aws_vpc.env.id}"
 }
@@ -88,6 +92,10 @@ output "sg_env_lb_public" {
 
 output "sg_extra" {
   value = ["${var.sg_extra}"]
+}
+
+output "iam_extra" {
+  value = ["${var.iam_extra}"]
 }
 
 output "nat_gateways" {
