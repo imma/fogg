@@ -147,7 +147,7 @@ resource "aws_iam_role" "service" {
 
 resource "aws_iam_instance_profile" "service" {
   name  = "${data.terraform_remote_state.env.env_name}-${data.terraform_remote_state.app.app_name}-${var.service_name}"
-  roles = "${concat(data.terraform_remote_state.env.iam_extra,list("${aws_iam_role.service.name}"))}"
+  roles = ["${concat(data.terraform_remote_state.env.iam_extra,list("${aws_iam_role.service.name}"))}"]
 }
 
 resource "aws_iam_group" "service" {
