@@ -19,7 +19,7 @@ module "env" {
   want_nat            = "${var.want_nat}"
 
   sg_extra            = ["${var.sg_extra}"]
-  ima_extra           = ["${var.iam_extra}"]
+  iam_extra           = ["${var.iam_extra}"]
 }
 
 # data
