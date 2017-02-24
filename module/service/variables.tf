@@ -20,6 +20,10 @@ variable "want_nat" {
   default = "1"
 }
 
+variable "want_elb" {
+  default = "0"
+}
+
 variable "user_data" {
   default = "../../../.etc/user-data.template"
 }
@@ -74,4 +78,12 @@ output "elb_names" {
 
 output "elb_dns" {
   value = ["${aws_elb.service.*.dns_name}"]
+}
+
+output "elb_sg" {
+  value = "${aws_security_group.lb.id}"
+}
+
+output "service_sg" {
+  value = "${aws_security_group.service.id}"
 }

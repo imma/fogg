@@ -50,10 +50,6 @@ resource "aws_security_group" "service" {
   }
 }
 
-output "service_sg" {
-  value = "${aws_security_group.service.id}"
-}
-
 resource "aws_subnet" "service" {
   vpc_id                  = "${data.aws_vpc.current.id}"
   availability_zone       = "${element(data.aws_availability_zones.azs.names,count.index)}"
@@ -209,10 +205,28 @@ resource "aws_launch_configuration" "service" {
   }
 }
 
+resource "aws_security_group" "lb" {
+  name        = "${data.terraform_remote_state.env.env_name}-${data.terraform_remote_state.app.app_name}-${var.service_name}-lb"
+  description = "LB ${data.terraform_remote_state.app.app_name}-${var.service_name}"
+  vpc_id      = "${data.aws_vpc.current.id}"
+
+  tags {
+    "Name"      = "${data.terraform_remote_state.env.env_name}-${data.terraform_remote_state.app.app_name}-${var.service_name}-lb"
+    "Env"       = "${data.terraform_remote_state.env.env_name}"
+    "App"       = "${data.terraform_remote_state.app.app_name}-lb"
+    "Service"   = "${var.service_name}"
+    "ManagedBy" = "terraform"
+  }
+}
+
 resource "aws_elb" "service" {
   name                 = "${data.terraform_remote_state.env.env_name}-${data.terraform_remote_state.app.app_name}-${var.service_name}-${element(var.asg_name,count.index)}"
-  count                = "${var.asg_count}"
+  count                = "${var.want_elb*var.asg_count}"
   subnets = ["${aws_subnet.service.*.id}"]
+  security_groups = [
+    "${data.terraform_remote_state.env.sg_env_lb}",
+    "${var.public_lb ? data.terraform_remote_state.env.sg_env_lb_public : data.terraform_remote_state.env.sg_env_lb_private}" 
+  ]
   internal = "${var.public_lb == 0 ? true : false}"
 
   access_logs {
