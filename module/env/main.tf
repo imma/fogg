@@ -254,6 +254,21 @@ resource "aws_s3_bucket" "lb" {
     enabled = true
   }
 
+  policy = <<EOF
+{
+  "Version": "2012-10-17",
+  "Statement": [{
+    "Sid": "",
+    "Action": "s3:PutObject",
+    "Effect": "Allow",
+    "Resource": "arn:aws:s3:::b-${format("%.8s",sha1(data.terraform_remote_state.global.aws_account_id))}-${var.env_name}-lb/*",
+    "Principal": {
+      "AWS": "arn:aws:iam::${lookup(data.terraform_remote_state.global.org,"aws_account_${var.env_name}")}:root"
+    }
+  }]
+}
+EOF
+
   tags {
     "ManagedBy" = "terraform"
     "Env"       = "${var.env_name}"

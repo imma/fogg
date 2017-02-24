@@ -267,6 +267,8 @@ resource "aws_autoscaling_group" "service" {
   termination_policies = ["${var.termination_policies}"]
   count                = "${var.asg_count}"
 
+  load_balancers = ["${element(aws_elb.service.*.name,count.index)}"]
+
   tag {
     key                 = "Name"
     value               = "${data.terraform_remote_state.env.env_name}-${data.terraform_remote_state.app.app_name}-${var.service_name}-${element(var.asg_name,count.index)}"
