@@ -227,6 +227,7 @@ resource "aws_elb" "service" {
   security_groups = [
     "${data.terraform_remote_state.env.sg_env_lb}",
     "${var.public_lb ? data.terraform_remote_state.env.sg_env_lb_public : data.terraform_remote_state.env.sg_env_lb_private}",
+    "${aws_security_group.lb.id}",
   ]
 
   internal = "${var.public_lb == 0 ? true : false}"
