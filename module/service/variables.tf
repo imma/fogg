@@ -73,5 +73,5 @@ output "elb_names" {
 }
 
 output "elb_dns" {
-  value = ["${aws_elb.service.*.domain}"]
+  value = ["${aws_elb.service.*.dns_name}"]
 }
