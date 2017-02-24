@@ -94,6 +94,13 @@ resource "aws_route" "service" {
   count                  = "${var.want_nat*var.az_count*(signum(var.public_network)-1)*-1}"
 }
 
+resource "aws_route" "service_peering" {
+  route_table_id         = "${element(aws_route_table.service.*.id,count.index)}"
+  destination_cidr_block = "${lookup(data.terraform_remote_state.global.org,"peering_cidr_${element(split(" ",lookup(data.terraform_remote_state.global.org,"peering")),count.index)}")}"
+  vpc_peering_connection_id = "${lookup(data.terraform_remote_state.global.org,"peering_pcx_${element(split(" ",lookup(data.terraform_remote_state.global.org,"peering")),count.index)}")}"
+  count                  = "${var.peer_count}"
+}
+
 resource "aws_route_table_association" "service" {
   subnet_id      = "${element(aws_subnet.service.*.id,count.index)}"
   route_table_id = "${element(aws_route_table.service.*.id,count.index)}"

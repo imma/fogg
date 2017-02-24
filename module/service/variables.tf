@@ -28,6 +28,10 @@ variable "asg_count" {
   default = 2
 }
 
+variable "peer_count" {
+  default = 0
+}
+
 variable "asg_name" {
   default = ["blue", "green"]
 }

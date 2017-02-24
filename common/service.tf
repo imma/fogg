@@ -12,6 +12,7 @@ module "service" {
 
   az_count            = "${var.az_count}"
   service_name        = "${var.service_name}"
+  peer_count          = "${var.peer_count}"
 
   public_network      = "${var.public_network}"
   want_fs             = "${var.want_fs}"
