@@ -67,3 +67,11 @@ variable "termination_policies" {
 output "asg_names" {
   value = ["${aws_autoscaling_group.service.*.name}"]
 }
+
+output "elb_names" {
+  value = ["${aws_elb.service.*.name}"]
+}
+
+output "elb_dns" {
+  value = ["${aws_elb.service.*.domain}"]
+}
