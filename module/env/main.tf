@@ -129,6 +129,44 @@ resource "aws_internet_gateway" "env" {
   }
 }
 
+resource "aws_subnet" "public" {
+  vpc_id                  = "${aws_vpc.env.id}"
+  availability_zone       = "${element(data.aws_availability_zones.azs.names,count.index)}"
+  cidr_block              = "${cidrsubnet(data.aws_vpc.current.cidr_block,var.public_bits,element(split(" ",data.terraform_remote_state.global.org["sys_public"]),count.index))}"
+  map_public_ip_on_launch = true
+  count                   = "${var.az_count}"
+
+  tags {
+    "Name"      = "${var.env_name}-public"
+    "Env"       = "${var.env_name}"
+    "ManagedBy" = "terraform"
+    "Network"   = "public"
+  }
+}
+
+resource "aws_route" "public" {
+  route_table_id         = "${aws_route_table.public.id}"
+  destination_cidr_block = "0.0.0.0/0"
+  gateway_id             = "${aws_internet_gateway.env.id}"
+}
+
+resource "aws_route_table_association" "public" {
+  subnet_id      = "${element(aws_subnet.public.*.id,count.index)}"
+  route_table_id = "${element(aws_route_table.public.*.id,count.index)}"
+  count          = "${var.az_count}"
+}
+
+resource "aws_route_table" "public" {
+  vpc_id = "${aws_vpc.env.id}"
+
+  tags {
+    "Name"      = "${var.env_name}-public"
+    "Env"       = "${var.env_name}"
+    "ManagedBy" = "terraform"
+    "Network"   = "public"
+  }
+}
+
 resource "aws_eip" "nat" {
   vpc   = true
   count = "${var.want_nat*(var.az_count*(signum(var.nat_count)-1)*-1+var.nat_count)}"

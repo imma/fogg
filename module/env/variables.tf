@@ -10,6 +10,10 @@ variable "nat_bits" {
   default = "12"
 }
 
+variable "public_bits" {
+  default = "8"
+}
+
 variable "common_bits" {
   default = "8"
 }
@@ -30,9 +34,9 @@ variable "want_nat" {
   default = "1"
 }
 
-variable "public_key" { }
+variable "public_key" {}
 
-variable "ami_id" { }
+variable "ami_id" {}
 
 variable "sg_extra" {
   default = []
@@ -104,6 +108,14 @@ output "iam_extra" {
 
 output "nat_gateways" {
   value = ["${aws_nat_gateway.env.*.id}"]
+}
+
+output "nat_subnets" {
+  value = ["${aws_subnet.nat.*.id}"]
+}
+
+output "public_subnets" {
+  value = ["${aws_subnet.public.*.id}"]
 }
 
 output "env_name" {
