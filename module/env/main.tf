@@ -246,14 +246,6 @@ resource "aws_route53_record" "fs" {
   count   = "${var.az_count*var.want_fs}"
 }
 
-#resource "aws_vpc_endpoint" "s3" {
-
-#  vpc_id       = "${aws_vpc.env.id}"
-
-#  service_name = "com.amazonaws.${var.aws_region}.s3"
-
-#}
-
 resource "aws_s3_bucket" "lb" {
   bucket = "b-${format("%.8s",sha1(data.terraform_remote_state.global.aws_account_id))}-${var.env_name}-lb"
   acl    = "private"

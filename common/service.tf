@@ -15,6 +15,7 @@ module "service" {
   peer_count          = "${var.peer_count}"
 
   public_network      = "${var.public_network}"
+  public_lb           = "${var.public_lb}"
   want_fs             = "${var.want_fs}"
   want_nat            = "${var.want_nat}"
   instance_type       = ["${var.instance_type}"]

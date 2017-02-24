@@ -78,6 +78,10 @@ output "sg_env_public" {
   value = "${aws_security_group.env_public.id}"
 }
 
+output "s3_env_lb" {
+  value = "b-${format("%.8s",sha1(data.terraform_remote_state.global.aws_account_id))}-${var.env_name}-lb"
+}
+
 output "sg_env_lb" {
   value = "${aws_security_group.env_lb.id}"
 }

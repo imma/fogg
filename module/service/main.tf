@@ -209,6 +209,55 @@ resource "aws_launch_configuration" "service" {
   }
 }
 
+resource "aws_elb" "service" {
+  name                 = "${data.terraform_remote_state.env.env_name}-${data.terraform_remote_state.app.app_name}-${var.service_name}-${element(var.asg_name,count.index)}"
+  count                = "${var.asg_count}"
+  subnets = ["${aws_subnet.service.*.id}"]
+  internal = "${var.public_lb == 0 ? true : false}"
+
+  access_logs {
+    bucket = "${data.terraform_remote_state.env.s3_env_lb}"
+    bucket_prefix = "${data.terraform_remote_state.env.env_name}-${data.terraform_remote_state.app.app_name}-${var.service_name}-${element(var.asg_name,count.index)}"
+    interval = 60
+  }
+
+  listener {
+    instance_port = 80
+    instance_protocol = "tcp"
+    lb_port = 80
+    lb_protocol = "tcp"
+  }
+
+  listener {
+    instance_port = 443
+    instance_protocol = "tcp"
+    lb_port = 443
+    lb_protocol = "tcp"
+  }
+
+  health_check {
+    healthy_threshold = 2
+    unhealthy_threshold = 2
+    timeout = 3
+    target = "TCP:80"
+    interval = 30
+  }
+
+  cross_zone_load_balancing = true
+  idle_timeout = 400
+  connection_draining = true
+  connection_draining_timeout = 60
+
+  tags {
+    Name = "${data.terraform_remote_state.env.env_name}-${data.terraform_remote_state.app.app_name}-${var.service_name}-${element(var.asg_name,count.index)}"
+    Env = "${data.terraform_remote_state.env.env_name}"
+    App = "${data.terraform_remote_state.app.app_name}"
+    Service = "${var.service_name}"
+    ManagedBy = "terraform"
+    Color = "${element(var.asg_name,count.index)}"
+  }
+}
+
 resource "aws_autoscaling_group" "service" {
   name                 = "${data.terraform_remote_state.env.env_name}-${data.terraform_remote_state.app.app_name}-${var.service_name}-${element(var.asg_name,count.index)}"
   launch_configuration = "${element(aws_launch_configuration.service.*.name,count.index)}"

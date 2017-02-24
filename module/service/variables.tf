@@ -8,6 +8,10 @@ variable "public_network" {
   default = "0"
 }
 
+variable "public_lb" {
+  default = "0"
+}
+
 variable "want_fs" {
   default = "0"
 }
