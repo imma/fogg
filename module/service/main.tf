@@ -209,6 +209,7 @@ resource "aws_security_group" "lb" {
   name        = "${data.terraform_remote_state.env.env_name}-${data.terraform_remote_state.app.app_name}-${var.service_name}-lb"
   description = "LB ${data.terraform_remote_state.app.app_name}-${var.service_name}"
   vpc_id      = "${data.aws_vpc.current.id}"
+  count       = "${var.want_elb ? 1 : 0 }"
 
   tags {
     "Name"      = "${data.terraform_remote_state.env.env_name}-${data.terraform_remote_state.app.app_name}-${var.service_name}-lb"
@@ -227,7 +228,7 @@ resource "aws_elb" "service" {
   security_groups = [
     "${data.terraform_remote_state.env.sg_env_lb}",
     "${var.public_lb ? data.terraform_remote_state.env.sg_env_lb_public : data.terraform_remote_state.env.sg_env_lb_private}",
-    "${aws_security_group.lb.id}",
+    "${aws_security_group.lb.*.id}",
   ]
 
   internal = "${var.public_lb == 0 ? true : false}"
@@ -284,7 +285,7 @@ resource "aws_autoscaling_group" "service" {
   termination_policies = ["${var.termination_policies}"]
   count                = "${var.asg_count}"
 
-  load_balancers = ["${element(aws_elb.service.*.name,count.index)}"]
+  load_balancers = [ "${compact(list(element(concat(aws_elb.service.*.name,list("","")),count.index)))}" ]
 
   tag {
     key                 = "Name"
