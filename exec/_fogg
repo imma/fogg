@@ -12,8 +12,8 @@ function use_module {
 }
 
 function az_count {
-  local pth_config="$(echo "$PWD" | perl -pe 's{.*[/-]org/}{}; s{/+}{-}g')"
-  local adj_config="./$(echo "$pth_config" | perl -pe 's{[^-]+$}{}; s{[^-]+}{..}g; s{-}{/}g')"
+  local pth_config="$(echo "$PWD" | perl -pe 's{.*[/_]org/}{}; s{/+}{_}g')"
+  local adj_config="./$(echo "$pth_config" | perl -pe 's{[^_]+$}{}; s{[^_]+}{..}g; s{_}{/}g')"
   aws ec2 describe-availability-zones --region $(cat "$adj_config/.terraform/terraform.tfstate" | jq -r --arg env_name "region_$nm_env" '.modules[0].outputs.org.value[$env_name]') | jq -r '.AvailabilityZones | length'
 }
 

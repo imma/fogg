@@ -21,8 +21,8 @@ function main {
 
   fogg
 
-  local pth_config="$(echo "$PWD" | perl -pe 's{.*[/-]org/}{}; s{/+}{-}g')"
-  local adj_config="./$(echo "$pth_config" | perl -pe 's{[^-]+$}{}; s{[^-]+}{..}g; s{-}{/}g')"
+  local pth_config="$(echo "$PWD" | perl -pe 's{.*[/_]org/}{}; s{/+}{_}g')"
+  local adj_config="./$(echo "$pth_config" | perl -pe 's{[^_]+$}{}; s{[^_]+}{..}g; s{_}{/}g')"
 
   terraform remote config -backend=s3 \
     -backend-config="bucket=$(remote_bucket)" \

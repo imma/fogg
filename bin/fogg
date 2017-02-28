@@ -10,23 +10,23 @@ function main {
     return 1
   fi
 
-  local pth_config="$(echo "$PWD" | perl -pe 's{.*[-/]org/}{}; s{/+}{-}g')"
+  local pth_config="$(echo "$PWD" | perl -pe 's{.*[-/]org/}{}; s{/+}{_}g')"
 
   case "$pth_config" in
-    *-*-*-*)
+    *_*_*_*)
       set -- service \
-        "$(echo "$pth_config" | cut -d- -f2)" \
-        "$(echo "$pth_config" | cut -d- -f3)" \
-        "${pth_config##*-}"
+        "$(echo "$pth_config" | cut -d_ -f2)" \
+        "$(echo "$pth_config" | cut -d_ -f3)" \
+        "${pth_config##*_}"
       ;;
-    *-*-*)
+    *_*_*)
       set -- app \
-        "$(echo "$pth_config" | cut -d- -f2)" \
-        "${pth_config##*-}"
+        "$(echo "$pth_config" | cut -d_ -f2)" \
+        "${pth_config##*_}"
       ;;
-    *-*)
+    *_*)
       set -- env \
-        "${pth_config##*-}"
+        "${pth_config##*_}"
       ;;
     *)
       set -- global
