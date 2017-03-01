@@ -125,7 +125,7 @@ resource "aws_route" "service_public" {
 }
 
 resource "aws_route" "service_peering_public" {
-  route_table_id            = "${element(aws_route_table.service.*.id,count.index%var.az_count)}"
+  route_table_id            = "${element(aws_route_table.service_public.*.id,count.index%var.az_count)}"
   destination_cidr_block    = "${lookup(data.terraform_remote_state.global.org,"peering_${data.terraform_remote_state.env.env_name}_cidr_${element(split(" ",lookup(data.terraform_remote_state.global.org,"peering_${data.terraform_remote_state.env.env_name}")),count.index/var.az_count)}")}"
   vpc_peering_connection_id = "${lookup(data.terraform_remote_state.global.org,"peering_${data.terraform_remote_state.env.env_name}_pcx_${element(split(" ",lookup(data.terraform_remote_state.global.org,"peering_${data.terraform_remote_state.env.env_name}")),count.index/var.az_count)}")}"
   count                     = "${var.az_count*var.peer_count*signum(var.public_network)}"
