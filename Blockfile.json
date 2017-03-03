@@ -1,6 +1,7 @@
 {
   "require": [
     "python",
-    "terraform"
+    "terraform",
+    "terragrunt"
   ]
 }
