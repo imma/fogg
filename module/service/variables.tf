@@ -45,7 +45,7 @@ variable "asg_name" {
 }
 
 variable "instance_type" {
-  default = ["t2.nano", "t2.nano"]
+  default = ["t2.medium", "t2.medium"]
 }
 
 variable "image_id" {
@@ -53,7 +53,7 @@ variable "image_id" {
 }
 
 variable "root_volume_size" {
-  default = ["20", "20"]
+  default = ["30", "30"]
 }
 
 variable "min_size" {
