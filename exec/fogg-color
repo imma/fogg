@@ -5,9 +5,6 @@ function main {
   source "$shome/script/profile"
   source normalize
 
-  local tmp_output="$(mktemp -t XXXXXX)"
-  trap "rm -f \"$tmp_output\"" EXIT
-
   case "${1:-}" in
     */)
       local pth_service="$1"; shift
@@ -15,10 +12,8 @@ function main {
       ;;
   esac
 
-  terraform output -json > "$tmp_output"
   local nm_color="${BASH_SOURCE##*-}"
-  local nm_asg="$(cat "$tmp_output" | jq -r --arg color "$nm_color" '.asg_names.value | map(select(endswith("-\($color)"))) | .[]')"
-  local nm_region="$(cat "$tmp_output" | jq -r '.aws_region.value')"
+  local nm_asg="$(pwd | perl -pe 's{.*?/([^/]+/[^/]+/[^/]+)$}{\1}; s{/}{-}g')-${nm_color}"
 
   if [[ -z "$nm_asg" ]]; then
     echo "ERROR: no asg group matching color $nm_color" 1>&2
@@ -40,13 +35,13 @@ function main {
     asg)
       shift # asg
       local jq_refine="${1:-\(.AutoScalingGroupName) min:\(.MinSize) desired:\(.DesiredCapacity) max:\(.MaxSize)}"
-      aws "$nm_region" autoscaling describe-auto-scaling-groups --auto-scaling-group-names "$nm_asg" | jq '.AutoScalingGroups' | jq 'map("'"$jq_refine"'")' | jq -r '.[]'
+      aws autoscaling describe-auto-scaling-groups --auto-scaling-group-names "$nm_asg" | jq '.AutoScalingGroups' | jq 'map("'"$jq_refine"'")' | jq -r '.[]'
       ;;
 
     instances)
       shift # instances
       local jq_refine="${1:-\(.InstanceId) \(.PrivateIpAddress)}"
-      fogg "$nm_color" asg '\(.)' | jq -r '.Instances[].InstanceId' | gxargs -r aws "$nm_region" ec2 describe-instances --instance-ids | jq '[.Reservations[].Instances[]]' | jq 'map("'"$jq_refine"'")' | jq -r '.[]'
+      fogg "$nm_color" asg '\(.)' | jq -r '.Instances[].InstanceId' | gxargs -r aws ec2 describe-instances --instance-ids | jq '[.Reservations[].Instances[]]' | jq 'map("'"$jq_refine"'")' | jq -r '.[]'
       ;;
 
     inc|dec|desired)
@@ -67,7 +62,7 @@ function main {
           ;;
       esac
 
-      aws "$nm_region" autoscaling set-desired-capacity --auto-scaling-group-name "$nm_asg" --desired-capacity "$cnt_desired"
+      aws autoscaling set-desired-capacity --auto-scaling-group-name "$nm_asg" --desired-capacity "$cnt_desired"
       ;;
     *)
       echo "ERROR: no subcommand found for fogg $nm_color $1" 1>&2
