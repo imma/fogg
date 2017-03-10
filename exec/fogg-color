@@ -27,8 +27,14 @@ function main {
 
   case "${1:-}" in
     "")
-      fogg "$nm_color" asg '\(.AutoScalingGroupName) min:\(.MinSize) desired:\(.DesiredCapacity) max:\(.MaxSize)'
-      fogg "$nm_color" instances '\(.InstanceId) \(.PrivateIpAddress) \(.PublicIpAddress//"")'
+      local tmp_asg="$(mktemp -t XXXXXX)"
+      local tmp_instances="$(mktemp -t XXXXXX)"
+      fogg "$nm_color" asg '\(.AutoScalingGroupName) min:\(.MinSize) desired:\(.DesiredCapacity) max:\(.MaxSize)' > "$tmp_asg" &
+      fogg "$nm_color" instances '\(.InstanceId) \(.PrivateIpAddress) \(.PublicIpAddress//"")' > "$tmp_instances" &
+      wait
+      cat "$tmp_asg"
+      cat "$tmp_instances"
+      rm -f "$tmp_asg" "$tmp_instances"
       ;;
 
     asg)
