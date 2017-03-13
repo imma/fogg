@@ -66,11 +66,13 @@ function main {
       ;;
 
     remove)
-      aws autoscaling terminate-instance-in-auto-scaling-group --instance-id --should-decrement-desired-capacity
+      shift # remove
+      runmany 'aws autoscaling terminate-instance-in-auto-scaling-group --instance-id "$1" --should-decrement-desired-capacity' "$@"
       ;;
 
     replace)
-      aws autoscaling terminate-instance-in-auto-scaling-group --instance-id --no-should-decrement-desired-capacity
+      shift # replace
+      runmany 'aws autoscaling terminate-instance-in-auto-scaling-group --instance-id "$1" --no-should-decrement-desired-capacity' "$@"
       ;;
 
     *)
