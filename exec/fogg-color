@@ -64,6 +64,15 @@ function main {
 
       aws autoscaling set-desired-capacity --auto-scaling-group-name "$nm_asg" --desired-capacity "$cnt_desired"
       ;;
+
+    remove)
+      aws autoscaling terminate-instance-in-auto-scaling-group --instance-id --should-decrement-desired-capacity
+      ;;
+
+    replace)
+      aws autoscaling terminate-instance-in-auto-scaling-group --instance-id --no-should-decrement-desired-capacity
+      ;;
+
     *)
       echo "ERROR: no subcommand found for fogg $nm_color $1" 1>&2
       return 1
