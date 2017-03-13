@@ -2,8 +2,7 @@
 
 function main {
   local shome="$(cd -P -- "${BASH_SOURCE%/*}/.." && pwd -P)"
-  source "$shome/script/profile"
-  source normalize
+  source "$shome/script/profile" source normalize
 
   case "${1:-}" in
     */)
@@ -72,7 +71,15 @@ function main {
 
     replace)
       shift # replace
-      runmany 'aws autoscaling terminate-instance-in-auto-scaling-group --instance-id "$1" --no-should-decrement-desired-capacity' "$@"
+      case "${1:-}" in
+        all)
+          fogg "$nm_color" instances '\(.InstanceId)' | runmany 'aws autoscaling terminate-instance-in-auto-scaling-group --instance-id "$1" --no-should-decrement-desired-capacity'
+          ;;
+
+        *)
+          runmany 'aws autoscaling terminate-instance-in-auto-scaling-group --instance-id "$1" --no-should-decrement-desired-capacity' "$@"
+          ;;
+      esac
       ;;
 
     *)
