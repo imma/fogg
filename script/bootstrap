@@ -1,12 +1,11 @@
 #!/usr/bin/env bash
 
-function bootstrap {
+function main {
   local shome="$(cd -P -- "${BASH_SOURCE%/*}/.." && pwd -P)"
   source "$shome/script/profile"
 
   block compile virtualenv
-
-  "$shome/script/update"
+  localhost -m file -- state=link src=../vendor/virtualenv/bin/hcltool dest="$shome/bin/hcltool"
 }
 
-bootstrap
+main "$@"
