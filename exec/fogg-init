@@ -5,13 +5,8 @@ function main {
   source "$shome/script/profile"
   source normalize
 
-  local nm_bucket="$(cat ../.terraform/terraform.tfstate | jq -r '.remote.config.bucket')"
-  if [[ ! -f terraform.tfvars ]]; then
-    echo "s3_remote_state = \"${nm_bucket}\"" > terraform.tfvars
-  fi
-
   fogg
-  fogg remote
+  terraform init
 }
 
 source sub "$BASH_SOURCE" "$@"
