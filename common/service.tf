@@ -1,7 +1,3 @@
-provider "aws" {
-  region = "${data.terraform_remote_state.env.aws_region}"
-}
-
 # module
 module "service" {
   source              = "../../../../../module/service"
