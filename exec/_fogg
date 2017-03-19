@@ -15,8 +15,6 @@ function gen_state {
   set -- $(hcltool terraform.tfvars | jq -r '"\(.remote_bucket) \(.remote_path) \(.remote_region)"')
 
 	jq \
-		--arg remote_bucket "$1" \
-		--arg remote_path "$2" \
 		--arg remote_region "$3" \
 		-n '
 		{
@@ -24,17 +22,18 @@ function gen_state {
 				"aws": {
 					"region": $remote_region,
 				}
-			},
-			"terraform": {
-				"backend": {
-					"s3": {
-						"bucket": $remote_bucket,
-						"key": $remote_path,
-						"region": $remote_region
-					}
-				}
 			}
 		}'
+}
+
+function gen_state_tf {
+  set -- $(hcltool terraform.tfvars | jq -r '"\(.remote_bucket) \(.remote_path) \(.remote_region)"')
+
+	jq \
+		--arg remote_bucket "$1" \
+		--arg remote_path "$2" \
+		--arg remote_region "$3" \
+    -n -r 'terraform { backend "s3" { bucket="\($remote_bucket)" key="\($remote_path)" region="\($remnote_region)" } }' > state.tf
 }
 
 function gen_global { 
@@ -71,6 +70,8 @@ function _main {
     <("gen_${BASH_SOURCE[2]##*-}" "$@" | merge_map) \
     <(use_module "${BASH_SOURCE[2]##*-}") \
     "$@" | jq -S .
+
+  gen_state_tf
 }
 
 _main "$@"
