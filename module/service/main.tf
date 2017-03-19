@@ -1,32 +1,32 @@
-variable "global_remote_state" {}
-
-variable "env_remote_state" {}
-
-variable "app_remote_state" {}
-
 variable "az_count" {}
 
 data "terraform_remote_state" "global" {
-  backend = "local"
+  backend = "s3"
 
   config {
-    path = "${var.global_remote_state}"
+    bucket = "${var.global_bucket}"
+    key = "${var.global_key}"
+    region = "${var.global_region}"
   }
 }
 
 data "terraform_remote_state" "env" {
-  backend = "local"
+  backend = "s3"
 
   config {
-    path = "${var.env_remote_state}"
+    bucket = "${var.env_bucket}"
+    key = "${var.env_key}"
+    region = "${var.env_region}"
   }
 }
 
 data "terraform_remote_state" "app" {
-  backend = "local"
+  backend = "s3"
 
   config {
-    path = "${var.app_remote_state}"
+    bucket = "${var.app_bucket}"
+    key = "${var.app_key}"
+    region = "${var.app_region}"
   }
 }
 

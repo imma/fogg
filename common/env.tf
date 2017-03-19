@@ -1,12 +1,10 @@
-provider "aws" {
-  region = "${data.terraform_remote_state.global.org["region_${var.env_name}"]}"
-}
-
 # module
 module "env" {
   source              = "../../../module/env"
 
-  global_remote_state = "${data.terraform_remote_state.global.config["path"]}"
+  global_bucket = "${var.global_bucket}"
+  global_key = "${var.global_key}"
+  global_region = "${var.global_region}"
 
   az_count            = "${var.az_count}"
   env_name            = "${var.env_name}"
@@ -20,15 +18,6 @@ module "env" {
 
   sg_extra            = ["${var.sg_extra}"]
   iam_extra           = ["${var.iam_extra}"]
-}
-
-# data
-data "terraform_remote_state" "global" {
-  backend = "local"
-
-  config {
-    path = "../.terraform/terraform.tfstate"
-  }
 }
 
 # output

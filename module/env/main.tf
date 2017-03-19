@@ -1,10 +1,10 @@
-variable "global_remote_state" {}
-
 data "terraform_remote_state" "global" {
-  backend = "local"
+  backend = "s3"
 
   config {
-    path = "${var.global_remote_state}"
+    bucket = "${var.global_bucket}"
+    key = "${var.global_key}"
+    region = "${var.global_region}"
   }
 }
 
