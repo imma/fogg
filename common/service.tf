@@ -2,17 +2,17 @@
 module "service" {
   source = "../../../../../module/service"
 
-  global_bucket = "${var.global_bucket}"
-  global_key    = "${var.global_key}"
-  global_region = "${var.global_region}"
+  global_bucket = "${var.remote_bucket}"
+  global_key    = "${slice(split("-",var.remote_path),0,1)}/terraform.tfstate"
+  global_region = "${var.remote_region}"
 
-  env_bucket = "${var.env_bucket}"
-  env_key    = "${var.env_key}"
-  env_region = "${var.env_region}"
+  env_bucket = "${var.remote_bucket}"
+  env_key    = "${slice(split("-",var.remote_path),0,2)}/terraform.tfstate"
+  env_region = "${var.remote_region}"
 
-  app_bucket = "${var.app_bucket}"
-  app_key    = "${var.app_key}"
-  app_region = "${var.app_region}"
+  app_bucket = "${var.remote_bucket}"
+  app_key    = "${slice(split("-",var.remote_path),0,3)}/terraform.tfstate"
+  app_region = "${var.remote_region}"
 
   az_count     = "${var.az_count}"
   service_name = "${var.service_name}"
