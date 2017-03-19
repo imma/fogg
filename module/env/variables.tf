@@ -1,7 +1,3 @@
-variable "global_bucket" {}
-variable "global_key" {}
-variable "global_region" {}
-
 variable "env_name" {}
 
 variable "az_count" {}

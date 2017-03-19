@@ -1,3 +1,7 @@
+variable "global_bucket" {}
+variable "global_key" {}
+variable "global_region" {}
+
 data "terraform_remote_state" "global" {
   backend = "s3"
 
