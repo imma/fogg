@@ -26,3 +26,13 @@ module "service" {
   instance_type  = ["${var.instance_type}"]
   user_data      = "${var.user_data}"
 }
+
+data "terraform_remote_state" "env" {
+  backend = "s3"
+
+  config {
+    bucket = "${var.remote_bucket}"
+    key    = "${slice(split("_",var.remote_path),0,2)}/terraform.tfstate"
+    region = "${var.remote_region}"
+  }
+}
