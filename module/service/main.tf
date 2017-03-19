@@ -1,14 +1,4 @@
-variable "global_bucket" {}
-variable "global_key" {}
-variable "global_region" {}
-
-variable "env_bucket" {}
-variable "env_key" {}
-variable "env_region" {}
-
-variable "app_bucket" {}
-variable "app_key" {}
-variable "app_region" {}
+variable "az_count" {}
 
 data "terraform_remote_state" "global" {
   backend = "s3"
@@ -39,8 +29,6 @@ data "terraform_remote_state" "app" {
     region = "${var.app_region}"
   }
 }
-
-variable "az_count" {}
 
 data "aws_availability_zones" "azs" {}
 
