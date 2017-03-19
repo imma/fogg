@@ -26,8 +26,3 @@ module "service" {
   instance_type  = ["${var.instance_type}"]
   user_data      = "${var.user_data}"
 }
-
-# output
-output "aws_region" {
-  value = "${data.terraform_remote_state.env.aws_region}"
-}

@@ -19,8 +19,3 @@ module "env" {
   sg_extra  = ["${var.sg_extra}"]
   iam_extra = ["${var.iam_extra}"]
 }
-
-# output
-output "aws_region" {
-  value = "${data.terraform_remote_state.global.org["region_${var.env_name}"]}"
-}

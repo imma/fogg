@@ -13,8 +13,3 @@ module "app" {
   az_count = "${var.az_count}"
   app_name = "${var.app_name}"
 }
-
-# output
-output "aws_region" {
-  value = "${data.terraform_remote_state.global.org["region_${var.env_name}"]}"
-}
