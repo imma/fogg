@@ -5,7 +5,7 @@ data "terraform_remote_state" "global" {
 
   config {
     bucket = "${var.global_bucket}"
-    key = "${var.global_key}"
+    key    = "${var.global_key}"
     region = "${var.global_region}"
   }
 }
@@ -15,7 +15,7 @@ data "terraform_remote_state" "env" {
 
   config {
     bucket = "${var.env_bucket}"
-    key = "${var.env_key}"
+    key    = "${var.env_key}"
     region = "${var.env_region}"
   }
 }
@@ -25,7 +25,7 @@ data "terraform_remote_state" "app" {
 
   config {
     bucket = "${var.app_bucket}"
-    key = "${var.app_key}"
+    key    = "${var.app_key}"
     region = "${var.app_region}"
   }
 }
@@ -292,7 +292,7 @@ resource "aws_autoscaling_group" "service" {
   termination_policies = ["${var.termination_policies}"]
   count                = "${var.asg_count}"
 
-  load_balancers = [ "${compact(list(element(concat(aws_elb.service.*.name,list("","")),count.index)))}" ]
+  load_balancers = ["${compact(list(element(concat(aws_elb.service.*.name,list("","")),count.index)))}"]
 
   tag {
     key                 = "Name"

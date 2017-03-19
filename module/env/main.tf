@@ -3,7 +3,7 @@ data "terraform_remote_state" "global" {
 
   config {
     bucket = "${var.global_bucket}"
-    key = "${var.global_key}"
+    key    = "${var.global_key}"
     region = "${var.global_region}"
   }
 }
