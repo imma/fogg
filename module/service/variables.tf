@@ -1,7 +1,3 @@
-variable "remote_bucket" {}
-variable "remote_path" {}
-variable "remote_region" {}
-
 variable "service_name" {}
 
 variable "display_name" {

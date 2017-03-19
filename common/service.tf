@@ -1,4 +1,7 @@
-# module
+variable "remote_bucket" {}
+variable "remote_path" {}
+variable "remote_region" {}
+
 module "service" {
   source = "../../../../../module/service"
 
