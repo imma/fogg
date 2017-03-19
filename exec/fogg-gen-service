@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 
 function gen {
+  local tmp_state="$1"; shift
   local tmp_seed="$1"; shift
   local tmp_modules="$1"; shift
   local nm_env="$1"; shift
@@ -9,15 +10,18 @@ function gen {
 
   local want_nat="$(hcltool ../../terraform.tfvars | jq -r '.want_nat//1')"
 
+  local az_count="$(hcltool terraform.tfvars | jq -r '.az_count')"
+
 	jq -n \
+        --argfile state        "$tmp_state" \
         --argfile seed         "$tmp_seed" \
         --argfile modules      "$tmp_modules" \
-        --arg     az_count     "$(az_count)" \
+        --arg     az_count     "$az_count" \
 	      --arg     env_name     "$nm_env" \
         --arg     app_name     "$nm_app" \
         --arg     service_name "$nm_service" \
         --arg     want_nat     "$want_nat" \
-        '$seed * $modules | .variable |= .*
+        '$state * $seed * $modules | .variable |= .*
             { az_count:     { default: "\($az_count)" },
               env_name:     { default: "\($env_name)" },
               app_name:     { default: "\($app_name)" },

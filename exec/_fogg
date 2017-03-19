@@ -11,10 +11,30 @@ function use_module {
         }'
 }
 
-function az_count {
-  local pth_config="$(echo "$PWD" | perl -pe 's{.*[/_]org/}{}; s{/+}{_}g')"
-  local adj_config="./$(echo "$pth_config" | perl -pe 's{[^_]+$}{}; s{[^_]+}{..}g; s{_}{/}g')"
-  aws ec2 describe-availability-zones --region $(cat "$adj_config/.terraform/terraform.tfstate" | jq -r --arg env_name "region_$nm_env" '.modules[0].outputs.org.value[$env_name]') | jq -r '.AvailabilityZones | length'
+function gen_state {
+  set -- $(hcltool terraform.tfvars | jq -r '"\(.remote_bucket) \(.remote_path) \(.remote_region)"')
+
+	jq \
+		--arg remote_bucket "$1" \
+		--arg remote_path "$2" \
+		--arg remote_region "$3" \
+		-n '
+		{
+			"provider": {
+				"aws": {
+					"region": $remote_region,
+				}
+			},
+			"terraform": {
+				"backend": {
+					"s3": {
+						"bucket": $remote_bucket,
+						"key": $remote_path,
+						"region": $remote_region
+					}
+				}
+			}
+		}'
 }
 
 function gen_global { 
@@ -47,6 +67,7 @@ function _main {
   source normalize
 
   gen \
+    <(gen_state) \
     <("gen_${BASH_SOURCE[2]##*-}" "$@" | merge_map) \
     <(use_module "${BASH_SOURCE[2]##*-}") \
     "$@" | jq -S .
