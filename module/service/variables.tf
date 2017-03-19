@@ -1,5 +1,5 @@
 variable "remote_bucket" {}
-variable "remote_key" {}
+variable "remote_path" {}
 variable "remote_region" {}
 
 variable "service_name" {}
