@@ -33,7 +33,7 @@ function gen_state_tf {
 		--arg remote_bucket "$1" \
 		--arg remote_path "$2" \
 		--arg remote_region "$3" \
-    -n -r 'terraform { backend "s3" { bucket="\($remote_bucket)" key="\($remote_path)" region="\($remnote_region)" } }' > state.tf
+    -n -r '"terraform { backend \"s3\" { bucket=\"\($remote_bucket)\" key=\"\($remote_path)\" region=\"\($remote_region)\" } }"' > state.tf
 }
 
 function gen_global { 

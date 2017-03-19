@@ -1,13 +1,17 @@
 #!/usr/bin/env bash
 
 function gen {
+  local tmp_state="$1"; shift
   local tmp_seed="$1"; shift
   local tmp_modules="$1"; shift
 
+  local az_count="$(hcltool terraform.tfvars | jq -r '.az_count')"
+
 	jq -n \
-     --argfile seed     "$tmp_seed" \
-     --argfile modules  "$tmp_modules" \
-        '$seed * $modules'
+        --argfile state   "$tmp_state" \
+        --argfile seed    "$tmp_seed" \
+        --argfile modules "$tmp_modules" \
+        '$state * $seed * $modules'
 }
 
 function main {
