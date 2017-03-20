@@ -33,8 +33,7 @@ function main {
       ;;
   esac
   
-  fogg gen "$@" > terraform.tf.json.1
-  mv terraform.tf.json.1 terraform.tf.json
+  fogg gen "$@"
 }
 
 source sub "$BASH_SOURCE" "$@"

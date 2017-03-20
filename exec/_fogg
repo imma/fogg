@@ -5,35 +5,21 @@ function use_module {
   hcltool "$shome/module/${nm_module}/variables.tf" \
     | jq --arg tfmod "$nm_module" '{
           data: (.data//{}), 
-          provider: (.provider//{}), 
           variable: (.variable//{} as $vars | reduce (.variable | keys[]) as $v ({}; .[$v] = $vars[$v])), 
           output: (.output//{} | reduce keys[] as $o ({}; .[$o] = {value: "${module.\($tfmod).\($o)}"}))
         }'
 }
 
 function gen_state {
-  set -- $(hcltool terraform.tfvars | jq -r '"\(.remote_bucket) \(.remote_path) \(.remote_region)"')
+  local remote_bucket="$(hcltool terraform.tf.json  | jq -r '.variable.remote_bucket.default')"
+  local remote_path="$(hcltool terraform.tf.json  | jq -r '.variable.remote_path.default')"
+  local remote_region="$(hcltool terraform.tf.json  | jq -r '.variable.remote_region.default')"
 
 	jq \
-		--arg remote_region "$3" \
-		-n '
-		{
-			"provider": {
-				"aws": {
-					"region": $remote_region,
-				}
-			}
-		}'
-}
-
-function gen_state_tf {
-  set -- $(hcltool terraform.tfvars | jq -r '"\(.remote_bucket) \(.remote_path) \(.remote_region)"')
-
-	jq \
-		--arg remote_bucket "$1" \
-		--arg remote_path "$2" \
-		--arg remote_region "$3" \
-    -n -r '"terraform { backend \"s3\" { bucket=\"\($remote_bucket)\" key=\"\($remote_path)\" region=\"\($remote_region)\" } }"' > state.tf
+		--arg remote_bucket "$remote_bucket" \
+		--arg remote_path "$remote_path" \
+		--arg remote_region "$remote_region" \
+    -n -r '"terraform { backend \"s3\" { bucket=\"\($remote_bucket)\" key=\"\($remote_path)\" region=\"\($remote_region)\" } }\nprovider { aws { region=\"\($remote_region)\" } }"'
 }
 
 function gen_global { 
@@ -66,12 +52,13 @@ function _main {
   source normalize
 
   gen \
-    <(gen_state) \
     <("gen_${BASH_SOURCE[2]##*-}" "$@" | merge_map) \
     <(use_module "${BASH_SOURCE[2]##*-}") \
-    "$@" | jq -S .
+    "$@" | jq -S . > terraform.tf.json.1
+  mv terraform.tf.json.1 terraform.tf.json
 
-  gen_state_tf
+  gen_state > state.tf.1
+  mv state.tf.1 state.tf
 }
 
 _main "$@"

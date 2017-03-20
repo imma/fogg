@@ -1,21 +1,28 @@
 #!/usr/bin/env bash
 
 function gen {
-  local tmp_state="$1"; shift
   local tmp_seed="$1"; shift
   local tmp_modules="$1"; shift
   local nm_env="$1"
 
-  local az_count="$(hcltool terraform.tfvars | jq -r '.az_count')"
+  local remote_bucket="$(hcltool ../terraform.tfvars | jq -r '.remote_bucket')"
+  local remote_path="$(cd .. && basename $(pwd))_$(basename $(pwd))/terraform.tfstate"
+  local remote_region="$(hcltool ../terraform.tfvars | jq -r '.remote_region')"
+  local az_count="$(hcltool ../terraform.tfvars | jq -r '.az_count')"
 
 	jq -n \
-        --argfile state    "$tmp_state" \
         --argfile seed     "$tmp_seed" \
         --argfile modules  "$tmp_modules" \
+        --arg     remote_bucket "$remote_bucket" \
+        --arg     remote_path   "$remote_path" \
+        --arg     remote_region "$remote_region" \
         --arg     az_count "$az_count" \
         --arg     env_name "$nm_env" \
         '$seed * $modules | .variable |= .*
-            { az_count:            { default: "\($az_count)" },
+            { remote_bucket:{ default: "\($remote_bucket)" },
+              remote_path:  { default: "\($remote_path)" },
+              remote_region:{ default: "\($remote_region)" },
+              az_count:     { default: "\($az_count)" },
               env_name:            { default: "\($env_name)" }
             }'
 }

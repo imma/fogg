@@ -1,7 +1,3 @@
-variable "remote_bucket" {}
-variable "remote_path" {}
-variable "remote_region" {}
-
 module "env" {
   source = "../../../module/env"
 
