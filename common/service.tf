@@ -23,7 +23,7 @@ module "service" {
   want_nat       = "${var.want_nat}"
   want_elb       = "${var.want_elb}"
   instance_type  = ["${var.instance_type}"]
-  root_volume    = ["${var.root_volume}"]
+  root_volume_size    = ["${var.root_volume_size}"]
   user_data      = "${var.user_data}"
 }
 
