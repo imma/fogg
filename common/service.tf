@@ -17,14 +17,14 @@ module "service" {
   service_name = "${var.service_name}"
   peer_count   = "${var.peer_count}"
 
-  public_network = "${var.public_network}"
-  public_lb      = "${var.public_lb}"
-  want_fs        = "${var.want_fs}"
-  want_nat       = "${var.want_nat}"
-  want_elb       = "${var.want_elb}"
-  instance_type  = ["${var.instance_type}"]
-  root_volume_size    = ["${var.root_volume_size}"]
-  user_data      = "${var.user_data}"
+  public_network   = "${var.public_network}"
+  public_lb        = "${var.public_lb}"
+  want_fs          = "${var.want_fs}"
+  want_nat         = "${var.want_nat}"
+  want_elb         = "${var.want_elb}"
+  instance_type    = ["${var.instance_type}"]
+  root_volume_size = ["${var.root_volume_size}"]
+  user_data        = "${var.user_data}"
 }
 
 data "terraform_remote_state" "env" {
