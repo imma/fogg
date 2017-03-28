@@ -53,7 +53,7 @@ variable "image_id" {
 }
 
 variable "root_volume_size" {
-  default = ["30", "30"]
+  default = ["40", "40"]
 }
 
 variable "min_size" {
