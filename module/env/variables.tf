@@ -106,6 +106,10 @@ output "iam_extra" {
   value = ["${var.iam_extra}"]
 }
 
+output "nat_eips" {
+  value = ["${aws_eip.nat.*.public_ip}"]
+}
+
 output "nat_gateways" {
   value = ["${aws_nat_gateway.env.*.id}"]
 }
