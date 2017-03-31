@@ -1,7 +1,7 @@
 variable "service_name" {}
 
 variable "service_default" {
-  default = false
+  default = "0"
 }
 
 variable "display_name" {

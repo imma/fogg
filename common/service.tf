@@ -25,6 +25,7 @@ module "service" {
   instance_type    = ["${var.instance_type}"]
   root_volume_size = ["${var.root_volume_size}"]
   user_data        = "${var.user_data}"
+  service_default  = "${var.service_default}"
 }
 
 data "terraform_remote_state" "env" {

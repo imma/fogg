@@ -311,7 +311,7 @@ resource "aws_route53_record" "service" {
 
 resource "aws_route53_record" "service-live" {
   zone_id = "${data.terraform_remote_state.env.private_zone_id}"
-  name    = "${data.terraform_remote_state.app.app_name}${var.service_default ? "" : "-${var.service_name}"}.${data.terraform_remote_state.env.private_zone_name}"
+  name    = "${data.terraform_remote_state.app.app_name}${var.service_default == 0 ? "" : "-${var.service_name}"}.${data.terraform_remote_state.env.private_zone_name}"
   type    = "A"
 
   alias {
