@@ -295,6 +295,32 @@ resource "aws_elb" "service" {
   }
 }
 
+resource "aws_route53_record" "service" {
+  zone_id = "${data.terraform_remote_state.env.private_zone_id}"
+  name    = "${data.terraform_remote_state.app.app_name}-${var.service_name}-${element(var.asg_name,count.index)}.${data.terraform_remote_state.env.private_zone_name}"
+  type    = "A"
+
+  alias {
+    name                   = "${element(aws_elb.service.*.dns_name,count.index)}"
+    zone_id                = "${element(aws_elb.service.*.zone_id,count.index)}"
+    evaluate_target_health = false
+  }
+
+  count = "${var.asg_count}"
+}
+
+resource "aws_route53_record" "service-live" {
+  zone_id = "${data.terraform_remote_state.env.private_zone_id}"
+  name    = "${data.terraform_remote_state.app.app_name}${var.service_default ? "" : "-${var.service_name}"}.${data.terraform_remote_state.env.private_zone_name}"
+  type    = "A"
+
+  alias {
+    name                   = "${element(aws_elb.service.*.dns_name,count.index)}"
+    zone_id                = "${element(aws_elb.service.*.zone_id,count.index)}"
+    evaluate_target_health = false
+  }
+}
+
 resource "aws_autoscaling_group" "service" {
   name                 = "${data.terraform_remote_state.env.env_name}-${data.terraform_remote_state.app.app_name}-${var.service_name}-${element(var.asg_name,count.index)}"
   launch_configuration = "${element(aws_launch_configuration.service.*.name,count.index)}"

@@ -1,5 +1,9 @@
 variable "service_name" {}
 
+variable "service_default" {
+  default = false
+}
+
 variable "display_name" {
   default = ""
 }
