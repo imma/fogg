@@ -269,6 +269,12 @@ resource "aws_route53_zone" "private" {
   }
 }
 
+resource "aws_route53_zone_association" "associates" {
+  zone_id = "${element(var.associate_zones,count.index)}"
+  vpc_id  = "${aws_vpc.env.id}"
+  count   = "${var.associate_count}"
+}
+
 module "fs" {
   source   = "../fs"
   fs_name  = "${var.env_name}"

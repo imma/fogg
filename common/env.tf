@@ -17,4 +17,7 @@ module "env" {
 
   sg_extra  = ["${var.sg_extra}"]
   iam_extra = ["${var.iam_extra}"]
+
+  associate_zones = ["${var.associate_zones}"]
+  associate_count = "${var.associate_count}"
 }

@@ -26,6 +26,14 @@ variable "env_domain_name" {
   default = ""
 }
 
+variable "associate_zones" {
+  default = []
+}
+
+variable "associate_count" {
+  default = "0"
+}
+
 variable "want_fs" {
   default = "1"
 }
