@@ -311,12 +311,24 @@ resource "aws_route53_record" "service" {
 
 resource "aws_route53_record" "service-live" {
   zone_id = "${data.terraform_remote_state.env.private_zone_id}"
-  name    = "${data.terraform_remote_state.app.app_name}${var.service_default == 0 ? "" : "-${var.service_name}"}.${data.terraform_remote_state.env.private_zone_name}"
+  name    = "${data.terraform_remote_state.app.app_name}${var.service_default == "0" ? "" : "-${var.service_name}"}.${data.terraform_remote_state.env.private_zone_name}"
   type    = "A"
 
   alias {
-    name                   = "${element(aws_elb.service.*.dns_name,count.index)}"
-    zone_id                = "${element(aws_elb.service.*.zone_id,count.index)}"
+    name                   = "${element(aws_elb.service.*.dns_name,0)}"
+    zone_id                = "${element(aws_elb.service.*.zone_id,0)}"
+    evaluate_target_health = false
+  }
+}
+
+resource "aws_route53_record" "service-staging" {
+  zone_id = "${data.terraform_remote_state.env.private_zone_id}"
+  name    = "${data.terraform_remote_state.app.app_name}${var.service_default == "0" ? "" : "-${var.service_name}"}-staging.${data.terraform_remote_state.env.private_zone_name}"
+  type    = "A"
+
+  alias {
+    name                   = "${element(aws_elb.service.*.dns_name,1)}"
+    zone_id                = "${element(aws_elb.service.*.zone_id,1)}"
     evaluate_target_health = false
   }
 }
