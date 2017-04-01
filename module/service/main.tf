@@ -306,7 +306,7 @@ resource "aws_route53_record" "service" {
     evaluate_target_health = false
   }
 
-  count = "${var.asg_count}"
+  count = "${var.asg_count*var.want_elb}"
 }
 
 resource "aws_route53_record" "service-live" {
@@ -319,6 +319,8 @@ resource "aws_route53_record" "service-live" {
     zone_id                = "${element(aws_elb.service.*.zone_id,0)}"
     evaluate_target_health = false
   }
+
+  count = "${var.want_elb}"
 }
 
 resource "aws_route53_record" "service-staging" {
@@ -331,6 +333,8 @@ resource "aws_route53_record" "service-staging" {
     zone_id                = "${element(aws_elb.service.*.zone_id,1)}"
     evaluate_target_health = false
   }
+
+  count = "${var.want_elb}"
 }
 
 resource "aws_autoscaling_group" "service" {
