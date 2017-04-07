@@ -133,6 +133,10 @@ resource "aws_internet_gateway" "env" {
   }
 }
 
+resource "aws_egress_only_internet_gateway" "env" {
+  vpc_id = "${aws_vpc.env.id}"
+}
+
 resource "aws_subnet" "public" {
   vpc_id                  = "${aws_vpc.env.id}"
   availability_zone       = "${element(data.aws_availability_zones.azs.names,count.index)}"
@@ -151,6 +155,12 @@ resource "aws_subnet" "public" {
 resource "aws_route" "public" {
   route_table_id         = "${aws_route_table.public.id}"
   destination_cidr_block = "0.0.0.0/0"
+  gateway_id             = "${aws_internet_gateway.env.id}"
+}
+
+resource "aws_route" "public_v6" {
+  route_table_id         = "${aws_route_table.public.id}"
+  destination_cidr_block = "::/0"
   gateway_id             = "${aws_internet_gateway.env.id}"
 }
 
