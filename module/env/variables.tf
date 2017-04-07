@@ -114,6 +114,10 @@ output "iam_extra" {
   value = ["${var.iam_extra}"]
 }
 
+output "egw_gateway" {
+  value = ["${aws_egress_only_internet_gateway.env.id}"]
+}
+
 output "nat_eips" {
   value = ["${aws_eip.nat.*.public_ip}"]
 }
