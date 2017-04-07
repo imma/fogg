@@ -103,10 +103,10 @@ resource "aws_route" "service" {
 }
 
 resource "aws_route" "service_v6" {
-  route_table_id         = "${element(aws_route_table.service.*.id,count.index)}"
+  route_table_id              = "${element(aws_route_table.service.*.id,count.index)}"
   destination_ipv6_cidr_block = "::/0"
-  egress_only_gateway_id = "${data.terraform_remote_state.env.egw_gateway}"
-  count                  = "${var.want_nat*var.az_count*(signum(var.public_network)-1)*-1}"
+  egress_only_gateway_id      = "${data.terraform_remote_state.env.egw_gateway}"
+  count                       = "${var.want_nat*var.az_count*(signum(var.public_network)-1)*-1}"
 }
 
 resource "aws_route" "service_peering" {
@@ -144,10 +144,10 @@ resource "aws_route" "service_public" {
 }
 
 resource "aws_route" "service_public_v6" {
-  route_table_id         = "${element(aws_route_table.service_public.*.id,count.index)}"
+  route_table_id              = "${element(aws_route_table.service_public.*.id,count.index)}"
   destination_ipv6_cidr_block = "::/0"
-  gateway_id             = "${data.terraform_remote_state.env.igw_id}"
-  count                  = "${var.az_count*signum(var.public_network)}"
+  gateway_id                  = "${data.terraform_remote_state.env.igw_id}"
+  count                       = "${var.az_count*signum(var.public_network)}"
 }
 
 resource "aws_route" "service_peering_public" {
