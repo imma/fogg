@@ -63,11 +63,17 @@ resource "aws_security_group" "service" {
 }
 
 resource "aws_subnet" "service" {
-  vpc_id                  = "${data.aws_vpc.current.id}"
-  availability_zone       = "${element(data.aws_availability_zones.azs.names,count.index)}"
+  vpc_id = "${data.aws_vpc.current.id}"
+
+  availability_zone = "${element(data.aws_availability_zones.azs.names,count.index)}"
+
   cidr_block              = "${cidrsubnet(data.aws_vpc.current.cidr_block,var.service_bits,element(concat(split(" ",lookup(data.terraform_remote_state.global.org,"service_${data.terraform_remote_state.app.app_name}_${var.service_name}","")),split(" ",lookup(data.terraform_remote_state.global.org,"service_${var.service_name}",""))),count.index))}"
   map_public_ip_on_launch = "${signum(var.public_network) == 1 ? "true" : "false"}"
-  count                   = "${var.az_count}"
+
+  ipv6_cidr_block                 = "${cidrsubnet(data.aws_vpc.current.ipv6_cidr_block,64,element(concat(split(" ",lookup(data.terraform_remote_state.global.org,"service_v6_${data.terraform_remote_state.app.app_name}_${var.service_name}","")),split(" ",lookup(data.terraform_remote_state.global.org,"service_v_${var.service_name}",""))),count.index))}"
+  assign_ipv6_address_on_creation = "${var.want_ipv6 ? "true" : "false"}"
+
+  count = "${var.az_count}"
 
   lifecycle {
     create_before_destroy = true

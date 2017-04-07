@@ -21,6 +21,7 @@ module "service" {
   public_lb        = "${var.public_lb}"
   want_fs          = "${var.want_fs}"
   want_nat         = "${var.want_nat}"
+  want_ipv6        = "${var.want_ipv6}"
   want_elb         = "${var.want_elb}"
   instance_type    = ["${var.instance_type}"]
   root_volume_size = ["${var.root_volume_size}"]

@@ -24,6 +24,10 @@ variable "want_nat" {
   default = "1"
 }
 
+variable "want_ipv6" {
+  default = "0"
+}
+
 variable "want_elb" {
   default = "0"
 }
