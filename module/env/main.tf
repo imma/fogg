@@ -19,9 +19,10 @@ data "aws_vpc" "current" {
 data "aws_availability_zones" "azs" {}
 
 resource "aws_vpc" "env" {
-  cidr_block           = "${data.terraform_remote_state.global.org["cidr_${var.env_name}"]}"
-  enable_dns_support   = true
-  enable_dns_hostnames = true
+  cidr_block                       = "${data.terraform_remote_state.global.org["cidr_${var.env_name}"]}"
+  enable_dns_support               = true
+  enable_dns_hostnames             = true
+  assign_generated_ipv6_cidr_block = true
 
   tags {
     "Name"      = "${var.env_name}"
