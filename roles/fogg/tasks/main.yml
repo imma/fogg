@@ -1,27 +1,73 @@
 ---
 - debug: var=env
-- debug: var=color
 - debug: var=app
 - debug: var=service
 - local_action:
     module: ec2_elb_facts
     names:
-    - "{{ env }}-{{ app }}-{{ service }}-{{ color }}"
-  register: elb
+    - "{{ env }}-{{ app }}-{{ service }}-green"
+  register: elb_green
+
+- local_action:
+    module: ec2_elb_facts
+    names:
+    - "{{ env }}-{{ app }}-{{ service }}-blue"
+  register: elb_blue
 
 - local_action:
     module: ec2_asg_facts
-    name: "{{ env }}-{{ app }}-{{ service }}-{{ color }}"
-  register: asg
+    name: "{{ env }}-{{ app }}-{{ service }}-green"
+  register: asg_green
 
-- name: "{{ color }} elb"
+- local_action:
+    module: ec2_asg_facts
+    name: "{{ env }}-{{ app }}-{{ service }}-blue"
+  register: asg_blue
+
+- name: "elb"
   local_action:
     module: debug
     msg: "{{ item }}"
-  with_items: "{{ elb.elbs }}"
+  with_items: "{{ elb_green.elbs, elb_blue.elbs }}"
 
-- name: "{{ color }} asg intances"
+- name: "asg"
   local_action:
     module: debug
-    msg: "{{ item.instances }}"
-  with_items: "{{ asg.results }}"
+    msg: "{{ item }}"
+  with_items: "{{ asg_green.results, asg_blue.results }}"
+
+- name: "building list of green instances"
+  set_fact:
+    instances_green: "{{ asg_green.results[0].instances }}"
+
+- name: "building list of blue instances"
+  set_fact:
+    instances_blue: "{{ asg_blue.results[0].instances }}"
+
+- name: "green instances"
+  local_action:
+    module: debug
+    msg: "{{ instances_green }}"
+
+- name: "blue instances"
+  local_action:
+    module: debug
+    msg: "{{ instances_blue}}"
+
+- name: "building list green instance ids"
+  set_fact:
+    instance_ids_green: "{{ (instances_green | map(attribute='instance_id')) | list }}"
+
+- name: "building list blue instance ids"
+  set_fact:
+    instance_ids_blue: "{{ (instances_blue | map(attribute='instance_id')) | list }}"
+
+- name: "green instance ids"
+  local_action:
+    module: debug
+    msg: "{{ instance_ids_green }}"
+
+- name: "blue instance ids"
+  local_action:
+    module: debug
+    msg: "{{ instance_ids_blue }}"
