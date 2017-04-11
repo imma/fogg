@@ -36,38 +36,70 @@
     msg: "{{ item }}"
   with_items: "{{ asg_green.results, asg_blue.results }}"
 
-- name: "building list of green instances"
+- name: "building lists of instances"
   set_fact:
     instances_green: "{{ asg_green.results[0].instances }}"
-
-- name: "building list of blue instances"
-  set_fact:
     instances_blue: "{{ asg_blue.results[0].instances }}"
+
+- name: "building lists of instance_ids"
+  set_fact:
+    instance_ids_green: "{{ (instances_green | map(attribute='instance_id')) | list }}"
+    instance_ids_blue: "{{ (instances_blue | map(attribute='instance_id')) | list }}"
+
+- name: "green elb"
+  local_action:
+    module: debug
+    msg: "{{ elb_green }}"
 
 - name: "green instances"
   local_action:
     module: debug
     msg: "{{ instances_green }}"
 
+- name: "green instance ids"
+  local_action:
+    module: debug
+    msg: "{{ instance_ids_green }}"
+
+- name: "blue elb"
+  local_action:
+    module: debug
+    msg: "{{ elb_blue }}"
+
 - name: "blue instances"
   local_action:
     module: debug
     msg: "{{ instances_blue}}"
 
-- name: "building list green instance ids"
-  set_fact:
-    instance_ids_green: "{{ (instances_green | map(attribute='instance_id')) | list }}"
-
-- name: "building list blue instance ids"
-  set_fact:
-    instance_ids_blue: "{{ (instances_blue | map(attribute='instance_id')) | list }}"
+- name: "blue instance ids"
+  local_action:
+    module: debug
+    msg: "{{ instance_ids_blue }}"
 
 - name: "green instance ids"
   local_action:
     module: debug
     msg: "{{ instance_ids_green }}"
 
-- name: "blue instance ids"
+- name: "promoting green to blue"
+  local_action:
+    module: shell
+    args: "script/promote {{ env }}-{{ app }}-{{ service }}-blue {{ instance_ids_green | join(' ') }}"
+  register: green_promotion
+
+- name: "green promoted"
   local_action:
     module: debug
-    msg: "{{ instance_ids_blue }}"
+    msg: "{{ green_promotion }}"
+
+- name: "taking the old blues out"
+  local_action:
+    module: shell
+    args: "script/demote {{ instance_ids_blue | join(' ') }}"
+  register: blue_demoted
+
+- name: "blue demoted"
+  local_action:
+    module: debug
+    msg: "{{ blue_demoted }}"
+
