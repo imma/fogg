@@ -10,6 +10,18 @@
   register: elb
 
 - local_action:
+    module: ec2_asg_facts
+    name: "{{ env }}-{{ app }}-{{ service }}-{{ color }}"
+  register: asg
+
+- name: "{{ color }} elb"
+  local_action:
     module: debug
     msg: "{{ item }}"
   with_items: "{{ elb.elbs }}"
+
+- name: "{{ color }} asg intances"
+  local_action:
+    module: debug
+    msg: "{{ item.instances }}"
+  with_items: "{{ asg.results }}"
