@@ -84,7 +84,7 @@
 - name: "promoting green to blue"
   local_action:
     module: shell
-    args: "script/promote {{ env }}-{{ app }}-{{ service }}-blue {{ instance_ids_green | join(' ') }}"
+    args: "script/promote {{ env }}-{{ app }}-{{ service }}-green {{ env }}-{{ app }}-{{ service }}-blue {{ instance_ids_green | join(' ') }}"
   register: green_promotion
 
 - name: "green promoted"
@@ -95,7 +95,7 @@
 - name: "taking the old blues out"
   local_action:
     module: shell
-    args: "script/demote {{ instance_ids_blue | join(' ') }}"
+    args: "script/demote {{ env }}-{{ app }}-{{ service }}-blue {{ instance_ids_blue | join(' ') }}"
   register: blue_demoted
 
 - name: "blue demoted"
