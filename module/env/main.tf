@@ -162,7 +162,7 @@ resource "aws_route" "public" {
 resource "aws_route" "public_v6" {
   route_table_id              = "${aws_route_table.public.id}"
   destination_ipv6_cidr_block = "::/0"
-  gateway_id                  = "${aws_internet_gateway.env.id}"
+  egress_only_gateway_id      = "${aws_egress_only_internet_gateway.env.id}"
 }
 
 resource "aws_route_table_association" "public" {
