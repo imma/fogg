@@ -150,10 +150,10 @@ resource "aws_route" "service_public" {
 }
 
 resource "aws_route" "service_public_v6" {
-  route_table_id              = "${element(aws_route_table.service_public.*.id,count.index)}"
-  destination_ipv6_cidr_block = "::/0"
-  gateway_id                  = "${data.terraform_remote_state.env.igw_id}"
-  count                       = "${var.az_count*signum(var.public_network)}"
+  route_table_id                   = "${element(aws_route_table.service_public.*.id,count.index)}"
+  destination_ipv6_cidr_block      = "::/0"
+  aws_egress_only_internet_gateway = "${data.terraform_remote_state.env.egw_id}"
+  count                            = "${var.az_count*signum(var.public_network)}"
 }
 
 resource "aws_route" "service_peering_public" {
