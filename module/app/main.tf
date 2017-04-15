@@ -38,25 +38,6 @@ resource "aws_security_group" "app" {
   }
 }
 
-resource "aws_iam_role" "app" {
-  name = "${data.terraform_remote_state.env.env_name}-${var.app_name}"
-
-  assume_role_policy = <<EOF
-{
-  "Version": "2012-10-17",
-  "Statement": [
-    {
-      "Action": "sts:AssumeRole",
-      "Principal": {
-        "Service": "ec2.amazonaws.com"
-      },
-      "Effect": "Allow"
-    }
-  ]
-}
-EOF
-}
-
 resource "aws_iam_group" "app" {
   name = "${data.terraform_remote_state.env.env_name}-${var.app_name}"
 }
