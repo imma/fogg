@@ -62,6 +62,10 @@ output "igw_id" {
   value = "${aws_internet_gateway.env.id}"
 }
 
+output "egw_id" {
+  value = "${aws_egress_only_internet_gateway.env.id}"
+}
+
 output "private_zone_id" {
   value = "${aws_route53_zone.private.zone_id}"
 }
@@ -112,10 +116,6 @@ output "sg_extra" {
 
 output "iam_extra" {
   value = ["${var.iam_extra}"]
-}
-
-output "egw_gateway" {
-  value = ["${aws_egress_only_internet_gateway.env.id}"]
 }
 
 output "nat_eips" {

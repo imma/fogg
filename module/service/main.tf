@@ -70,7 +70,7 @@ resource "aws_subnet" "service" {
   cidr_block              = "${cidrsubnet(data.aws_vpc.current.cidr_block,var.service_bits,element(concat(split(" ",lookup(data.terraform_remote_state.global.org,"service_${data.terraform_remote_state.app.app_name}_${var.service_name}","")),split(" ",lookup(data.terraform_remote_state.global.org,"service_${var.service_name}",""))),count.index))}"
   map_public_ip_on_launch = "${signum(var.public_network) == 1 ? "true" : "false"}"
 
-  ipv6_cidr_block                 = "${cidrsubnet(data.aws_vpc.current.ipv6_cidr_block,64,element(concat(split(" ",lookup(data.terraform_remote_state.global.org,"service_v6_${data.terraform_remote_state.app.app_name}_${var.service_name}","")),split(" ",lookup(data.terraform_remote_state.global.org,"service_v_${var.service_name}",""))),count.index))}"
+  #ipv6_cidr_block                 = "${cidrsubnet(data.aws_vpc.current.ipv6_cidr_block,64,element(concat(split(" ",lookup(data.terraform_remote_state.global.org,"service_v6_${data.terraform_remote_state.app.app_name}_${var.service_name}","")),split(" ",lookup(data.terraform_remote_state.global.org,"service_v_${var.service_name}",""))),count.index))}"
   assign_ipv6_address_on_creation = "${var.want_ipv6 ? "true" : "false"}"
 
   count = "${var.az_count}"
@@ -150,10 +150,10 @@ resource "aws_route" "service_public" {
 }
 
 resource "aws_route" "service_public_v6" {
-  route_table_id                   = "${element(aws_route_table.service_public.*.id,count.index)}"
-  destination_ipv6_cidr_block      = "::/0"
-  aws_egress_only_internet_gateway = "${data.terraform_remote_state.env.egw_id}"
-  count                            = "${var.az_count*signum(var.public_network)}"
+  route_table_id              = "${element(aws_route_table.service_public.*.id,count.index)}"
+  destination_ipv6_cidr_block = "::/0"
+  egress_only_gateway_id      = "${data.terraform_remote_state.env.egw_id}"
+  count                       = "${var.az_count*signum(var.public_network)}"
 }
 
 resource "aws_route" "service_peering_public" {
@@ -188,8 +188,8 @@ resource "aws_iam_role" "service" {
 }
 
 resource "aws_iam_instance_profile" "service" {
-  name  = "${data.terraform_remote_state.env.env_name}-${data.terraform_remote_state.app.app_name}-${var.service_name}"
-  roles = ["${element(concat(data.terraform_remote_state.env.iam_extra,list(aws_iam_role.service.name)),0)}"]
+  name = "${data.terraform_remote_state.env.env_name}-${data.terraform_remote_state.app.app_name}-${var.service_name}"
+  role = "${element(concat(data.terraform_remote_state.env.iam_extra,list(aws_iam_role.service.name)),0)}"
 }
 
 resource "aws_iam_group" "service" {
