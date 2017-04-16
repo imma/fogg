@@ -99,3 +99,7 @@ output "service_sg" {
 output "service_subnets" {
   value = [ "${aws_subnet.service.*.id}" ]
 }
+
+output "key_name" {
+    value = "${data.terraform_remote_state.env.key_name}"
+  }
