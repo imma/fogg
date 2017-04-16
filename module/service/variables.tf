@@ -95,3 +95,7 @@ output "elb_sg" {
 output "service_sg" {
   value = "${aws_security_group.service.id}"
 }
+
+output "service_subnets" {
+  value = [ "${aws_subnet.service.*.id}" ]
+}
