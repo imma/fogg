@@ -154,7 +154,8 @@ resource "aws_route" "service_public_v6" {
   route_table_id              = "${element(aws_route_table.service_public.*.id,count.index)}"
   destination_ipv6_cidr_block = "::/0"
   egress_only_gateway_id      = "${data.terraform_remote_state.env.egw_id}"
-  count                       = "${var.az_count*signum(var.public_network)}"
+  #count                       = "${var.az_count*signum(var.public_network)}"
+  count = 0
 }
 
 resource "aws_route" "service_peering_public" {
