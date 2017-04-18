@@ -56,7 +56,7 @@ variable "instance_type" {
   default = ["t2.medium", "t2.medium"]
 }
 
-variable "image_id" {
+variable "ami_id" {
   default = ["", ""]
 }
 
@@ -97,9 +97,9 @@ output "service_sg" {
 }
 
 output "service_subnets" {
-  value = [ "${aws_subnet.service.*.id}" ]
+  value = ["${aws_subnet.service.*.id}"]
 }
 
 output "key_name" {
-    value = "${data.terraform_remote_state.env.key_name}"
-  }
+  value = "${data.terraform_remote_state.env.key_name}"
+}

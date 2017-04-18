@@ -207,7 +207,7 @@ data "template_file" "user_data_service" {
 resource "aws_launch_configuration" "service" {
   name_prefix          = "${data.terraform_remote_state.env.env_name}-${data.terraform_remote_state.app.app_name}-${var.service_name}-${element(var.asg_name,count.index)}-"
   instance_type        = "${element(var.instance_type,count.index)}"
-  image_id             = "${coalesce(element(var.image_id,count.index),data.terraform_remote_state.app.app_ami_id)}"
+  image_id             = "${coalesce(element(var.ami_id,count.index),data.terraform_remote_state.env.env_ami_id)}"
   iam_instance_profile = "${data.terraform_remote_state.env.env_name}-${data.terraform_remote_state.app.app_name}-${var.service_name}"
   key_name             = "${data.terraform_remote_state.env.key_name}"
   user_data            = "${data.template_file.user_data_service.rendered}"

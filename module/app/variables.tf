@@ -9,7 +9,3 @@ output "app_name" {
 output "app_sg" {
   value = "${aws_security_group.app.id}"
 }
-
-output "app_ami_id" {
-  value = "${data.terraform_remote_state.env.env_ami_id}"
-}
