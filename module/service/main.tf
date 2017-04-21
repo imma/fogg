@@ -427,9 +427,9 @@ resource "aws_security_group_rule" "allow_service_mount" {
 
 resource "aws_route53_record" "fs" {
   zone_id = "${data.terraform_remote_state.env.private_zone_id}"
-  name    = "${data.terraform_remote_state.app.app_name}-${var.service_name}-efs-${element(data.aws_availability_zones.azs.names,count.index)}.${data.terraform_remote_state.env.private_zone_name}"
+  name    = "${data.terraform_remote_state.app.app_name}-${var.service_name}-efs.${data.terraform_remote_state.env.private_zone_name}"
   type    = "CNAME"
   ttl     = "60"
   records = ["${element(module.fs.efs_dns_names,count.index)}"]
-  count   = "${var.az_count*var.want_fs}"
+  count   = "${var.want_fs}"
 }
