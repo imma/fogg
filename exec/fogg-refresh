@@ -1,0 +1,46 @@
+#!/usr/bin/env bash
+
+function refresh_sub {
+  set +f
+  local a=
+  for a in */; do
+    if [[ ! -f "$a/state.tf" ]]; then
+      continue
+    fi
+    (cd "$a" && fogg refresh)
+  done
+  set -f
+}
+
+function main {
+  local shome="$(cd -P -- "${BASH_SOURCE%/*}/.." && pwd -P)"
+  source "$shome/script/profile"
+  source normalize
+
+  if [[ "$#" -gt 0 ]]; then
+    echo "ERROR: this command doesn't take arguments" 1>&2
+    return 1
+  fi
+
+  local pth_config="$(echo "$PWD" | perl -pe 's{.*[-/]org/}{}; s{/+}{_}g')"
+
+  fogg init
+  terraform refresh
+
+  case "$pth_config" in
+    *_*_*_*)
+      refresh_sub
+      ;;
+    *_*_*)
+      refresh_sub
+      ;;
+    *_*)
+      refresh_sub
+      ;;
+    *)
+      refresh_sub
+      ;;
+  esac
+}
+
+source sub "$BASH_SOURCE" "$@"
