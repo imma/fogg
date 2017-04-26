@@ -22,7 +22,7 @@ function main {
     return 1
   fi
 
-  local pth_config="$(echo "$PWD" | perl -pe 's{.*[-/]org/}{}; s{/+}{_}g')"
+  local pth_config="$(echo "$PWD" | sed 's#$(git rev-parse --show-toplevel)/##' | perl -pe 's{/+}{_}g')"
 
   fogg init
   terraform refresh
