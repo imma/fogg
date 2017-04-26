@@ -111,4 +111,3 @@ output "key_name" {
 output "service_eips" {
   value = ["${aws_eip.service.*.public_ip}"]
 }
-

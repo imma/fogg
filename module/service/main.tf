@@ -334,6 +334,15 @@ resource "aws_route53_record" "service" {
   count = "${var.asg_count*var.want_elb}"
 }
 
+resource "aws_route53_record" "service-eip" {
+  zone_id = "${data.terraform_remote_state.env.private_zone_id}"
+  name    = "${data.terraform_remote_state.app.app_name}${var.service_default == "1" ? "" : "-${var.service_name}"}.${data.terraform_remote_state.env.private_zone_name}"
+  type    = "A"
+  records = ["${element(aws_eip.service.*.public_ip,count.index)}"]
+
+  count = "${var.want_eip}"
+}
+
 resource "aws_route53_record" "service-live" {
   zone_id = "${data.terraform_remote_state.env.private_zone_id}"
   name    = "${data.terraform_remote_state.app.app_name}${var.service_default == "1" ? "" : "-${var.service_name}"}.${data.terraform_remote_state.env.private_zone_name}"
