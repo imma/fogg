@@ -204,6 +204,11 @@ data "template_file" "user_data_service" {
   }
 }
 
+resource "aws_eip" "service" {
+  vpc   = true
+  count = "${var.want_eip}"
+}
+
 resource "aws_launch_configuration" "service" {
   name_prefix          = "${data.terraform_remote_state.env.env_name}-${data.terraform_remote_state.app.app_name}-${var.service_name}-${element(var.asg_name,count.index)}-"
   instance_type        = "${element(var.instance_type,count.index)}"
@@ -403,6 +408,20 @@ resource "aws_autoscaling_group" "service" {
     value               = "${element(var.asg_name,count.index)}"
     propagate_at_launch = true
   }
+}
+
+data "external" "asg_instance" {
+  program = [
+    "${path.module}/script/asg-first-instance",
+    "${data.terraform_remote_state.env.env_name}-${data.terraform_remote_state.app.app_name}-${var.service_name}-${element(var.asg_name,0)}",
+    "${data.terraform_remote_state.env.env_name}-${data.terraform_remote_state.app.app_name}-${var.service_name}-${element(var.asg_name,1)}",
+  ]
+}
+
+resource "aws_eip_association" "service" {
+  instance_id   = "${lookup(data.external.asg_instance.result,"${data.terraform_remote_state.env.env_name}-${data.terraform_remote_state.app.app_name}-${var.service_name}-${element(var.asg_name,count.index)}")}"
+  allocation_id = "${element(aws_eip.service.*.id,count.index)}"
+  count         = "${var.want_eip}"
 }
 
 module "fs" {

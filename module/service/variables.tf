@@ -32,6 +32,10 @@ variable "want_elb" {
   default = "0"
 }
 
+variable "want_eip" {
+  default = "0"
+}
+
 variable "user_data" {
   default = "../../../.etc/user-data.template"
 }

@@ -1,0 +1,10 @@
+#!/usr/bin/env bash
+
+function main {
+  while [[ "$#" -gt 0 ]]; do
+    local nm_asg="$1"; shift
+    aws autoscaling describe-auto-scaling-groups --auto-scaling-group-names "$nm_asg" | jq --arg nm_asg "$nm_asg" '{ "\($nm_asg)": ((.AutoScalingGroups[].Instances | map(select(.LifecycleState == "InService" and .HealthStatus == "Healthy")) | .[0].InstanceId)//"id-not-found") }'
+  done | jq -s 'reduce .[] as $id ({}; . + $id)'
+}
+
+main "$@"

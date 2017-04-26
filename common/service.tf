@@ -28,6 +28,7 @@ module "service" {
   user_data        = "${var.user_data}"
   service_default  = "${var.service_default}"
   ami_id           = "${var.ami_id}"
+  want_eip         = "${var.want_eip}"
 }
 
 data "terraform_remote_state" "env" {
