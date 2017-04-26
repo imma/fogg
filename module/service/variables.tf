@@ -107,3 +107,8 @@ output "service_subnets" {
 output "key_name" {
   value = "${data.terraform_remote_state.env.key_name}"
 }
+
+output "service_eips" {
+  value = ["${aws_eip.service.*.public_ip}"]
+}
+
