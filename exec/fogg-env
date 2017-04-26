@@ -1,0 +1,11 @@
+#!/usr/bin/env bash
+
+function main {
+  local shome="$(cd -P -- "${BASH_SOURCE%/*}/.." && pwd -P)"
+  source "$shome/script/profile"
+  source normalize
+
+  terraform output --json | jq -r '"export AWS_SG=\(.service_sg.value) AWS_SUBNET=\(.service_subnets.value[0]) AWS_KEYPAIR=\(.key_name.value)"'
+}
+
+source sub "$BASH_SOURCE" "$@"
