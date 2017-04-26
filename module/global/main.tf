@@ -172,3 +172,13 @@ resource "aws_s3_bucket" "cloudtrail" {
   bucket = "b-${format("%.8s",sha1(data.aws_caller_identity.current.account_id))}-global-cloudtrail"
   policy = "${data.aws_iam_policy_document.cloudtrail.json}"
 }
+
+resource "aws_route53_zone" "public" {
+  name = "${var.domain_name}"
+
+  tags {
+    "Name"      = "${var.domain_name}"
+    "Env"       = "global"
+    "ManagedBy" = "terraform"
+  }
+}
