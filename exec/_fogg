@@ -59,6 +59,7 @@ function _main {
 
   gen_state > state.tf.1
   mv state.tf.1 state.tf
+  terraform fmt state.tf 
 }
 
 _main "$@"
