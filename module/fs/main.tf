@@ -44,6 +44,8 @@ resource "aws_security_group_rule" "fs_egress" {
   protocol          = "-1"
   cidr_blocks       = ["0.0.0.0/0"]
   security_group_id = "${aws_security_group.fs.id}"
+
+  count = "${var.want_fs}"
 }
 
 resource "aws_efs_file_system" "fs" {
