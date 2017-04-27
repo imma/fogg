@@ -96,6 +96,14 @@ output "elb_sg" {
   value = "${aws_security_group.lb.id}"
 }
 
+output "env_sg" {
+  value = "${data.terraform_remote_state.env.sg_env}"
+}
+
+output "app_sg" {
+  value = "${data.terraform_remote_state.app.app_sg}"
+}
+
 output "service_sg" {
   value = "${aws_security_group.service.id}"
 }
