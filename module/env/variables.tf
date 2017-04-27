@@ -42,6 +42,10 @@ variable "want_nat" {
   default = "1"
 }
 
+variable "want_ipv6" {
+  default = "0"
+}
+
 variable "public_key" {}
 
 variable "ami_id" {}

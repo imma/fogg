@@ -92,6 +92,14 @@ output "elb_dns" {
   value = ["${aws_elb.service.*.dns_name}"]
 }
 
+output "elb_dns_name" {
+  value = ["${aws_elb.service.*.dns_name}"]
+}
+
+output "elb_zone_id" {
+  value = ["${aws_elb.service.*.dns_name}"]
+}
+
 output "elb_sg" {
   value = "${aws_security_group.lb.id}"
 }

@@ -14,6 +14,7 @@ module "env" {
   nat_count = "${var.nat_count}"
   want_fs   = "${var.want_fs}"
   want_nat  = "${var.want_nat}"
+  want_ipv6 = "${var.want_ipv6}"
 
   sg_extra  = ["${var.sg_extra}"]
   iam_extra = ["${var.iam_extra}"]
