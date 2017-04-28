@@ -8,7 +8,4 @@ module "app" {
   env_bucket = "${var.remote_bucket}"
   env_key    = "${join("_",slice(split("_",var.remote_path),0,2))}/terraform.tfstate"
   env_region = "${var.remote_region}"
-
-  az_count = "${var.az_count}"
-  app_name = "${var.app_name}"
 }

@@ -23,25 +23,37 @@ function gen_state {
 }
 
 function gen_global { 
-  hcltool "$shome/common/${FUNCNAME##gen_}.tf" 
+  local nm_module="$1"; shift
+  gen_xxx "$nm_module"
 }
 
 function gen_env { 
+  local nm_module="$1"; shift
   shift
-  hcltool "$shome/common/${FUNCNAME##gen_}.tf" 
+  gen_xxx "$nm_module"
 }
 
 function gen_app {
+  local nm_module="$1"; shift
   shift
   shift
-  hcltool "$shome/common/${FUNCNAME##gen_}.tf" 
+  gen_xxx "$nm_module"
 }
 
 function gen_service {
+  local nm_module="$1"; shift
   shift
   shift
   shift
-  hcltool "$shome/common/${FUNCNAME##gen_}.tf"
+  gen_xxx "$nm_module"
+}
+
+function gen_xxx {
+  local nm_module="$1"; shift
+  (
+    hcltool "$shome/common/${nm_module}.tf" 
+    hcltool "$shome/module/${nm_module}/variables.tf" | jq 'reduce (.variable | to_entries)[] as $ele ({}; .[$ele.key] = ($ele.value.default | if (. | type) == "array" then [ "${var.\($ele.key)}" ] else "${var.\($ele.key)}" end))' | jq --arg m "$nm_module" '{ module: { "\($m)": . } }'
+  ) | merge_map
 }
 
 function merge_map {
@@ -52,7 +64,7 @@ function _main {
   source normalize
 
   gen \
-    <("gen_${BASH_SOURCE[2]##*-}" "$@" | merge_map) \
+    <("gen_${BASH_SOURCE[2]##*-}" "${BASH_SOURCE[2]##*-}" "$@") \
     <(use_module "${BASH_SOURCE[2]##*-}") \
     "$@" | jq -S . > terraform.tf.json.1
   mv terraform.tf.json.1 terraform.tf.json
