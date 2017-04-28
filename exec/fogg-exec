@@ -5,7 +5,13 @@ function main {
   source "$shome/script/profile"
   source normalize
 
-  eval $(fogg env)
+  local mac="$(curl -s http://169.254.169.254/latest/meta-data/mac)"
+
+  export AWS_KEYPAIR="$(curl -s http://169.254.169.254/latest/meta-data/public-keys/0/openssh-key)"
+  export AWS_SUBNET="$(curl -s http://169.254.169.254/latest/meta-data/network/interfaces/macs/$mac/subnet-id)"
+  export AWS_SG="$(curl -s http://169.254.169.254/latest/meta-data/network/interfaces/macs/$mac/security-group-ids | xargs)"
+  export AWS_SG_COMMA="${AWS_SG// /,}"
+
   exec "$@"
 }
 
