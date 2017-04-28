@@ -1,3 +1,5 @@
+variable "az_count" {}
+
 variable "service_name" {}
 
 variable "service_default" {

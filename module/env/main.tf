@@ -136,7 +136,7 @@ resource "aws_internet_gateway" "env" {
 
 resource "aws_egress_only_internet_gateway" "env" {
   vpc_id = "${aws_vpc.env.id}"
-  count = "${var.want_ipv6}"
+  count  = "${var.want_ipv6}"
 }
 
 resource "aws_subnet" "public" {
