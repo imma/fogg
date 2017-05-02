@@ -420,6 +420,25 @@ resource "aws_s3_bucket" "s3" {
   }
 }
 
+resource "aws_s3_bucket" "cloudfront" {
+  bucket = "b-${format("%.8s",sha1(data.terraform_remote_state.global.aws_account_id))}-${var.env_name}-s3"
+  acl    = "log-delivery-write"
+
+  logging {
+    target_bucket = "b-${format("%.8s",sha1(data.terraform_remote_state.global.aws_account_id))}-${var.env_name}-s3"
+    target_prefix = "log/"
+  }
+
+  versioning {
+    enabled = true
+  }
+
+  tags {
+    "ManagedBy" = "terraform"
+    "Env"       = "${var.env_name}"
+  }
+}
+
 resource "aws_s3_bucket" "website" {
   bucket = "b-${format("%.8s",sha1(data.terraform_remote_state.global.aws_account_id))}-${var.env_name}-website"
   acl    = "private"
