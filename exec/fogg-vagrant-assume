@@ -7,7 +7,7 @@ function main {
 
   source imma_common;
   __imma assume "$@"
-  imma credentials config | fogg vagrant ssh -- tee -a .aws/credentials > /dev/null
+  imma credentials config | fogg vagrant ssh -- tee .aws/credentials > /dev/null
   fogg vagrant ssh -- aws zones
 }
 
