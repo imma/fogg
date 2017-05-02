@@ -1,0 +1,14 @@
+#!/usr/bin/env bash
+
+function main {
+  local shome="$(cd -P -- "${BASH_SOURCE%/*}/.." && pwd -P)"
+  source "$shome/script/profile"
+  source normalize
+
+  source imma_common;
+  __imma assume "$@"
+  imma credentials config | fogg vagrant ssh -- tee -a .aws/credentials > /dev/null
+  fogg vagrant ssh -- aws zones
+}
+
+source sub "$BASH_SOURCE" "$@"
