@@ -6,6 +6,7 @@ function main {
   source normalize
 
   local pth_save="$(pwd)"
+  cd -P .
   while [[ "$(pwd)" != "/" ]]; do
     if [[ -d .terraform ]]; then
       eval $(fogg env)
