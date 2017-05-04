@@ -5,17 +5,7 @@ function main {
   source "$shome/script/profile"
   source normalize
 
-  local pth_save="$(pwd)"
-  cd -P .
-  while [[ "$(pwd)" != "/" ]]; do
-    if [[ -d .terraform ]]; then
-      eval $(fogg env)
-      break
-    fi
-    cd ..
-  done
-
-  cd "$pth_save"
+  eval $(fogg env)
   exec vagrant "$@"
 }
 
