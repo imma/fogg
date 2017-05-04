@@ -5,6 +5,7 @@ function main {
   source "$shome/script/profile"
   source normalize
 
+  cd "${FOGG_CWD:-.}"
   eval $(fogg env)
   exec vagrant "$@"
 }

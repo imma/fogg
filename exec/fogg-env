@@ -5,15 +5,7 @@ function main {
   source "$shome/script/profile"
   source normalize
 
-  local pth_save="$(pwd)"
-  cd -P .
-  while [[ "$(pwd)" != "/" ]]; do
-    if [[ -d .terraform ]]; then
-  		terraform output --json | jq -r '"export AWS_SG=\"\(.env_sg.value) \(.app_sg.value) \(.service_sg.value)\" AWS_SG_COMMA=\"\(.env_sg.value),\(.app_sg.value),\(.service_sg.value)\" AWS_SUBNET=\(.service_subnets.value[0]) AWS_KEYPAIR=\(.key_name.value)"'
-      break
-    fi
-    cd ..
-  done
+  terraform output --json | jq -r '"export AWS_SG=\"\(.env_sg.value) \(.app_sg.value) \(.service_sg.value)\" AWS_SG_COMMA=\"\(.env_sg.value),\(.app_sg.value),\(.service_sg.value)\" AWS_SUBNET=\(.service_subnets.value[0]) AWS_KEYPAIR=\(.key_name.value)"'
 }
 
 source sub "$BASH_SOURCE" "$@"
