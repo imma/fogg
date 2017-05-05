@@ -15,4 +15,5 @@ function main {
   exec "$@"
 }
 
+cd "${FOGG_CWD}"
 source sub "$BASH_SOURCE" "$@"
