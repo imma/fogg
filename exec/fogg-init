@@ -5,6 +5,7 @@ function main {
   source "$shome/script/profile"
   source normalize
 
+  mkdir -p .terraform
   fogg
   terraform init
 }
