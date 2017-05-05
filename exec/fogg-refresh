@@ -43,4 +43,5 @@ function main {
   esac
 }
 
+cd "${FOGG_CWD}"
 source sub "$BASH_SOURCE" "$@"
