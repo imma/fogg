@@ -1,0 +1,15 @@
+fogg:
+	@true
+
+%:
+	time fogg exec $(MAKE) $@_fr
+
+%_fr:
+	cd $(BLOCK_PATH)/$(shell echo '$@' | sed 's#_fr$$##') && make aws
+
+base_fr:
+	cd $(BLOCK_PATH)/$(shell echo '$@' | sed 's#_fr$$##') && make aws
+	vagrant box add -f block:ubuntu /data/cache/box/aws/block-ubuntu.box
+
+ubuntu_fr:
+	cd $(HOME) && make aws
