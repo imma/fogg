@@ -1,0 +1,26 @@
+#!/usr/bin/env bash
+
+function sg_names {
+	curl -s http://169.254.169.254/latest/meta-data/network/interfaces/macs/$(curl -s http://169.254.169.254/latest/meta-data/mac)/security-groups
+}
+
+function main {
+  local shome="$(cd -P -- "${BASH_SOURCE%/*}/.." && pwd -P)"
+  source "$shome/script/profile"
+  source normalize
+
+for sg in $(sg_names); do
+  case "$sg" in
+    *-*-*)
+        if sg_names | grep -q "^${sg%-*}"'$'; then
+          if sg_names | grep -q "^${sg%-*-*}"'$'; then
+            echo "$sg-$(curl -s http://169.254.169.254/latest/meta-data/instance-id)"
+          fi
+        fi
+      ;;
+  esac
+done
+
+}
+
+source sub "$BASH_SOURCE" "$@"
