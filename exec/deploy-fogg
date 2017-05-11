@@ -1,0 +1,10 @@
+#!/usr/bin/env bash
+
+function main {
+  local nm_color="$1"; shift
+  local nm_asg="$(basename $(dirname $(dirname "$PWD")))-$(basename $(dirname "$PWD"))-$(basename "$PWD")-${nm_color}"
+
+  deploy asg "$nm_asg" "$@"
+}
+
+source sub "$0" "$@"
