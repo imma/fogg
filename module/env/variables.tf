@@ -58,6 +58,10 @@ variable "iam_extra" {
   default = []
 }
 
+variable "override_env_sg_name" {
+  default = ""
+}
+
 output "vpc_id" {
   value = "${aws_vpc.env.id}"
 }
