@@ -4,8 +4,12 @@ function refresh_sub {
   set +f
   local a=
   for a in */; do
-    if [[ ! -f "$a/state.tf" ]]; then
-      continue
+    if [[ ! -f "$a/terraform.tf" ]]; then
+      if [[ ! -f "$a/terraform.tf.json" ]]; then
+        if [[ ! -f "$a/terraform.tfvars" ]]; then
+          continue
+        fi
+      fi
     fi
     (cd "$a" && fogg refresh)
   done
