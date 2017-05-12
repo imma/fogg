@@ -6,9 +6,10 @@ data "terraform_remote_state" "global" {
   backend = "s3"
 
   config {
-    bucket = "${var.global_bucket}"
-    key    = "${var.global_key}"
-    region = "${var.global_region}"
+    bucket     = "${var.global_bucket}"
+    key        = "${var.global_key}"
+    region     = "${var.global_region}"
+    lock_table = "terraform_state_lock"
   }
 }
 

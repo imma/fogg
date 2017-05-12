@@ -14,9 +14,10 @@ data "terraform_remote_state" "global" {
   backend = "s3"
 
   config {
-    bucket = "${var.global_bucket}"
-    key    = "${var.global_key}"
-    region = "${var.global_region}"
+    bucket     = "${var.global_bucket}"
+    key        = "${var.global_key}"
+    region     = "${var.global_region}"
+    lock_table = "terraform_state_lock"
   }
 }
 
@@ -24,9 +25,10 @@ data "terraform_remote_state" "env" {
   backend = "s3"
 
   config {
-    bucket = "${var.env_bucket}"
-    key    = "${var.env_key}"
-    region = "${var.env_region}"
+    bucket     = "${var.env_bucket}"
+    key        = "${var.env_key}"
+    region     = "${var.env_region}"
+    lock_table = "terraform_state_lock"
   }
 }
 
@@ -34,9 +36,10 @@ data "terraform_remote_state" "app" {
   backend = "s3"
 
   config {
-    bucket = "${var.app_bucket}"
-    key    = "${var.app_key}"
-    region = "${var.app_region}"
+    bucket     = "${var.app_bucket}"
+    key        = "${var.app_key}"
+    region     = "${var.app_region}"
+    lock_table = "terraform_state_lock"
   }
 }
 
