@@ -19,7 +19,7 @@ function gen_state {
 		--arg remote_bucket "$remote_bucket" \
 		--arg remote_path "$remote_path" \
 		--arg remote_region "$remote_region" \
-    -n -r '"terraform { backend \"s3\" { bucket=\"\($remote_bucket)\" key=\"\($remote_path)\" region=\"\($remote_region)\" } }\nprovider { aws { region=\"\($remote_region)\" } }"'
+    -n -r '"terraform { backend \"s3\" { bucket=\"\($remote_bucket)\" key=\"\($remote_path)\" region=\"\($remote_region)\" } }\nprovider "aws" { aws { region=\"\($remote_region)\" } }"'
 }
 
 function gen_global { 
