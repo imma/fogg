@@ -4,7 +4,6 @@ function use_module {
   local nm_module="$1"; shift
   hcltool "$shome/module/${nm_module}/variables.tf" \
     | jq --arg tfmod "$nm_module" '{
-          data: (.data//{}), 
           variable: (.variable//{} as $vars | reduce (.variable | keys[]) as $v ({}; .[$v] = $vars[$v])), 
           output: (.output//{} | reduce keys[] as $o ({}; .[$o] = {value: "${module.\($tfmod).\($o)}"}))
         }'
