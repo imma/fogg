@@ -71,7 +71,13 @@ function _main {
 
   gen_state > state.tf.1
   mv state.tf.1 state.tf
-  terraform fmt state.tf 
+  hcltool state.tf > state.tf.json.1
+  mv state.tf.json.1 state.tf.json
+
+  cat terraform.tf.json state.tf.json | merge_map > terraform.tf.json.1
+  mv terraform.tf.json.1 terraform.tf.json
+
+  rm -f state.tf.json state.tf
 }
 
 _main "$@"
