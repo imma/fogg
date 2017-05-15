@@ -87,7 +87,7 @@ resource "aws_s3_bucket" "config" {
 
 resource "aws_iam_role_policy" "config_s3" {
   name = "config-s3"
-  role = "${aws_iam_role.r.id}"
+  role = "${aws_iam_role.config.id}"
 
   policy = <<POLICY
 {
@@ -131,11 +131,6 @@ POLICY
 resource "aws_iam_role_policy_attachment" "config" {
   role       = "${aws_iam_role.config.name}"
   policy_arn = "arn:aws:iam::aws:policy/service-role/AWSConfigRole"
-}
-
-resource "aws_iam_role_policy_attachment" "config_s3" {
-  role       = "${aws_iam_role.config.name}"
-  policy_arn = "${aws_iam_policy.config_s3.arn}"
 }
 
 resource "aws_config_delivery_channel" "config" {
