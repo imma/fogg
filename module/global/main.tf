@@ -66,6 +66,66 @@ resource "aws_s3_bucket" "tf_remote_state" {
   }
 }
 
+resource "aws_s3_bucket" "config" {
+  bucket = "b-${format("%.8s",sha1(data.aws_caller_identity.current.account_id))}-global-config"
+  acl    = "private"
+
+  logging {
+    target_bucket = "b-${format("%.8s",sha1(data.aws_caller_identity.current.account_id))}-global-s3"
+    target_prefix = "log/"
+  }
+
+  versioning {
+    enabled = true
+  }
+
+  tags {
+    "ManagedBy" = "terraform"
+    "Env"       = "global"
+  }
+}
+
+resource "aws_config_delivery_channel" "config" {
+  name           = "config"
+  s3_bucket_name = "${aws_s3_bucket.config.bucket}"
+}
+
+resource "aws_config_configuration_recorder_status" "config" {
+  name       = "${aws_config_configuration_recorder.config.name}"
+  is_enabled = true
+  depends_on = ["aws_config_delivery_channel.config"]
+}
+
+resource "aws_config_configuration_recorder" "config" {
+  name     = "config"
+  role_arn = "${aws_iam_role.config.arn}"
+}
+
+resource "aws_iam_role_policy_attachment" "config" {
+  role       = "${aws_iam_role.config.name}"
+  policy_arn = "arn:aws:iam::aws:policy/service-role/AWSConfigRole"
+}
+
+resource "aws_iam_role" "config {
+  name = "config"
+
+  assume_role_policy = <<POLICY
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Action": "sts:AssumeRole",
+      "Principal": {
+        "Service": "config.amazonaws.com"
+      },
+      "Effect": "Allow",
+      "Sid": ""
+    }
+  ]
+}
+POLICY
+}
+
 data "aws_billing_service_account" "global" {}
 
 data "aws_iam_policy_document" "billing" {
