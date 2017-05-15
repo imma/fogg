@@ -85,28 +85,30 @@ resource "aws_s3_bucket" "config" {
   }
 }
 
-resource "aws_config_delivery_channel" "config" {
-  name           = "config"
-  s3_bucket_name = "${aws_s3_bucket.config.bucket}"
+resource "aws_iam_role_policy" "config_s3" {
+  name = "config-s3"
+  role = "${aws_iam_role.r.id}"
+
+  policy = <<POLICY
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Action": [
+        "s3:*"
+      ],
+      "Effect": "Allow",
+      "Resource": [
+        "${aws_s3_bucket.config.arn}",
+        "${aws_s3_bucket.config.arn}/*"
+      ]
+    }
+  ]
+}
+POLICY
 }
 
-resource "aws_config_configuration_recorder_status" "config" {
-  name       = "${aws_config_configuration_recorder.config.name}"
-  is_enabled = true
-  depends_on = ["aws_config_delivery_channel.config"]
-}
-
-resource "aws_config_configuration_recorder" "config" {
-  name     = "config"
-  role_arn = "${aws_iam_role.config.arn}"
-}
-
-resource "aws_iam_role_policy_attachment" "config" {
-  role       = "${aws_iam_role.config.name}"
-  policy_arn = "arn:aws:iam::aws:policy/service-role/AWSConfigRole"
-}
-
-resource "aws_iam_role" "config {
+resource "aws_iam_role" "config" {
   name = "config"
 
   assume_role_policy = <<POLICY
@@ -124,6 +126,32 @@ resource "aws_iam_role" "config {
   ]
 }
 POLICY
+}
+
+resource "aws_iam_role_policy_attachment" "config" {
+  role       = "${aws_iam_role.config.name}"
+  policy_arn = "arn:aws:iam::aws:policy/service-role/AWSConfigRole"
+}
+
+resource "aws_iam_role_policy_attachment" "config_s3" {
+  role       = "${aws_iam_role.config.name}"
+  policy_arn = "${aws_iam_policy.config_s3.arn}"
+}
+
+resource "aws_config_delivery_channel" "config" {
+  name           = "config"
+  s3_bucket_name = "${aws_s3_bucket.config.bucket}"
+}
+
+resource "aws_config_configuration_recorder" "config" {
+  name     = "config"
+  role_arn = "${aws_iam_role.config.arn}"
+}
+
+resource "aws_config_configuration_recorder_status" "config" {
+  name       = "${aws_config_configuration_recorder.config.name}"
+  is_enabled = true
+  depends_on = ["aws_config_delivery_channel.config"]
 }
 
 data "aws_billing_service_account" "global" {}
