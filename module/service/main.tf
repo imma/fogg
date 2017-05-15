@@ -373,6 +373,52 @@ resource "aws_route53_record" "service-staging" {
   count = "${var.want_elb}"
 }
 
+resource "aws_sns_topic" "service" {
+  name  = "${data.terraform_remote_state.env.env_name}-${data.terraform_remote_state.app.app_name}-${var.service_name}-${element(var.asg_name,count.index)}"
+  count = "${var.asg_count}"
+}
+
+resource "aws_sqs_queue" "service" {
+  name   = "${data.terraform_remote_state.env.env_name}-${data.terraform_remote_state.app.app_name}-${var.service_name}-${element(var.asg_name,count.index)}"
+  policy = "${element(data.aws_iam_policy_document.service-sns-sqs.*.json,count.index)}"
+  count  = "${var.asg_count}"
+}
+
+data "aws_iam_policy_document" "service-sns-sqs" {
+  statement {
+    actions = [
+      "sqs:SendMessage",
+    ]
+
+    principals {
+      type        = "AWS"
+      identifiers = ["*"]
+    }
+
+    resources = [
+      "arn:aws:sqs:${var.env_region}:${data.terraform_remote_state.global.aws_account_id}:${data.terraform_remote_state.env.env_name}-${data.terraform_remote_state.app.app_name}-${var.service_name}-${element(var.asg_name,count.index)}",
+    ]
+
+    condition {
+      test     = "ArnEquals"
+      variable = "aws:SourceArn"
+
+      values = [
+        "${element(aws_sns_topic.service.*.arn,count.index)}",
+      ]
+    }
+  }
+
+  count = "${var.asg_count}"
+}
+
+resource "aws_sns_topic_subscription" "service" {
+  topic_arn = "${element(aws_sns_topic.service.*.arn,count.index)}"
+  endpoint  = "${element(aws_sqs_queue.service.*.arn,count.index)}"
+  protocol  = "sqs"
+  count     = "${var.asg_count}"
+}
+
 resource "aws_autoscaling_group" "service" {
   name                 = "${data.terraform_remote_state.env.env_name}-${data.terraform_remote_state.app.app_name}-${var.service_name}-${element(var.asg_name,count.index)}"
   launch_configuration = "${element(aws_launch_configuration.service.*.name,count.index)}"
@@ -419,6 +465,22 @@ resource "aws_autoscaling_group" "service" {
     value               = "${element(var.asg_name,count.index)}"
     propagate_at_launch = true
   }
+}
+
+resource "aws_autoscaling_notification" "service" {
+  topic_arn = "${element(aws_sns_topic.service.*.arn,count.index)}"
+
+  group_names = [
+    "${element(aws_autoscaling_group.service.*.name,count.index)}",
+  ]
+
+  notifications = [
+    "autoscaling:EC2_INSTANCE_LAUNCH",
+    "autoscaling:EC2_INSTANCE_TERMINATE",
+    "autoscaling:EC2_INSTANCE_LAUNCH_ERROR",
+  ]
+
+  count = "${var.asg_count}"
 }
 
 data "external" "asg_instance" {
