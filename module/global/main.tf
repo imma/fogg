@@ -94,14 +94,39 @@ resource "aws_iam_role_policy" "config_s3" {
   "Version": "2012-10-17",
   "Statement": [
     {
+      "Sid": "AWSConfigBucketPermissionsCheck",
       "Action": [
-        "s3:*"
-      ],
+				"s3:GetBucketAcl"
+			],
       "Effect": "Allow",
+      "Principal": {
+        "Service": [
+         "config.amazonaws.com"
+        ]
+      },
       "Resource": [
-        "${aws_s3_bucket.config.arn}",
-        "${aws_s3_bucket.config.arn}/*"
+        "${aws_s3_bucket.config.arn}"
       ]
+    },
+    {
+      "Sid": " AWSConfigBucketDelivery",
+      "Action": [
+				"s3:PutObject"
+			],
+      "Effect": "Allow",
+      "Principal": {
+        "Service": [
+         "config.amazonaws.com"
+        ]
+      },
+      "Resource": [
+        "${aws_s3_bucket.config.arn}/*"
+      ],
+      "Condition": { 
+        "StringEquals": { 
+          "s3:x-amz-acl": "bucket-owner-full-control" 
+        }
+      }
     }
   ]
 }
