@@ -476,8 +476,9 @@ resource "aws_autoscaling_notification" "service" {
 
   notifications = [
     "autoscaling:EC2_INSTANCE_LAUNCH",
-    "autoscaling:EC2_INSTANCE_TERMINATE",
     "autoscaling:EC2_INSTANCE_LAUNCH_ERROR",
+    "autoscaling:EC2_INSTANCE_TERMINATE",
+    "autoscaling:EC2_INSTANCE_TERMINATE_ERROR"
   ]
 
   count = "${var.asg_count}"
