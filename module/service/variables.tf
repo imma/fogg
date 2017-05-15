@@ -129,3 +129,7 @@ output "key_name" {
 output "service_eips" {
   value = ["${aws_eip.service.*.public_ip}"]
 }
+
+output "service_sqs" {
+  value = ["${aws_sqs_queue.service.*.id}"]
+}
