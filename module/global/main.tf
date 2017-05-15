@@ -66,6 +66,44 @@ resource "aws_s3_bucket" "tf_remote_state" {
   }
 }
 
+data "aws_iam_policy_document" "config" {
+  statement {
+    actions = [
+      "s3:GetBucketAcl",
+    ]
+
+    resources = [
+      "arn:aws:s3:::b-${format("%.8s",sha1(data.aws_caller_identity.current.account_id))}-global-config",
+    ]
+
+    principals {
+      type        = "Service"
+      identifiers = ["config.amazonaws.com"]
+    }
+  }
+
+  statement {
+    actions = [
+      "s3:PutObject",
+    ]
+
+    resources = [
+      "arn:aws:s3:::b-${format("%.8s",sha1(data.aws_caller_identity.current.account_id))}-global-config/AWSLogs/*",
+    ]
+
+    principals {
+      type        = "Service"
+      identifiers = ["config.amazonaws.com"]
+    }
+
+    condition {
+      test     = "StringEquals"
+      variable = "s3:x-amz-acl"
+      values   = ["bucket-owner-full-control"]
+    }
+  }
+}
+
 resource "aws_s3_bucket" "config" {
   bucket = "b-${format("%.8s",sha1(data.aws_caller_identity.current.account_id))}-global-config"
   acl    = "private"
@@ -74,6 +112,8 @@ resource "aws_s3_bucket" "config" {
     target_bucket = "b-${format("%.8s",sha1(data.aws_caller_identity.current.account_id))}-global-s3"
     target_prefix = "log/"
   }
+
+  policy = "${data.aws_iam_policy_document.config.json}"
 
   versioning {
     enabled = true
@@ -94,36 +134,24 @@ resource "aws_iam_role_policy" "config_s3" {
   "Version": "2012-10-17",
   "Statement": [
     {
-      "Sid": "AWSConfigBucketPermissionsCheck",
+      "Effect": "Allow",
       "Action": [
 				"s3:GetBucketAcl"
 			],
-      "Effect": "Allow",
-      "Principal": {
-        "Service": [
-         "config.amazonaws.com"
-        ]
-      },
       "Resource": [
         "${aws_s3_bucket.config.arn}"
       ]
     },
     {
-      "Sid": " AWSConfigBucketDelivery",
+      "Effect": "Allow",
       "Action": [
 				"s3:PutObject"
 			],
-      "Effect": "Allow",
-      "Principal": {
-        "Service": [
-         "config.amazonaws.com"
-        ]
-      },
       "Resource": [
-        "${aws_s3_bucket.config.arn}/*"
+        "${aws_s3_bucket.config.arn}/AwsLogs/*"
       ],
       "Condition": { 
-        "StringEquals": { 
+        "StringLike": { 
           "s3:x-amz-acl": "bucket-owner-full-control" 
         }
       }
