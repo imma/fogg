@@ -141,6 +141,11 @@ resource "aws_config_delivery_channel" "config" {
 resource "aws_config_configuration_recorder" "config" {
   name     = "config"
   role_arn = "${aws_iam_role.config.arn}"
+
+  recording_group {
+    all_supported                 = true
+    include_global_resource_types = true
+  }
 }
 
 resource "aws_config_configuration_recorder_status" "config" {
