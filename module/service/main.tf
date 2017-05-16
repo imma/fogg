@@ -210,10 +210,27 @@ resource "aws_eip" "service" {
   count = "${var.want_eip}"
 }
 
+data "aws_ami" "block" {
+  most_recent      = true
+  executable_users = ["self"]
+
+  filter {
+    name   = "state"
+    values = ["available"]
+  }
+
+  filter {
+    name   = "name"
+    values = ["block-ubuntu-*"]
+  }
+
+  owners = ["self"]
+}
+
 resource "aws_launch_configuration" "service" {
   name_prefix          = "${data.terraform_remote_state.env.env_name}-${data.terraform_remote_state.app.app_name}-${var.service_name}-${element(var.asg_name,count.index)}-"
   instance_type        = "${element(var.instance_type,count.index)}"
-  image_id             = "${coalesce(element(var.ami_id,count.index),data.terraform_remote_state.env.env_ami_id)}"
+  image_id             = "${coalesce(element(var.ami_id,count.index),data.aws_ami.block.image_id)}"
   iam_instance_profile = "${data.terraform_remote_state.env.env_name}-${data.terraform_remote_state.app.app_name}-${var.service_name}"
   key_name             = "${data.terraform_remote_state.env.key_name}"
   user_data            = "${data.template_file.user_data_service.rendered}"

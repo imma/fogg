@@ -48,8 +48,6 @@ variable "want_ipv6" {
 
 variable "public_key" {}
 
-variable "ami_id" {}
-
 variable "sg_extra" {
   default = []
 }
@@ -156,10 +154,6 @@ output "public_subnets" {
 
 output "env_name" {
   value = "${var.env_name}"
-}
-
-output "env_ami_id" {
-  value = "${var.ami_id}"
 }
 
 output "key_name" {
