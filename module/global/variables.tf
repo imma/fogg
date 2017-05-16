@@ -15,3 +15,7 @@ output "public_zone_id" {
 output "public_zone_servers" {
   value = "${aws_route53_zone.public.name_servers}"
 }
+
+output "config_sqs" {
+  value = "${aws_sqs_queue.config.id}"
+}
