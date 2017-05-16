@@ -82,6 +82,10 @@ variable "termination_policies" {
   default = ["OldestInstance"]
 }
 
+variable "block" {
+  default = "block-ubuntu"
+}
+
 output "asg_names" {
   value = ["${aws_autoscaling_group.service.*.name}"]
 }

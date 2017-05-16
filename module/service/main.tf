@@ -211,7 +211,7 @@ resource "aws_eip" "service" {
 }
 
 data "aws_ami" "block" {
-  most_recent      = true
+  most_recent = true
 
   filter {
     name   = "state"
@@ -220,7 +220,7 @@ data "aws_ami" "block" {
 
   filter {
     name   = "tag:Block"
-    values = ["block-ubuntu-*"]
+    values = ["${var.block}-*"]
   }
 
   owners = ["self"]
