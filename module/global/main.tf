@@ -216,6 +216,7 @@ resource "aws_iam_role_policy_attachment" "config" {
 resource "aws_config_delivery_channel" "config" {
   name           = "config"
   s3_bucket_name = "${aws_s3_bucket.config.bucket}"
+  sns_topic_arn = "${aws_sns_topic.config.arn}"
 }
 
 resource "aws_config_configuration_recorder" "config" {
