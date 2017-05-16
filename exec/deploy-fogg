@@ -2,7 +2,7 @@
 
 function main {
   local nm_color="$1"; shift
-  local nm_asg="$(basename $(dirname $(dirname "$PWD")))-$(basename $(dirname "$PWD"))-$(basename "$PWD")-${nm_color}"
+  local nm_asg="$(basename $(dirname $(dirname "$(pwd -P)")))-$(basename $(dirname "$(pwd -P)"))-$(basename "$(pwd -P)")-${nm_color}"
 
   deploy asg "$nm_asg" "$@"
 }
