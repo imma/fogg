@@ -220,7 +220,7 @@ data "aws_ami" "block" {
   }
 
   filter {
-    name   = "name"
+    name   = "tag:Block"
     values = ["block-ubuntu-*"]
   }
 
