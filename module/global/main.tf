@@ -1,5 +1,9 @@
 data "aws_caller_identity" "current" {}
 
+data "aws_region" "current" {
+  current = true
+}
+
 resource "aws_iam_group" "administrators" {
   name = "administrators"
 }
@@ -66,44 +70,6 @@ resource "aws_s3_bucket" "tf_remote_state" {
   }
 }
 
-data "aws_iam_policy_document" "config" {
-  statement {
-    actions = [
-      "s3:GetBucketAcl",
-    ]
-
-    resources = [
-      "arn:aws:s3:::b-${format("%.8s",sha1(data.aws_caller_identity.current.account_id))}-global-config",
-    ]
-
-    principals {
-      type        = "Service"
-      identifiers = ["config.amazonaws.com"]
-    }
-  }
-
-  statement {
-    actions = [
-      "s3:PutObject",
-    ]
-
-    resources = [
-      "arn:aws:s3:::b-${format("%.8s",sha1(data.aws_caller_identity.current.account_id))}-global-config/AWSLogs/*",
-    ]
-
-    principals {
-      type        = "Service"
-      identifiers = ["config.amazonaws.com"]
-    }
-
-    condition {
-      test     = "StringEquals"
-      variable = "s3:x-amz-acl"
-      values   = ["bucket-owner-full-control"]
-    }
-  }
-}
-
 resource "aws_s3_bucket" "config" {
   bucket = "b-${format("%.8s",sha1(data.aws_caller_identity.current.account_id))}-global-config"
   acl    = "private"
@@ -112,8 +78,6 @@ resource "aws_s3_bucket" "config" {
     target_bucket = "b-${format("%.8s",sha1(data.aws_caller_identity.current.account_id))}-global-s3"
     target_prefix = "log/"
   }
-
-  policy = "${data.aws_iam_policy_document.config.json}"
 
   versioning {
     enabled = true
@@ -155,6 +119,69 @@ resource "aws_iam_role_policy" "config_s3" {
           "s3:x-amz-acl": "bucket-owner-full-control" 
         }
       }
+    }
+  ]
+}
+POLICY
+}
+
+resource "aws_sns_topic" "config" {
+  name = "config"
+}
+
+resource "aws_sqs_queue" "config" {
+  name   = "config"
+  policy = "${data.aws_iam_policy_document.config_sns_sqs.json}"
+}
+
+data "aws_iam_policy_document" "config_sns_sqs" {
+  statement {
+    actions = [
+      "sqs:SendMessage",
+    ]
+
+    principals {
+      type        = "AWS"
+      identifiers = ["*"]
+    }
+
+    resources = [
+      "arn:aws:sqs:${data.aws_region.current.name}:${data.aws_caller_identity.current.account_id}:config",
+    ]
+
+    condition {
+      test     = "ArnEquals"
+      variable = "aws:SourceArn"
+
+      values = [
+        "${aws_sns_topic.config.arn}",
+      ]
+    }
+  }
+}
+
+resource "aws_sns_topic_subscription" "config" {
+  topic_arn = "${aws_sns_topic.config.arn}"
+  endpoint  = "${aws_sqs_queue.config.arn}"
+  protocol  = "sqs"
+}
+
+resource "aws_iam_role_policy" "config_sns" {
+  name = "config-sns"
+  role = "${aws_iam_role.config.id}"
+
+  policy = <<POLICY
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Effect": "Allow",
+      "Action": [
+        "sns:Publish"
+			],
+      "Resource": [
+        "${aws_sns_topic.config.arn}"
+      ]
     }
   ]
 }
