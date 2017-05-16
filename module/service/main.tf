@@ -212,7 +212,6 @@ resource "aws_eip" "service" {
 
 data "aws_ami" "block" {
   most_recent      = true
-  executable_users = ["self"]
 
   filter {
     name   = "state"
