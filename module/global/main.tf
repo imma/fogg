@@ -73,6 +73,7 @@ resource "aws_s3_bucket" "tf_remote_state" {
 resource "aws_s3_bucket" "config" {
   bucket = "b-${format("%.8s",sha1(data.aws_caller_identity.current.account_id))}-global-config"
   acl    = "private"
+  policy = "${data.aws_iam_policy_document.config_s3.json}"
 
   logging {
     target_bucket = "b-${format("%.8s",sha1(data.aws_caller_identity.current.account_id))}-global-s3"
@@ -125,8 +126,26 @@ resource "aws_iam_role_policy" "config_s3" {
 POLICY
 }
 
+data "aws_iam_policy_document" "config_sns" {
+  statement {
+    actions = [
+      "SNS:Publish",
+    ]
+
+    resources = [
+      "arn:aws:sns:${data.aws_region.current.name}:${data.aws_caller_identity.current.account_id}:config",
+    ]
+
+    principals {
+      type        = "Service"
+      identifiers = ["config.amazonaws.com"]
+    }
+  }
+}
+
 resource "aws_sns_topic" "config" {
-  name = "config"
+  name   = "config"
+  policy = "${data.aws_iam_policy_document.config_sns.json}"
 }
 
 resource "aws_sqs_queue" "config" {
@@ -216,7 +235,7 @@ resource "aws_iam_role_policy_attachment" "config" {
 resource "aws_config_delivery_channel" "config" {
   name           = "config"
   s3_bucket_name = "${aws_s3_bucket.config.bucket}"
-  sns_topic_arn = "${aws_sns_topic.config.arn}"
+  sns_topic_arn  = "${aws_sns_topic.config.arn}"
 }
 
 resource "aws_config_configuration_recorder" "config" {
@@ -270,16 +289,53 @@ data "aws_iam_policy_document" "billing" {
   }
 }
 
+data "aws_iam_policy_document" "config_s3" {
+  statement {
+    actions = [
+      "s3:GetBucketAcl",
+    ]
+
+    resources = [
+      "arn:aws:s3:::b-${format("%.8s",sha1(data.aws_caller_identity.current.account_id))}-global-config",
+    ]
+
+    principals {
+      type        = "Service"
+      identifiers = ["config.amazonaws.com"]
+    }
+  }
+
+  statement {
+    actions = [
+      "s3:PutObject",
+    ]
+
+    resources = [
+      "arn:aws:s3:::b-${format("%.8s",sha1(data.aws_caller_identity.current.account_id))}-global-config/AWSLogs/*",
+    ]
+
+    principals {
+      type        = "Service"
+      identifiers = ["config.amazonaws.com"]
+    }
+
+    condition {
+      test     = "StringEquals"
+      variable = "s3:x-amz-acl"
+      values   = ["bucket-owner-full-control"]
+    }
+  }
+}
+
 resource "aws_s3_bucket" "billing" {
   bucket = "b-${format("%.8s",sha1(data.aws_caller_identity.current.account_id))}-global-billing"
   acl    = "private"
+  policy = "${data.aws_iam_policy_document.billing.json}"
 
   logging {
     target_bucket = "b-${format("%.8s",sha1(data.aws_caller_identity.current.account_id))}-global-s3"
     target_prefix = "log/"
   }
-
-  policy = "${data.aws_iam_policy_document.billing.json}"
 
   versioning {
     enabled = true
