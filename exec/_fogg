@@ -10,9 +10,9 @@ function use_module {
 }
 
 function gen_state {
-  local remote_bucket="$(hcltool terraform.tf.json  | jq -r '.variable.remote_bucket.default')"
-  local remote_path="$(hcltool terraform.tf.json  | jq -r '.variable.remote_path.default')"
-  local remote_region="$(hcltool terraform.tf.json  | jq -r '.variable.remote_region.default')"
+  local remote_bucket="$(hcltool _terraform.tf.json  | jq -r '.variable.remote_bucket.default')"
+  local remote_path="$(hcltool _terraform.tf.json  | jq -r '.variable.remote_path.default')"
+  local remote_region="$(hcltool _terraform.tf.json  | jq -r '.variable.remote_region.default')"
 
 	jq \
 		--arg remote_bucket "$remote_bucket" \
@@ -66,15 +66,15 @@ function _main {
     <("gen_${BASH_SOURCE[2]##*-}" "${BASH_SOURCE[2]##*-}" "$@") \
     <(use_module "${BASH_SOURCE[2]##*-}") \
     "$@" | jq -S . > terraform.tf.json.1
-  mv terraform.tf.json.1 terraform.tf.json
+  mv terraform.tf.json.1 _terraform.tf.json
 
   gen_state > state.tf.1
   mv state.tf.1 state.tf
   hcltool state.tf > state.tf.json.1
   mv state.tf.json.1 state.tf.json
 
-  cat terraform.tf.json state.tf.json | merge_map > terraform.tf.json.1
-  mv terraform.tf.json.1 terraform.tf.json
+  cat _terraform.tf.json state.tf.json | merge_map > terraform.tf.json.1
+  mv terraform.tf.json.1 _terraform.tf.json
 
   rm -f state.tf.json state.tf
 }
