@@ -77,6 +77,8 @@ function _main {
   mv terraform.tf.json.1 _terraform.tf.json
 
   rm -f state.tf.json state.tf
+
+  rm -f terraform.tf.json
 }
 
 _main "$@"
