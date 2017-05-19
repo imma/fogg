@@ -137,3 +137,7 @@ output "service_eips" {
 output "service_sqs" {
   value = ["${aws_sqs_queue.service.*.id}"]
 }
+
+output "service_iam_role" {
+  value = "${aws_iam_role.service.name}"
+}
