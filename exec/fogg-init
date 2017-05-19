@@ -10,5 +10,4 @@ function main {
   terraform init
 }
 
-cd "${FOGG_CWD}"
 source sub "$BASH_SOURCE" "$@"

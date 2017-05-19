@@ -9,5 +9,4 @@ function main {
   exec vagrant "$@"
 }
 
-cd "${FOGG_CWD:-.}"
 source sub "$BASH_SOURCE" "$@"

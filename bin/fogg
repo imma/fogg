@@ -36,13 +36,4 @@ function main {
   fogg gen "$@"
 }
 
-export FOGG_CWD="$(pwd)"
-cd -P .
-while [[ "$(pwd)" != "/" ]]; do
-	if [[ -d .terraform ]]; then
-		break
-	fi
-	cd ..
-done
-
 source sub "$BASH_SOURCE" "$@"
