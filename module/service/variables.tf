@@ -145,3 +145,7 @@ output "service_iam_role" {
 output "service_iam_profile" {
   value = "${aws_iam_instance_profile.service.name}"
 }
+
+output "service_ami" {
+  value = "${element(aws_launch_configuration.service.*.image_id,0)}"
+}
