@@ -6,7 +6,7 @@ function gen {
   local nm_env="$1"
 
   local remote_bucket="$(hcltool ../terraform.tfvars | jq -r '.remote_bucket')"
-  local remote_path="$(cd .. && basename $(pwd))_$(basename $(pwd))/terraform.tfstate"
+  local remote_path="$(cd -P .. && basename $(pwd -P))_$(basename $(pwd -P))/terraform.tfstate"
   local remote_region="$(hcltool ../terraform.tfvars | jq -r '.remote_region')"
   local az_count="$(hcltool ../terraform.tfvars | jq -r '.az_count')"
 

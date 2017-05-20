@@ -10,7 +10,7 @@ function main {
     return 1
   fi
 
-  local pth_config="$(echo "$PWD" | sed "s#$(git rev-parse --show-toplevel)/##" | perl -pe 's{/+}{_}g')"
+  local pth_config="$(pwd -P . | sed "s#$(cd -P . && git rev-parse --show-toplevel)/##" | perl -pe 's{/+}{_}g')"
 
   case "$pth_config" in
     *_*_*_*)

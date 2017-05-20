@@ -5,7 +5,7 @@ function gen {
   local tmp_modules="$1"; shift
 
   local remote_bucket="$(hcltool terraform.tfvars | jq -r '.remote_bucket')"
-  local remote_path="$(basename $(pwd))/terraform.tfstate"
+  local remote_path="$(basename $(pwd -P))/terraform.tfstate"
   local remote_region="$(hcltool terraform.tfvars | jq -r '.remote_region')"
   local az_count="$(hcltool terraform.tfvars | jq -r '.az_count')"
 
