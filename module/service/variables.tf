@@ -141,3 +141,7 @@ output "service_sqs" {
 output "service_iam_role" {
   value = "${aws_iam_role.service.name}"
 }
+
+output "service_iam_profile" {
+  value = "${aws_iam_instance_profile.service.name}"
+}
