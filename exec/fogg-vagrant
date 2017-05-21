@@ -5,8 +5,7 @@ function main {
   source "$shome/script/profile"
   source normalize
 
-  eval $(fogg env)
-  exec vagrant "$@"
+  exec fogg env vagrant "$@"
 }
 
 source sub "$BASH_SOURCE" "$@"
