@@ -97,7 +97,7 @@ function main {
         if [[ -z "$cnt_attached" || "$cnt_attached" == 0 ]]; then
           break
         fi
-        echo "INFO: waiting for $* to detach... $(date)"
+        echo "INFO: $(aws autoscaling describe-auto-scaling-instances --instance-ids xxx "$@" | jq -r '.AutoScalingInstances[] | "\(.LifecycleState) \(.HealthStatus)"') $(date)"
         sleep 1
       done
       ;;
@@ -108,9 +108,11 @@ function main {
       while true; do
         local cnt_attached="$(aws autoscaling describe-auto-scaling-instances --instance-ids xxx "$@" | jq -r '.AutoScalingInstances[] | length')"
         if [[ "$cnt_attached" -ge "$#" ]]; then
-          break
+          if [[ "$(aws autoscaling describe-auto-scaling-instances --instance-ids xxx "$@" | jq -r '.AutoScalingInstances[] | "\(.LifecycleState) \(.HealthStatus)"')" == "InService HEALTHY" ]]; then
+            break
+          fi
         fi
-        echo "INFO: waiting for $* to attach ... $(date)"
+        echo "INFO: $(aws autoscaling describe-auto-scaling-instances --instance-ids xxx "$@" | jq -r '.AutoScalingInstances[] | "\(.LifecycleState) \(.HealthStatus)"') $(date)"
         sleep 1
       done
       ;;
