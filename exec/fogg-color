@@ -123,7 +123,10 @@ function main {
     receive-message)
       shift # receive-message
       local url_sqs="$(terraform output -json | jq -r --arg color "$nm_color" '.service_sqs.value | map(select(test("-\($color)$")))[0]')"
-      aws sqs receive-message --queue-url "$url_sqs" --max-number-of-messages 1 | jq -r '.Messages[] | { ReceiptHandle: .ReceiptHandle, Message: .Body | fromjson | .Message | fromjson }'
+      if [[ "$#" == 0 ]]; then
+        set -- .
+      fi
+      aws sqs receive-message --queue-url "$url_sqs" --max-number-of-messages 1 | jq -r '.Messages[] | { ReceiptHandle: .ReceiptHandle, Message: .Body | fromjson | .Message | fromjson }' | jq -r "$@"
       ;;
 
     delete-message)
@@ -135,7 +138,10 @@ function main {
     queue-attributes)
       shift # queue-attributes
       local url_sqs="$(terraform output -json | jq -r --arg color "$nm_color" '.service_sqs.value | map(select(test("-\($color)$")))[0]')"
-      aws sqs get-queue-attributes --attribute-names All --queue-url "$url_sqs"
+      if [[ "$#" == 0 ]]; then
+        set -- .
+      fi
+      aws sqs get-queue-attributes --attribute-names All --queue-url "$url_sqs" | jq -r "$@"
       ;;
 
     *)
