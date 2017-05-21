@@ -102,7 +102,20 @@ function main {
       done
       ;;
 
-    attach)
+    attached)
+      shift # attached
+      fogg "$nm_color" attach "$@"
+      while true; do
+        local cnt_attached="$(aws autoscaling describe-auto-scaling-instances --instance-ids xxx "$@" | jq -r '.AutoScalingInstances[] | length')"
+        if [[ "$cnt_attached" -ge "$#" ]]; then
+          break
+        fi
+        echo "INFO: waiting for $* to attach ... $(date)"
+        sleep 1
+      done
+      ;;
+
+     attach)
       shift # attach
       aws autoscaling attach-instances --auto-scaling-group-name "$nm_asg" --instance-ids "$@"
       ;;
