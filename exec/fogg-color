@@ -146,12 +146,15 @@ function main {
 
     deploy-worker)
       while true; do 
-        fogg "$nm_color" receive-message \
-          | jq -r -s 'map(select(.Message.Event == "autoscaling:EC2_INSTANCE_LAUNCH" and .Message.Details["Subnet ID"])) | map("\(.Message.AutoScalingGroupARN | split("/")[-1] | split("-")[-1]) \(.Message.EC2InstanceId) \(.ReceiptHandle)") | .[]' \
-          | runmany 1 3 'deploy $1 -l $2; fogg $1 delete-message "$3"' 
-        date
-        sleep 5
+        fogg "$nm_color" deploy-once
+        date; sleep 5
       done
+      ;;
+
+    deploy-once)
+      fogg "$nm_color" receive-message \
+        | jq -r -s 'map(select(.Message.Event == "autoscaling:EC2_INSTANCE_LAUNCH" and .Message.Details["Subnet ID"])) | map("\(.Message.AutoScalingGroupARN | split("/")[-1] | split("-")[-1]) \(.Message.EC2InstanceId) \(.ReceiptHandle)") | .[]' \
+        | runmany 1 3 'deploy $1 -l $2; fogg $1 delete-message "$3"' 
       ;;
 
     *)
