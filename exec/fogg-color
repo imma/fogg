@@ -84,6 +84,16 @@ function main {
       esac
       ;;
 
+    detach)
+      shift # detach
+      aws autoscaling detach-instances --auto-scaling-group-name "$nm_asg" --instance-ids "$@" --should-decrement-desired-capacity
+      ;;
+
+    attach)
+      shift # attach
+      aws autoscaling attach-instances --auto-scaling-group-name "$nm_asg" --instance-ids "$@"
+      ;;
+
     *)
       echo "ERROR: no subcommand found for fogg $nm_color $1" 1>&2
       return 1
