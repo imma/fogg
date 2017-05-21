@@ -89,6 +89,19 @@ function main {
       aws autoscaling detach-instances --auto-scaling-group-name "$nm_asg" --instance-ids "$@" --should-decrement-desired-capacity
       ;;
 
+    detached)
+      shift # detached
+      fogg "$nm_color" detach "$@"
+      while true; do
+        local cnt_attached="$(aws autoscaling describe-auto-scaling-instances --instance-ids xxx "$@" | jq -r '.AutoScalingInstances[] | length')"
+        if [[ -z "$cnt_attached" || "$cnt_attached" == 0 ]]; then
+          break
+        fi
+        echo "INFO: waiting for $* to detach... $(date)"
+        sleep 1
+      done
+      ;;
+
     attach)
       shift # attach
       aws autoscaling attach-instances --auto-scaling-group-name "$nm_asg" --instance-ids "$@"
