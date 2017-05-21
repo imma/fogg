@@ -511,7 +511,7 @@ data "external" "asg_instance" {
 resource "aws_eip_association" "service" {
   instance_id   = "${lookup(data.external.asg_instance.result,"${data.terraform_remote_state.env.env_name}-${data.terraform_remote_state.app.app_name}-${var.service_name}-${element(var.asg_name,count.index)}")}"
   allocation_id = "${element(aws_eip.service.*.id,count.index)}"
-  count         = "${var.want_eip}"
+  count         = "${0*var.want_eip}"
 }
 
 module "fs" {
