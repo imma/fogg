@@ -38,7 +38,7 @@ resource "aws_security_group" "env" {
   vpc_id      = "${aws_vpc.env.id}"
 
   tags {
-    "Name"      = "${var.env_name}"
+    "Name"      = "${coalesce(var.override_env_sg_name,var.env_name)}"
     "Env"       = "${var.env_name}"
     "ManagedBy" = "terraform"
   }
@@ -59,7 +59,7 @@ resource "aws_security_group" "env_private" {
   vpc_id      = "${aws_vpc.env.id}"
 
   tags {
-    "Name"      = "${var.env_name}"
+    "Name"      = "${var.env_name}-private"
     "Env"       = "${var.env_name}"
     "ManagedBy" = "terraform"
   }
@@ -71,7 +71,7 @@ resource "aws_security_group" "env_public" {
   vpc_id      = "${aws_vpc.env.id}"
 
   tags {
-    "Name"      = "${var.env_name}"
+    "Name"      = "${var.env_name}-public"
     "Env"       = "${var.env_name}"
     "ManagedBy" = "terraform"
     "Network"   = "public"
@@ -84,7 +84,7 @@ resource "aws_security_group" "env_lb" {
   vpc_id      = "${aws_vpc.env.id}"
 
   tags {
-    "Name"      = "${var.env_name}"
+    "Name"      = "${var.env_name}-lb"
     "Env"       = "${var.env_name}"
     "ManagedBy" = "terraform"
   }
@@ -105,7 +105,7 @@ resource "aws_security_group" "env_lb_private" {
   vpc_id      = "${aws_vpc.env.id}"
 
   tags {
-    "Name"      = "${var.env_name}"
+    "Name"      = "${var.env_name}-lb-private"
     "Env"       = "${var.env_name}"
     "ManagedBy" = "terraform"
     "Network"   = "public"
@@ -118,7 +118,7 @@ resource "aws_security_group" "env_lb_public" {
   vpc_id      = "${aws_vpc.env.id}"
 
   tags {
-    "Name"      = "${var.env_name}"
+    "Name"      = "${var.env_name}-lb-public"
     "Env"       = "${var.env_name}"
     "ManagedBy" = "terraform"
     "Network"   = "public"
