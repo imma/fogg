@@ -9,7 +9,7 @@ function main {
       local nm_color="$1"; shift
       local nm_asg="$(basename $(dirname $(dirname "$(pwd -P)")))-$(basename $(dirname "$(pwd -P)"))-$(basename "$(pwd -P)")-${nm_color}"
 
-      deploy asg "$nm_asg" "$@"
+      deploy asg "$nm_asg" -e "env=$(basename $(dirname $(dirname $(pwd -P))))" -e "app=$(basename $(dirname $(pwd -P)))" "$@"
       ;;
   esac
 }
