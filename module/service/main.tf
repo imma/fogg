@@ -188,6 +188,16 @@ resource "aws_iam_role" "service" {
   assume_role_policy = "${data.aws_iam_policy_document.service.json}"
 }
 
+resource "aws_iam_role_policy_attachment" "ecr_ro" {
+  role       = "${aws_iam_role.service.name}"
+  policy_arn = "arn:aws:iam::aws:policy/AmazonEC2ContainerRegistryReadOnly"
+}
+
+resource "aws_iam_role_policy_attachment" "cc_ro" {
+  role       = "${aws_iam_role.service.name}"
+  policy_arn = "arn:aws:iam::aws:policy/AWSCodeCommitReadOnly"
+}
+
 resource "aws_iam_instance_profile" "service" {
   name = "${data.terraform_remote_state.env.env_name}-${data.terraform_remote_state.app.app_name}-${var.service_name}"
   role = "${element(concat(data.terraform_remote_state.env.iam_extra,list(aws_iam_role.service.name)),0)}"
