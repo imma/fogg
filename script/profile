@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
 function _fogg_profile {
-  local shome="${_fogg_home:-"$(cd -P -- "$(dirname -- "$BASH_SOURCE")/.." && pwd -P)"}"
+  local shome="${_fogg_home:="$(cd -P -- "$(dirname -- "$BASH_SOURCE")/.." && pwd -P)"}"
   PATH="$shome/bin:$shome/exec:$PATH"
 }
 
