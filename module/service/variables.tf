@@ -90,6 +90,10 @@ output "asg_names" {
   value = ["${aws_autoscaling_group.service.*.name}"]
 }
 
+output "service_names" {
+  value = ["${aws_route53_record.service-live.fqdn}", "${aws_route53_record.service-staging.fqdn}"]
+}
+
 output "elb_names" {
   value = ["${aws_elb.service.*.name}"]
 }

@@ -1,14 +1,19 @@
 #!/usr/bin/env bash
 
 function init_service {
-  if [[ -f "Blockfile.json" ]]; then
-    source "$_block_home/script/profile" ''
-    require
-  elif [[ -d "$HOME/work/${nm_service}" ]]; then
-    pushd "$HOME/work/${nm_service}" ]] >/dev/null
+  local nm_app="${nm_service#*-}"
+  nm_app="${nm_app%-*}"
+
+  if [[ -d "$HOME/work/${nm_app}" ]]; then
+    pushd "$HOME/work/${nm_app}" ]] >/dev/null
     source "$_block_home/script/profile" ''
     require
     popd >/dev/null
+  fi
+
+  if [[ -f "Blockfile.json" ]]; then
+    source "$_block_home/script/profile" ''
+    require
   fi
 
   cd "${_org_home}/${nm_service}"
