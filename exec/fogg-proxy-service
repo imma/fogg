@@ -1,5 +1,10 @@
 #!/usr/bin/env bash
 
+function init_service {
+  cd "${_org_home}/${nm_service}"
+  block require "$@"
+}
+
 function main {
   local shome="$(cd -P -- "${BASH_SOURCE%/*}/.." && pwd -P)"
   source "$shome/script/profile"
@@ -11,18 +16,18 @@ function main {
     list)
       shift
       if [[ "$#" -gt 0 ]]; then
-        cd "${_org_home}/${nm_service}" && deploy "$@" --list-hosts
+        init_service deploy "$@" --list-hosts
       else
         "$0"
       fi
       ;;
     deploy)
       shift
-      cd "${_org_home}/${nm_service}" && deploy "$@"
+      init_service deploy "$@"
       ;;
     ready)
       shift
-      cd "${_org_home}/${nm_service}" && block meta clone
+      init_service block meta clone
       ;;
     init|plan|apply|blue|green|live|staging)
       "$0" fogg "$@"
@@ -31,7 +36,7 @@ function main {
       "$0" terraform "$@"
       ;;
     git|make|fogg|terraform|vagrant|block)
-      cd "${_org_home}/${nm_service}" && "$@"
+      init_service "$@"
       ;;
     "")
       "$0" ready
