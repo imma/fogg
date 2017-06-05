@@ -1,0 +1,64 @@
+#!/usr/bin/env bash
+
+function main {
+  local shome="$(cd -P -- "${BASH_SOURCE%/*}/.." && pwd -P)"
+  source "$shome/script/profile"
+  source normalize
+
+  local nm_service="${0##*/}"
+
+  case "${1:-}" in
+    list)
+      shift
+      if [[ "$#" -gt 0 ]]; then
+        cd "${_org_home}/${nm_service}" && deploy "$@" --list-hosts
+      else
+        "$0"
+      fi
+      ;;
+    deploy)
+      shift
+      cd "${_org_home}/${nm_service}" && deploy "$@"
+      ;;
+    ready)
+      shift
+      cd "${_org_home}/${nm_service}" && block meta clone
+      ;;
+    init|plan|apply|blue|green|live|staging)
+      "$0" fogg "$@"
+      ;;
+    refresh)
+      "$0" terraform "$@"
+      ;;
+    git|make|fogg|terraform|vagrant)
+      cd "${_org_home}/${nm_service}" && "$@"
+      ;;
+    "")
+      "$0" ready
+
+      local tmp_list="$(mktemp -d -t XXXXXX)"
+
+      "$0" list blue 2>/dev/null > "$tmp_list/blue" &
+      "$0" list green 2>/dev/null > "$tmp_list/green" &
+      "$0" list fogg 2>/dev/null > "$tmp_list/fogg" &
+      wait 
+
+      figlet blue
+      cat "$tmp_list/blue" 
+
+      figlet green
+      cat "$tmp_list/green" 
+
+      figlet all
+      cat "$tmp_list/fogg" 
+
+      rm -rf "$tmp_list"
+      ;;
+    *)
+      echo "ERROR: unknown sub-command: $*" 1>&2
+      false
+      ;;
+  esac
+}
+
+source sub "$BASH_SOURCE" "$@"
