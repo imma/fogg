@@ -39,6 +39,7 @@ function main {
       init_service "$@"
       ;;
     "")
+      figlet terraform
       "$0" terraform output
       "$0" list-all
       ;;
