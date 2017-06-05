@@ -2,11 +2,11 @@
 
 function init_service {
   if [[ -f "Blockfile.json" ]]; then
-    source "$_block_home/script/profile"
+    source "$_block_home/script/profile" ''
     require
   elif [[ -d "$HOME/work/${nm_service}" ]]; then
     pushd "$HOME/work/${nm_service}" ]] >/dev/null
-    source "$_block_home/script/profile"
+    source "$_block_home/script/profile" ''
     require
     popd >/dev/null
   fi
