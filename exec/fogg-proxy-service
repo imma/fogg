@@ -28,16 +28,12 @@ function main {
       if [[ "$#" -gt 0 ]]; then
         init_service deploy "$@" --list-hosts
       else
-        "$0"
+        "$0" list-all
       fi
       ;;
     deploy)
       shift
       init_service deploy "$@"
-      ;;
-    ready)
-      shift
-      init_service block meta clone
       ;;
     init|plan|apply|blue|green|live|staging)
       "$0" fogg "$@"
@@ -54,8 +50,6 @@ function main {
       "$0" list-all
       ;;
     list-all)
-      "$0" ready
-
       local tmp_list="$(mktemp -d -t XXXXXX)"
 
       "$0" list blue 2>/dev/null > "$tmp_list/blue" &
