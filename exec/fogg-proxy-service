@@ -7,6 +7,7 @@ function init_service {
   if [[ -d "$HOME/work/${nm_app}" ]]; then
     pushd "$HOME/work/${nm_app}" ]] >/dev/null
     source "$_block_home/script/profile" ''
+    block meta clone
     require
     popd >/dev/null
   fi
