@@ -2,7 +2,14 @@
 
 function init_service {
   cd "${_org_home}/${nm_service}"
-  block require "$@"
+  if [[ -d "$HOME/work/${nm_service}" ]]; then
+    pushd "$HOME/work/${nm_service}" ]] >/dev/null
+    source "$_block_home/script/profile"
+    require
+    popd >/dev/null
+  else
+    block require "$@"
+  fi
 }
 
 function main {
