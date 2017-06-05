@@ -30,7 +30,7 @@ function main {
     refresh)
       "$0" terraform "$@"
       ;;
-    git|make|fogg|terraform|vagrant)
+    git|make|fogg|terraform|vagrant|block)
       cd "${_org_home}/${nm_service}" && "$@"
       ;;
     "")
