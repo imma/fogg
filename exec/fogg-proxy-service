@@ -39,6 +39,10 @@ function main {
       init_service "$@"
       ;;
     "")
+      "$0" terraform output
+      "$0" list-all
+      ;;
+    list-all)
       "$0" ready
 
       local tmp_list="$(mktemp -d -t XXXXXX)"
