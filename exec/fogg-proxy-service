@@ -32,7 +32,7 @@ function main {
     list)
       shift
       if [[ "$#" -gt 0 ]]; then
-        init_service deploy "$@" --list-hosts
+        init_service deploy "$@" --list-hosts -e deploy_role=nothing
       else
         "$0" list-all
       fi
@@ -58,8 +58,8 @@ function main {
     list-all)
       local tmp_list="$(mktemp -d -t XXXXXX)"
 
-      "$0" list blue 2>/dev/null > "$tmp_list/blue" &
-      "$0" list green 2>/dev/null > "$tmp_list/green" &
+      "$0" list blue -e deploy_role=nothing 2>/dev/null > "$tmp_list/blue" &
+      "$0" list green -e deploy_role=nothing 2>/dev/null > "$tmp_list/green" &
       wait 
 
       figlet blue
