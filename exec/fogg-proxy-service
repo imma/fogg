@@ -37,9 +37,9 @@ function main {
         "$0" list-all
       fi
       ;;
-    deploy)
-      shift
-      init_service deploy "$@"
+    deploy|run)
+      local nm_cmd="$1"; shift
+      init_service "$nm_cmd" "$@"
       ;;
     init|plan|apply|blue|green|live|staging)
       "$0" fogg "$@"
