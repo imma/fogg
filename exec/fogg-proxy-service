@@ -60,7 +60,6 @@ function main {
 
       "$0" list blue 2>/dev/null > "$tmp_list/blue" &
       "$0" list green 2>/dev/null > "$tmp_list/green" &
-      "$0" list fogg 2>/dev/null > "$tmp_list/fogg" &
       wait 
 
       figlet blue
@@ -68,9 +67,6 @@ function main {
 
       figlet green
       cat "$tmp_list/green" 
-
-      figlet all
-      cat "$tmp_list/fogg" 
 
       rm -rf "$tmp_list"
       ;;
