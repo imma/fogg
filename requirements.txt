@@ -1,1 +1,2 @@
-pyhcl
+ply==3.9
+pyhcl==0.3.4
