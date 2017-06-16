@@ -445,6 +445,10 @@ resource "aws_sns_topic_subscription" "service" {
   count     = "${var.asg_count}"
 }
 
+resource "aws_ecs_cluster" "service" {
+  name = "${data.terraform_remote_state.env.env_name}-${data.terraform_remote_state.app.app_name}-${var.service_name}"
+}
+
 resource "aws_autoscaling_group" "service" {
   name                 = "${data.terraform_remote_state.env.env_name}-${data.terraform_remote_state.app.app_name}-${var.service_name}-${element(var.asg_name,count.index)}"
   launch_configuration = "${element(aws_launch_configuration.service.*.name,count.index)}"
