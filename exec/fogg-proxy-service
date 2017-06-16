@@ -5,7 +5,7 @@ function init_service {
   nm_app="${nm_app%-*}"
 
   if [[ -d "$HOME/work/${nm_app}" ]]; then
-    pushd "$HOME/work/${nm_app}" ]] >/dev/null
+    pushd "$HOME/work/${nm_app}" >/dev/null
     source "$_block_home/script/profile" ''
     block meta clone
     require
