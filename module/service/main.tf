@@ -193,6 +193,11 @@ resource "aws_iam_role_policy_attachment" "ecr_ro" {
   policy_arn = "arn:aws:iam::aws:policy/AmazonEC2ContainerRegistryReadOnly"
 }
 
+resource "aws_iam_role_policy_attachment" "ecs" {
+  role       = "${aws_iam_role.service.name}"
+  policy_arn = "arn:aws:iam::aws:policy/service-role/AmazonEC2ContainerServiceforEC2Role"
+}
+
 resource "aws_iam_role_policy_attachment" "cc_ro" {
   role       = "${aws_iam_role.service.name}"
   policy_arn = "arn:aws:iam::aws:policy/AWSCodeCommitReadOnly"
