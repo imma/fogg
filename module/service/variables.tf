@@ -34,6 +34,10 @@ variable "want_elb" {
   default = "0"
 }
 
+variable "want_alb" {
+  default = "0"
+}
+
 variable "want_eip" {
   default = "0"
 }
@@ -110,7 +114,23 @@ output "elb_zone_id" {
   value = ["${aws_elb.service.*.zone_id}"]
 }
 
+output "alb_names" {
+  value = ["${aws_alb.service.*.name}"]
+}
+
+output "alb_dns_name" {
+  value = ["${aws_alb.service.*.dns_name}"]
+}
+
+output "alb_zone_id" {
+  value = ["${aws_alb.service.*.zone_id}"]
+}
+
 output "elb_sg" {
+  value = "${aws_security_group.lb.id}"
+}
+
+output "lb_sg" {
   value = "${aws_security_group.lb.id}"
 }
 

@@ -285,7 +285,7 @@ resource "aws_security_group" "lb" {
   name        = "${data.terraform_remote_state.env.env_name}-${data.terraform_remote_state.app.app_name}-${var.service_name}-lb"
   description = "LB ${data.terraform_remote_state.app.app_name}-${var.service_name}"
   vpc_id      = "${data.aws_vpc.current.id}"
-  count       = "${var.want_elb ? 1 : 0 }"
+  count       = "${signum(var.want_elb + var.want_alb)}"
 
   tags {
     "Name"      = "${data.terraform_remote_state.env.env_name}-${data.terraform_remote_state.app.app_name}-${var.service_name}-lb"
@@ -352,18 +352,57 @@ resource "aws_elb" "service" {
   }
 }
 
+resource "aws_alb" "service" {
+  name    = "${data.terraform_remote_state.env.env_name}-${data.terraform_remote_state.app.app_name}-${var.service_name}-${element(var.asg_name,count.index)}"
+  count   = "${var.want_alb*var.asg_count}"
+  subnets = ["${split(" ",var.public_lb ? join(" ",data.terraform_remote_state.env.public_subnets) : join(" ",aws_subnet.service.*.id))}"]
+
+  security_groups = [
+    "${data.terraform_remote_state.env.sg_env_lb}",
+    "${var.public_lb ? data.terraform_remote_state.env.sg_env_lb_public : data.terraform_remote_state.env.sg_env_lb_private}",
+    "${aws_security_group.lb.*.id}",
+  ]
+
+  internal = "${var.public_lb == 0 ? true : false}"
+
+  access_logs {
+    bucket        = "${data.terraform_remote_state.env.s3_env_lb}"
+    bucket_prefix = "${data.terraform_remote_state.env.env_name}-${data.terraform_remote_state.app.app_name}-${var.service_name}-${element(var.asg_name,count.index)}"
+    interval      = 60
+  }
+
+  idle_timeout = 400
+
+  tags {
+    Name      = "${data.terraform_remote_state.env.env_name}-${data.terraform_remote_state.app.app_name}-${var.service_name}-${element(var.asg_name,count.index)}"
+    Env       = "${data.terraform_remote_state.env.env_name}"
+    App       = "${data.terraform_remote_state.app.app_name}"
+    Service   = "${var.service_name}"
+    ManagedBy = "terraform"
+    Color     = "${element(var.asg_name,count.index)}"
+  }
+}
+
+resource "aws_alb_target_group" "service" {
+  name     = "${data.terraform_remote_state.env.env_name}-${data.terraform_remote_state.app.app_name}-${var.service_name}-${element(var.asg_name,count.index)}"
+  count    = "${var.want_alb*var.asg_count}"
+  port     = 8888
+  protocol = "HTTP"
+  vpc_id   = "${data.aws_vpc.current.id}"
+}
+
 resource "aws_route53_record" "service" {
   zone_id = "${data.terraform_remote_state.env.private_zone_id}"
   name    = "${data.terraform_remote_state.app.app_name}${var.service_default == "1" ? "" : "-${var.service_name}"}-${element(var.asg_name,count.index)}.${data.terraform_remote_state.env.private_zone_name}"
   type    = "A"
 
   alias {
-    name                   = "${element(aws_elb.service.*.dns_name,count.index)}"
-    zone_id                = "${element(aws_elb.service.*.zone_id,count.index)}"
+    name                   = "${element(concat(aws_alb.service.*.dns_name,aws_elb.service.*.dns_name),count.index)}"
+    zone_id                = "${element(concat(aws_alb.service.*.zone_id,aws_elb.service.*.zone_id),count.index)}"
     evaluate_target_health = false
   }
 
-  count = "${var.asg_count*var.want_elb}"
+  count = "${var.asg_count*signum(var.want_elb+var.want_alb)}"
 }
 
 resource "aws_route53_record" "service-eip" {
@@ -382,12 +421,12 @@ resource "aws_route53_record" "service-live" {
   type    = "A"
 
   alias {
-    name                   = "${element(aws_elb.service.*.dns_name,0)}"
-    zone_id                = "${element(aws_elb.service.*.zone_id,0)}"
+    name                   = "${element(concat(aws_alb.service.*.dns_name,aws_elb.service.*.dns_name),0)}"
+    zone_id                = "${element(concat(aws_alb.service.*.zone_id,aws_elb.service.*.zone_id),0)}"
     evaluate_target_health = false
   }
 
-  count = "${var.want_elb}"
+  count = "${signum(var.want_elb+var.want_alb)}"
 }
 
 resource "aws_route53_record" "service-staging" {
@@ -396,12 +435,12 @@ resource "aws_route53_record" "service-staging" {
   type    = "A"
 
   alias {
-    name                   = "${element(aws_elb.service.*.dns_name,1)}"
-    zone_id                = "${element(aws_elb.service.*.zone_id,1)}"
+    name                   = "${element(concat(aws_alb.service.*.dns_name,aws_elb.service.*.dns_name),1)}"
+    zone_id                = "${element(concat(aws_alb.service.*.zone_id,aws_elb.service.*.zone_id),1)}"
     evaluate_target_health = false
   }
 
-  count = "${var.want_elb}"
+  count = "${signum(var.want_elb+var.want_alb)}"
 }
 
 resource "aws_sns_topic" "service" {
@@ -463,7 +502,8 @@ resource "aws_autoscaling_group" "service" {
   termination_policies = ["${var.termination_policies}"]
   count                = "${var.asg_count}"
 
-  load_balancers = ["${compact(list(element(concat(aws_elb.service.*.name,list("","")),count.index)))}"]
+  load_balancers    = ["${compact(list(element(concat(aws_elb.service.*.name,list("","")),count.index)))}"]
+  target_group_arns = ["${compact(list(element(concat(aws_alb_target_group.service.*.arn,list("","")),count.index)))}"]
 
   tag {
     key                 = "Name"
