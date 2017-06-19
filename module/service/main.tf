@@ -366,9 +366,8 @@ resource "aws_alb" "service" {
   internal = "${var.public_lb == 0 ? true : false}"
 
   access_logs {
-    bucket        = "${data.terraform_remote_state.env.s3_env_lb}"
-    bucket_prefix = "${data.terraform_remote_state.env.env_name}-${data.terraform_remote_state.app.app_name}-${var.service_name}-${element(var.asg_name,count.index)}"
-    interval      = 60
+    bucket = "${data.terraform_remote_state.env.s3_env_lb}"
+    prefix = "${data.terraform_remote_state.env.env_name}-${data.terraform_remote_state.app.app_name}-${var.service_name}-${element(var.asg_name,count.index)}"
   }
 
   idle_timeout = 400
