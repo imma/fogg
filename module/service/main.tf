@@ -383,6 +383,29 @@ resource "aws_alb" "service" {
   }
 }
 
+resource "aws_alb_listener" "service" {
+  count             = "${var.want_alb*var.asg_count}"
+  load_balancer_arn = "${element(aws_alb.service.*.arn,count.index)}"
+  port              = "80"
+  protocol          = "HTTP"
+
+  default_action {
+    target_group_arn = "${element(aws_alb_target_group.service.*.arn,count.index)}"
+    type             = "forward"
+  }
+}
+
+resource "aws_alb_listener_rule" "service" {
+  count        = "${var.want_alb*var.asg_count}"
+  listener_arn = "${element(aws_alb_listener.service.*.arn,count.index)}"
+  priority     = 100
+
+  action {
+    type             = "forward"
+    target_group_arn = "${element(aws_alb_target_group.service.*.arn,count.index)}"
+  }
+}
+
 resource "aws_alb_target_group" "service" {
   name     = "${data.terraform_remote_state.env.env_name}-${data.terraform_remote_state.app.app_name}-${var.service_name}-${element(var.asg_name,count.index)}"
   count    = "${var.want_alb*var.asg_count}"
