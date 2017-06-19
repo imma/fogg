@@ -181,6 +181,17 @@ data "aws_iam_policy_document" "service" {
       identifiers = ["ec2.amazonaws.com"]
     }
   }
+
+  statement {
+    actions = [
+      "sts:AssumeRole",
+    ]
+
+    principals {
+      type        = "Service"
+      identifiers = ["ecs.amazonaws.com"]
+    }
+  }
 }
 
 resource "aws_iam_role" "service" {
@@ -196,6 +207,11 @@ resource "aws_iam_role_policy_attachment" "ecr_ro" {
 resource "aws_iam_role_policy_attachment" "ecs" {
   role       = "${aws_iam_role.service.name}"
   policy_arn = "arn:aws:iam::aws:policy/service-role/AmazonEC2ContainerServiceforEC2Role"
+}
+
+resource "aws_iam_role_policy_attachment" "ecs-container" {
+  role       = "${aws_iam_role.service.name}"
+  policy_arn = "arn:aws:iam::aws:policy/service-role/AmazonEC2ContainerServiceRole"
 }
 
 resource "aws_iam_role_policy_attachment" "cc_ro" {
@@ -365,11 +381,6 @@ resource "aws_alb" "service" {
 
   internal = "${var.public_lb == 0 ? true : false}"
 
-  access_logs {
-    bucket = "${data.terraform_remote_state.env.s3_env_lb}"
-    prefix = "${data.terraform_remote_state.env.env_name}-${data.terraform_remote_state.app.app_name}-${var.service_name}-${element(var.asg_name,count.index)}"
-  }
-
   idle_timeout = 400
 
   tags {
@@ -402,6 +413,11 @@ resource "aws_alb_listener_rule" "service" {
   action {
     type             = "forward"
     target_group_arn = "${element(aws_alb_target_group.service.*.arn,count.index)}"
+  }
+
+  condition {
+    field = "path-pattern"
+    values = [ "/*" ]
   }
 }
 
