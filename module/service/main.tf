@@ -312,6 +312,16 @@ resource "aws_security_group" "lb" {
   }
 }
 
+resource "aws_security_group_rule" "lb_to_service" {
+  type                     = "ingress"
+  from_port                = 32768
+  to_port                  = 65535
+  protocol                 = "tcp"
+  source_security_group_id = "${aws_security_group.lb.id}"
+  security_group_id        = "${aws_security_group.service.id}"
+  count                    = "${signum(var.want_elb + var.want_alb)}"
+}
+
 resource "aws_elb" "service" {
   name    = "${data.terraform_remote_state.env.env_name}-${data.terraform_remote_state.app.app_name}-${var.service_name}-${element(var.asg_name,count.index)}"
   count   = "${var.want_elb*var.asg_count}"
@@ -416,8 +426,8 @@ resource "aws_alb_listener_rule" "service" {
   }
 
   condition {
-    field = "path-pattern"
-    values = [ "/*" ]
+    field  = "path-pattern"
+    values = ["/*"]
   }
 }
 
