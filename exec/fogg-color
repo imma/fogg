@@ -73,15 +73,7 @@ function main {
 
     replace)
       shift # replace
-      case "${1:-}" in
-        all)
-          fogg "$nm_color" instances '\(.InstanceId)' | runmany 'aws autoscaling terminate-instance-in-auto-scaling-group --instance-id "$1" --no-should-decrement-desired-capacity'
-          ;;
-
-        *)
-          runmany 'aws autoscaling terminate-instance-in-auto-scaling-group --instance-id "$1" --no-should-decrement-desired-capacity' "$@"
-          ;;
-      esac
+      runmany 'aws autoscaling terminate-instance-in-auto-scaling-group --instance-id "$1" --no-should-decrement-desired-capacity' "$@"
       ;;
 
     detach)
