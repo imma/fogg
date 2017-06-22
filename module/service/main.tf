@@ -233,6 +233,9 @@ data "template_file" "user_data_service" {
 
   vars {
     vpc_cidr = "${data.aws_vpc.current.cidr_block}"
+    env = "${data.terraform_remote_state.env.env_name}"
+    app = "${data.terraform_remote_state.app.app_name}"
+    service = "${var.service_name}"
   }
 }
 
