@@ -90,8 +90,8 @@ variable "block" {
   default = "block-ubuntu"
 }
 
-variable "iam_extra" {
-  default = []
+variable "iam_index" {
+  default = "0"
 }
 
 output "asg_names" {

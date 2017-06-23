@@ -221,7 +221,7 @@ resource "aws_iam_role_policy_attachment" "cc_ro" {
 
 resource "aws_iam_instance_profile" "service" {
   name = "${data.terraform_remote_state.env.env_name}-${data.terraform_remote_state.app.app_name}-${var.service_name}"
-  role = "${element(concat(var.iam_extra,data.terraform_remote_state.env.iam_extra,list(aws_iam_role.service.name)),0)}"
+  role = "${element(concat(data.terraform_remote_state.env.iam_extra,list(aws_iam_role.service.name)),var.iam_index)}"
 }
 
 resource "aws_iam_group" "service" {
