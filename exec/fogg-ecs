@@ -6,7 +6,17 @@ function main {
   source normalize
 
   local nm_cmd="$1"; shift
-  aws ecs "$nm_cmd" --cluster="${fogg_env}-${fogg_app}-${fogg_service}" "$@"
+  case "$nm_cmd" in
+    list-task-definitions)
+      aws ecs "$nm_cmd" --family-prefix="${fogg_env}-${fogg_app}-${fogg_service}" "$@"
+      ;;
+    list-families)
+      aws ecs "$nm_cmd" "$@"
+      ;;
+    *)
+      aws ecs "$nm_cmd" --cluster="${fogg_env}-${fogg_app}-${fogg_service}" "$@"
+      ;;
+  esac
 }
 
 __fogg_ecs_pwd="$(pwd -P)"
