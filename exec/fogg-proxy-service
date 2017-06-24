@@ -53,11 +53,15 @@ function main {
     ecs)
       shift
       if [[ "$#" == 0 ]]; then
-        "$0" ecs describe-clusters
-        "$0" ecs list-container-instances
-        "$0" ecs list-task-definitions
-        "$0" ecs list-tasks
-        "$0" ecs list-services
+        local tmp_ecs="$(mktemp -d -t XXXXXX)"
+        "$0" ecs describe-clusters > "$tmp_ecs/ds" &
+        "$0" ecs list-container-instances > "$tmp_ecs/lci" &
+        "$0" ecs list-task-definitions > "$tmp_ecs/ltd" &
+        "$0" ecs list-tasks > "$tmp_ecs/lt" &
+        "$0" ecs list-services > "$tmp_ecs/ls" &
+        wait
+        cat "$tmp_ecs/ds" "$tmp_ecs/lci" "$tmp_ecs/ltd" "$tmp_ecs/lt" "$tmp_ecs/ls"
+        rm -rf "$tmp_ecs"
       else
         "$0" fogg ecs "$@"
       fi
