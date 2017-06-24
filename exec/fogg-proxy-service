@@ -18,7 +18,7 @@ function init_service {
   fi
 
   cd "${_org_home}/${nm_service}"
-  block require "$@"
+  "$@"
 }
 
 function main {
