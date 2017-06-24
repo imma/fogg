@@ -10,9 +10,6 @@ function main {
     list-task-definitions)
       aws ecs "$nm_cmd" --family-prefix="${fogg_env}-${fogg_app}-${fogg_service}" "$@"
       ;;
-    list-families)
-      aws ecs "$nm_cmd" "$@"
-      ;;
     *)
       aws ecs "$nm_cmd" --cluster="${fogg_env}-${fogg_app}-${fogg_service}" "$@"
       ;;
