@@ -50,6 +50,14 @@ function main {
     git|make|fogg|terraform|vagrant|block)
       init_service "$@"
       ;;
+    ecs)
+      shift
+      if [[ "$#" == 0 ]]; then
+        "$0" fogg ecs describe-clusters
+      else
+        "$0" fogg ecs "$@"
+      fi
+      ;;
     "")
       figlet terraform
       "$0" terraform output

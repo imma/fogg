@@ -1,0 +1,15 @@
+#!/usr/bin/env bash
+
+function main {
+  local shome="$(cd -P -- "${BASH_SOURCE%/*}/.." && pwd -P)"
+  source "$shome/script/profile"
+  source normalize
+
+  local nm_cmd="$1"; shift
+  aws ecs "$nm_cmd" --cluster="${fogg_env}-${fogg_app}-${fogg_service}" "$@"
+}
+
+__fogg_ecs_pwd="$(pwd -P)"
+export fogg_env="$(basename $(dirname $(dirname $__fogg_ecs_pwd)))" fogg_app="$(basename $(dirname $__fogg_ecs_pwd))" fogg_service="$(basename $__fogg_ecs_pwd)"
+
+source sub "$BASH_SOURCE" "$@"
