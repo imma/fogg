@@ -5,19 +5,17 @@ function main {
   source "$shome/script/profile"
   source normalize
 
-  set -x
-
   export WORK="$(pwd)"
-
-  local nm_org="$1"; shift
 
   mkdir -p module
   (set +f; echo "$shome"/module/*/) | runmany 'ln -nfs $1 module/'
 
   mkdir -p bin
-  (set +f; echo ${nm_org}/*/*/*/) | runmany 'ln -nfs $(pwd)/$1 ${WORK}/$(echo $1 | cut -d/ -f3-4 | tr / -)'
-  (set +f; echo ${nm_org}/*/*/*/) | env org_pwd="$(pwd)" runmany 'cd ${WORK}/$(echo $1 | cut -d/ -f3-4 | tr / -) && ln -nfs "$org_pwd/module" module'
-  (set +f; echo ${nm_org}/*/*/*/) | runmany 'cd bin && ln -nfs "$(which fogg-proxy-service)" $(echo $1 | cut -d/ -f3-4 | tr / -)'
+  for nm_org in "$@"; do
+    (set +f; echo ${nm_org}/*/*/*/) | runmany 'ln -nfs $(pwd)/$1 ${WORK}/$(echo $1 | cut -d/ -f3-4 | tr / -)'
+    (set +f; echo ${nm_org}/*/*/*/) | env org_pwd="$(pwd)" runmany 'cd ${WORK}/$(echo $1 | cut -d/ -f3-4 | tr / -) && ln -nfs "$org_pwd/module" module'
+    (set +f; echo ${nm_org}/*/*/*/) | runmany 'cd bin && ln -nfs "$(which fogg-proxy-service)" $(echo $1 | cut -d/ -f3-4 | tr / -)'
+  done
 }
 
 source sub "$BASH_SOURCE" "$@"
