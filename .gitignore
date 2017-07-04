@@ -2,4 +2,4 @@
 *.tfstate.backup
 *.tfstate
 /bin/hcltool
-/vendor/virtualenv
+/vendor
