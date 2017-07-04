@@ -1,0 +1,18 @@
+#!/usr/bin/env bash
+
+function main {
+  local shome="$(cd -P -- "${BASH_SOURCE%/*}/.." && pwd -P)"
+  source "$shome/script/profile"
+  source normalize
+
+  set -x
+
+  export WORK="$(pwd)"
+
+  (set +f; echo immanent/*/*/*/) | runmany 'ln -nfs $(pwd)/$1 ${WORK}/$(echo $1 | cut -d/ -f3-4 | tr / -)'
+  (set +f; echo immanent/*/*/*/) | env org_pwd="$(pwd)" runmany 'cd ${WORK}/$(echo $1 | cut -d/ -f3-4 | tr / -) && ln -nfs "$org_pwd/module" module'
+  (set +f; echo immanent/*/*/*/) | runmany 'cd ${WORK}/$(echo $1 | cut -d/ -f3-4 | tr / -) && ln -nfs ../.deploy/Makefile . && make links'
+  (set +f; echo immanent/*/*/*/) | runmany 'cd bin && ln -nfs "$(which fogg-proxy-service)" $(echo $1 | cut -d/ -f3-4 | tr / -)'
+}
+
+source sub "$BASH_SOURCE" "$@"
