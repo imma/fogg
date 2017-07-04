@@ -9,14 +9,15 @@ function main {
 
   export WORK="$(pwd)"
 
-  (set +f; echo immanent/*/*/*/) | runmany 'ln -nfs $(pwd)/$1 ${WORK}/$(echo $1 | cut -d/ -f3-4 | tr / -)'
+  local nm_org="$1"; shift
 
   mkdir -p module
   (set +f; echo "$shome"/module/*/) | runmany 'ln -nfs $1 module/'
-  (set +f; echo immanent/*/*/*/) | env org_pwd="$(pwd)" runmany 'cd ${WORK}/$(echo $1 | cut -d/ -f3-4 | tr / -) && ln -nfs "$org_pwd/module" module'
 
   mkdir -p bin
-  (set +f; echo immanent/*/*/*/) | runmany 'cd bin && ln -nfs "$(which fogg-proxy-service)" $(echo $1 | cut -d/ -f3-4 | tr / -)'
+  (set +f; echo ${nm_org}/*/*/*/) | runmany 'ln -nfs $(pwd)/$1 ${WORK}/$(echo $1 | cut -d/ -f3-4 | tr / -)'
+  (set +f; echo ${nm_org}/*/*/*/) | env org_pwd="$(pwd)" runmany 'cd ${WORK}/$(echo $1 | cut -d/ -f3-4 | tr / -) && ln -nfs "$org_pwd/module" module'
+  (set +f; echo ${nm_org}/*/*/*/) | runmany 'cd bin && ln -nfs "$(which fogg-proxy-service)" $(echo $1 | cut -d/ -f3-4 | tr / -)'
 }
 
 source sub "$BASH_SOURCE" "$@"
