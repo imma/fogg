@@ -5,6 +5,9 @@ function main {
   source "$shome/script/profile"
 
   local id_account="$(aws ec2 describe-security-groups --group-names 'Default' --query 'SecurityGroups[0].OwnerId' --output text)"
+  if [[ -z "$id_account" ]]; then
+    id_account="$(aws sts get-caller-identity | jq -r '.Account')"
+  fi
   local id_prefix="b-$(echo -n "${id_account}" | digest sha1 | cut -b1-8)"
 
   jq -n \
