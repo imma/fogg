@@ -1,0 +1,16 @@
+#!/usr/bin/env bash
+
+function main {
+  local shome="$(cd -P -- "${BASH_SOURCE%/*}/.." && pwd -P)"
+  source "$shome/script/profile"
+
+  local id_account="$(aws ec2 describe-security-groups --group-names 'Default' --query 'SecurityGroups[0].OwnerId' --output text)"
+  local id_prefix="b-$(echo -n "${id_account}" | digest sha1 | cut -b1-8)"
+
+  jq -n \
+    --arg account "$id_account" \
+    --arg prefix "$id_prefix" \
+      '{account: $account, prefix: $prefix}'
+}
+
+source sub "$BASH_SOURCE" "$@"
