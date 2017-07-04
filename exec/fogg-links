@@ -10,8 +10,12 @@ function main {
   export WORK="$(pwd)"
 
   (set +f; echo immanent/*/*/*/) | runmany 'ln -nfs $(pwd)/$1 ${WORK}/$(echo $1 | cut -d/ -f3-4 | tr / -)'
+
+  mkdir -p module
+  (set +f; echo "$shome"/module/*/) | runmany 'ln -nfs $1 module/'
   (set +f; echo immanent/*/*/*/) | env org_pwd="$(pwd)" runmany 'cd ${WORK}/$(echo $1 | cut -d/ -f3-4 | tr / -) && ln -nfs "$org_pwd/module" module'
-  (set +f; echo immanent/*/*/*/) | runmany 'cd ${WORK}/$(echo $1 | cut -d/ -f3-4 | tr / -) && ln -nfs ../.deploy/Makefile . && make links'
+
+  mkdir -p bin
   (set +f; echo immanent/*/*/*/) | runmany 'cd bin && ln -nfs "$(which fogg-proxy-service)" $(echo $1 | cut -d/ -f3-4 | tr / -)'
 }
 
