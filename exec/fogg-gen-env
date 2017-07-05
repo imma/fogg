@@ -23,7 +23,7 @@ function gen {
               remote_path:  { default: "\($remote_path)" },
               remote_region:{ default: "\($remote_region)" },
               az_count:     { default: "\($az_count)" },
-              env_name:            { default: "\($env_name)" }
+              env_name:     { default: "\($env_name)" }
             }'
 }
 
