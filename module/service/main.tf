@@ -116,13 +116,6 @@ resource "aws_route" "service_v6" {
   count                       = "${var.want_ipv6*var.want_nat*var.az_count*(signum(var.public_network)-1)*-1}"
 }
 
-resource "aws_route" "service_peering" {
-  route_table_id            = "${element(aws_route_table.service.*.id,count.index%var.az_count)}"
-  destination_cidr_block    = "${lookup(data.terraform_remote_state.global.org,"peering_${data.terraform_remote_state.env.env_name}_cidr_${element(split(" ",lookup(data.terraform_remote_state.global.org,"peering_${data.terraform_remote_state.env.env_name}")),count.index/var.az_count)}")}"
-  vpc_peering_connection_id = "${lookup(data.terraform_remote_state.global.org,"peering_${data.terraform_remote_state.env.env_name}_pcx_${element(split(" ",lookup(data.terraform_remote_state.global.org,"peering_${data.terraform_remote_state.env.env_name}")),count.index/var.az_count)}")}"
-  count                     = "${var.az_count*var.peer_count*(signum(var.public_network)-1)*-1}"
-}
-
 resource "aws_route_table_association" "service" {
   subnet_id      = "${element(aws_subnet.service.*.id,count.index)}"
   route_table_id = "${element(aws_route_table.service.*.id,count.index)}"
@@ -155,13 +148,6 @@ resource "aws_route" "service_public_v6" {
   destination_ipv6_cidr_block = "::/0"
   egress_only_gateway_id      = "${data.terraform_remote_state.env.egw_id}"
   count                       = "${var.want_ipv6*var.want_nat*var.az_count*(signum(var.public_network)-1)*-1}"
-}
-
-resource "aws_route" "service_peering_public" {
-  route_table_id            = "${element(aws_route_table.service_public.*.id,count.index%var.az_count)}"
-  destination_cidr_block    = "${lookup(data.terraform_remote_state.global.org,"peering_${data.terraform_remote_state.env.env_name}_cidr_${element(split(" ",lookup(data.terraform_remote_state.global.org,"peering_${data.terraform_remote_state.env.env_name}")),count.index/var.az_count)}")}"
-  vpc_peering_connection_id = "${lookup(data.terraform_remote_state.global.org,"peering_${data.terraform_remote_state.env.env_name}_pcx_${element(split(" ",lookup(data.terraform_remote_state.global.org,"peering_${data.terraform_remote_state.env.env_name}")),count.index/var.az_count)}")}"
-  count                     = "${var.az_count*var.peer_count*signum(var.public_network)}"
 }
 
 resource "aws_route_table_association" "service_public" {

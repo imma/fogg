@@ -54,16 +54,12 @@ variable "asg_count" {
   default = 2
 }
 
-variable "peer_count" {
-  default = 0
-}
-
 variable "asg_name" {
   default = ["blue", "green"]
 }
 
 variable "instance_type" {
-  default = ["t2.medium", "t2.medium"]
+  default = ["t2.nano", "t2.nano"]
 }
 
 variable "ami_id" {
