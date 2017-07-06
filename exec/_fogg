@@ -79,11 +79,9 @@ function _main {
   mv state.tf.json.1 state.tf.json
 
   cat _terraform.tf.json state.tf.json | merge_map > terraform.tf.json.1
-  mv terraform.tf.json.1 _terraform.tf.json
+  mv terraform.tf.json.1 terraform.tf.json
 
-  rm -f state.tf.json state.tf
-
-  rm -f terraform.tf.json
+  rm -f state.tf.json state.tf _terraform.tf.json
 }
 
 _main "$@"
