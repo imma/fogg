@@ -424,6 +424,8 @@ resource "aws_s3_bucket" "s3" {
 resource "aws_s3_bucket" "cloudfront" {
   bucket = "b-${format("%.8s",sha1(data.terraform_remote_state.global.aws_account_id))}-${var.env_name}-cloudfront"
 
+  depends_on = ["aws_s3_bucket.s3"]
+
   logging {
     target_bucket = "b-${format("%.8s",sha1(data.terraform_remote_state.global.aws_account_id))}-${var.env_name}-s3"
     target_prefix = "log/"
