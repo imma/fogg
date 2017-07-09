@@ -617,14 +617,14 @@ resource "aws_eip_association" "service" {
   count         = "${0*var.want_eip}"
 }
 
-module "fs" {
-  source   = "../fs"
-  fs_name  = "${data.terraform_remote_state.env.env_name}-${data.terraform_remote_state.app.app_name}-${var.service_name}"
+module "efs" {
+  source   = "../efs"
+  efs_name  = "${data.terraform_remote_state.env.env_name}-${data.terraform_remote_state.app.app_name}-${var.service_name}"
   vpc_id   = "${data.terraform_remote_state.env.vpc_id}"
   env_name = "${data.terraform_remote_state.env.env_name}"
   subnets  = ["${aws_subnet.service.*.id}"]
   az_count = "${var.az_count}"
-  want_fs  = "${var.want_fs}"
+  want_efs  = "${var.want_efs}"
 }
 
 resource "aws_security_group_rule" "allow_service_mount" {
@@ -633,15 +633,15 @@ resource "aws_security_group_rule" "allow_service_mount" {
   to_port                  = 2049
   protocol                 = "tcp"
   source_security_group_id = "${aws_security_group.service.id}"
-  security_group_id        = "${module.fs.efs_sg}"
-  count                    = "${var.want_fs}"
+  security_group_id        = "${module.efs.efs_sg}"
+  count                    = "${var.want_efs}"
 }
 
-resource "aws_route53_record" "fs" {
+resource "aws_route53_record" "efs" {
   zone_id = "${data.terraform_remote_state.env.private_zone_id}"
   name    = "${data.terraform_remote_state.app.app_name}-${var.service_name}-efs.${data.terraform_remote_state.env.private_zone_name}"
   type    = "CNAME"
   ttl     = "60"
-  records = ["${element(module.fs.efs_dns_names,count.index)}"]
-  count   = "${var.want_fs}"
+  records = ["${element(module.efs.efs_dns_names,count.index)}"]
+  count   = "${var.want_efs}"
 }

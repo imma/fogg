@@ -34,7 +34,7 @@ variable "associate_count" {
   default = "0"
 }
 
-variable "want_fs" {
+variable "want_efs" {
   default = "1"
 }
 

@@ -289,23 +289,23 @@ resource "aws_route53_zone_association" "associates" {
   count   = "${var.associate_count}"
 }
 
-module "fs" {
-  source   = "../fs"
-  fs_name  = "${var.env_name}"
+module "efs" {
+  source   = "../efs"
+  efs_name  = "${var.env_name}"
   vpc_id   = "${aws_vpc.env.id}"
   env_name = "${var.env_name}"
   subnets  = ["${aws_subnet.common.*.id}"]
   az_count = "${var.az_count}"
-  want_fs  = "${var.want_fs}"
+  want_efs  = "${var.want_efs}"
 }
 
-resource "aws_route53_record" "fs" {
+resource "aws_route53_record" "efs" {
   zone_id = "${aws_route53_zone.private.zone_id}"
   name    = "efs.${signum(length(var.env_zone)) == 1 ? var.env_zone : var.env_name}.${signum(length(var.env_domain_name)) == 1 ? var.env_domain_name : data.terraform_remote_state.global.domain_name}"
   type    = "CNAME"
   ttl     = "60"
-  records = ["${element(module.fs.efs_dns_names,count.index)}"]
-  count   = "${var.want_fs}"
+  records = ["${element(module.efs.efs_dns_names,count.index)}"]
+  count   = "${var.want_efs}"
 }
 
 resource "aws_s3_bucket" "lb" {
