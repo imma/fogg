@@ -51,31 +51,31 @@ variable "service_bits" {
 }
 
 variable "asg_count" {
-  default = 2
+  default = 1
 }
 
 variable "asg_name" {
-  default = ["blue", "green"]
+  default = ["live"]
 }
 
 variable "instance_type" {
-  default = ["t2.nano", "t2.nano"]
+  default = ["t2.nano"]
 }
 
 variable "ami_id" {
-  default = ["", ""]
+  default = [""]
 }
 
 variable "root_volume_size" {
-  default = ["40", "40"]
+  default = ["40"]
 }
 
 variable "min_size" {
-  default = ["0", "0"]
+  default = ["0"]
 }
 
 variable "max_size" {
-  default = ["5", "5"]
+  default = ["5"]
 }
 
 variable "termination_policies" {
@@ -95,7 +95,7 @@ output "asg_names" {
 }
 
 output "service_names" {
-  value = ["${aws_route53_record.service-live.fqdn}", "${aws_route53_record.service-staging.fqdn}"]
+  value = ["${aws_route53_record.service.*.fqdn}", "${aws_route53_record.service_live.*.fqdn}", "${aws_route53_record.service_staging.*.fqdn}"]
 }
 
 output "elb_names" {

@@ -41,7 +41,7 @@ function main {
       local nm_cmd="$1"; shift
       init_service "$nm_cmd" "$@"
       ;;
-    init|plan|apply|blue|green|live|staging)
+    init|plan|apply|blue|live|green|staging)
       "$0" fogg "$@"
       ;;
     refresh)

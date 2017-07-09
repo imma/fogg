@@ -348,7 +348,7 @@ resource "aws_elb" "service" {
     healthy_threshold   = 2
     unhealthy_threshold = 2
     timeout             = 3
-    target              = "TCP:80"
+    target              = "TCP:8888"
     interval            = 30
   }
 
@@ -392,11 +392,18 @@ resource "aws_alb" "service" {
   }
 }
 
+data "aws_acm_certificate" "service" {
+  domain   = "${data.terraform_remote_state.app.app_name}${var.service_default == "1" ? "" : "-${var.service_name}"}.${data.terraform_remote_state.env.private_zone_name}"
+  statuses = ["ISSUED"]
+}
+
 resource "aws_alb_listener" "service" {
   count             = "${var.want_alb*var.asg_count}"
   load_balancer_arn = "${element(aws_alb.service.*.arn,count.index)}"
-  port              = "80"
-  protocol          = "HTTP"
+  port              = "443"
+  protocol          = "HTTPS"
+  ssl_policy        = "ELBSecurityPolicy-2015-05"
+  certificate_arn   = "${data.aws_acm_certificate.service.arn}"
 
   default_action {
     target_group_arn = "${element(aws_alb_target_group.service.*.arn,count.index)}"
@@ -452,7 +459,7 @@ resource "aws_route53_record" "service-eip" {
   count = "${var.want_eip}"
 }
 
-resource "aws_route53_record" "service-live" {
+resource "aws_route53_record" "service_live" {
   zone_id = "${data.terraform_remote_state.env.private_zone_id}"
   name    = "${data.terraform_remote_state.app.app_name}${var.service_default == "1" ? "" : "-${var.service_name}"}.${data.terraform_remote_state.env.private_zone_name}"
   type    = "A"
@@ -466,7 +473,7 @@ resource "aws_route53_record" "service-live" {
   count = "${signum(var.want_elb+var.want_alb)}"
 }
 
-resource "aws_route53_record" "service-staging" {
+resource "aws_route53_record" "service_staging" {
   zone_id = "${data.terraform_remote_state.env.private_zone_id}"
   name    = "${data.terraform_remote_state.app.app_name}${var.service_default == "1" ? "" : "-${var.service_name}"}-staging.${data.terraform_remote_state.env.private_zone_name}"
   type    = "A"
@@ -477,7 +484,7 @@ resource "aws_route53_record" "service-staging" {
     evaluate_target_health = false
   }
 
-  count = "${signum(var.want_elb+var.want_alb)}"
+  count = "${signum(var.asg_count - 1)*signum(var.want_elb+var.want_alb)}"
 }
 
 resource "aws_sns_topic" "service" {
