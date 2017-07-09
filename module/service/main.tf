@@ -570,11 +570,11 @@ resource "aws_sns_topic_subscription" "service" {
 }
 
 resource "aws_sns_topic" "ses" {
-  name = "${data.terraform_remote_state.env.env_name}-${data.terraform_remote_state.app.app_name}-${var.service_name}-${element(var.asg_name,count.index)}-ses"
+  name = "${data.terraform_remote_state.env.env_name}-${data.terraform_remote_state.app.app_name}-${var.service_name}-ses"
 }
 
 resource "aws_sqs_queue" "ses" {
-  name   = "${data.terraform_remote_state.env.env_name}-${data.terraform_remote_state.app.app_name}-${var.service_name}-${element(var.asg_name,count.index)}-ses"
+  name   = "${data.terraform_remote_state.env.env_name}-${data.terraform_remote_state.app.app_name}-${var.service_name}-ses"
   policy = "${element(data.aws_iam_policy_document.service-sns-sqs-ses.*.json,count.index)}"
 }
 
@@ -590,7 +590,7 @@ data "aws_iam_policy_document" "service-sns-sqs-ses" {
     }
 
     resources = [
-      "arn:aws:sqs:${var.env_region}:${data.terraform_remote_state.org.aws_account_id}:${data.terraform_remote_state.env.env_name}-${data.terraform_remote_state.app.app_name}-${var.service_name}-${element(var.asg_name,count.index)}",
+      "arn:aws:sqs:${var.env_region}:${data.terraform_remote_state.org.aws_account_id}:${data.terraform_remote_state.env.env_name}-${data.terraform_remote_state.app.app_name}-${var.service_name}-ses"
     ]
 
     condition {
