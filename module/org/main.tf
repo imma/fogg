@@ -419,3 +419,12 @@ resource "aws_dynamodb_table" "terraform_state_lock" {
     type = "S"
   }
 }
+
+resource "aws_ses_receipt_rule_set" "org" {
+  rule_set_name = "${var.domain_name}"
+}
+
+resource "aws_ses_active_receipt_rule_set" "org" {
+  rule_set_name = "${var.domain_name}"
+  depends_on    = ["aws_ses_receipt_rule_set.org"]
+}

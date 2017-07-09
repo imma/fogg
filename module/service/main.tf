@@ -290,19 +290,10 @@ resource "aws_ses_domain_identity" "service" {
   domain = "${data.terraform_remote_state.app.app_name}${var.service_default == "1" ? "" : "-${var.service_name}"}.${data.terraform_remote_state.env.private_zone_name}"
 }
 
-resource "aws_ses_receipt_rule_set" "service" {
-  rule_set_name = "${data.terraform_remote_state.app.app_name}${var.service_default == "1" ? "" : "-${var.service_name}"}.${data.terraform_remote_state.env.private_zone_name}"
-}
-
-resource "aws_ses_active_receipt_rule_set" "service" {
-  rule_set_name = "${data.terraform_remote_state.app.app_name}${var.service_default == "1" ? "" : "-${var.service_name}"}.${data.terraform_remote_state.env.private_zone_name}"
-  depends_on    = ["aws_ses_receipt_rule_set.service"]
-}
-
 resource "aws_ses_receipt_rule" "s3" {
   name          = "s3"
-  rule_set_name = "${data.terraform_remote_state.app.app_name}${var.service_default == "1" ? "" : "-${var.service_name}"}.${data.terraform_remote_state.env.private_zone_name}"
-  recipients    = []
+  rule_set_name = "${data.terraform_remote_state.org.domain_name}"
+  recipients    = ["${data.terraform_remote_state.app.app_name}${var.service_default == "1" ? "" : "-${var.service_name}"}.${data.terraform_remote_state.env.private_zone_name}"]
   enabled       = true
   scan_enabled  = true
 
