@@ -291,7 +291,7 @@ resource "aws_ses_domain_identity" "service" {
 }
 
 resource "aws_ses_receipt_rule" "s3" {
-  name          = "s3"
+  name          = "${data.terraform_remote_state.app.app_name}${var.service_default == "1" ? "" : "-${var.service_name}"}.${data.terraform_remote_state.env.private_zone_name}-s3"
   rule_set_name = "${data.terraform_remote_state.org.domain_name}"
   recipients    = ["${data.terraform_remote_state.app.app_name}${var.service_default == "1" ? "" : "-${var.service_name}"}.${data.terraform_remote_state.env.private_zone_name}"]
   enabled       = true
