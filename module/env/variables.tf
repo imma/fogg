@@ -104,7 +104,11 @@ output "s3_bucket_prefix" {
   value = "b-${format("%.8s",sha1(data.terraform_remote_state.global.aws_account_id))}-${var.env_name}"
 }
 
-output "s3_env_logging" {
+output "s3_env_meta" {
+  value = "b-${format("%.8s",sha1(data.terraform_remote_state.global.aws_account_id))}-${var.env_name}-meta"
+}
+
+output "s3_env_s3" {
   value = "b-${format("%.8s",sha1(data.terraform_remote_state.global.aws_account_id))}-${var.env_name}-s3"
 }
 
@@ -112,8 +116,8 @@ output "s3_env_lb" {
   value = "b-${format("%.8s",sha1(data.terraform_remote_state.global.aws_account_id))}-${var.env_name}-lb"
 }
 
-output "s3_env_cloudfront" {
-  value = "b-${format("%.8s",sha1(data.terraform_remote_state.global.aws_account_id))}-${var.env_name}-cloudfront"
+output "s3_env_ses" {
+  value = "b-${format("%.8s",sha1(data.terraform_remote_state.global.aws_account_id))}-${var.env_name}-ses"
 }
 
 output "sg_env_lb" {
