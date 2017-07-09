@@ -8,7 +8,7 @@ function main {
   export WORK="$(pwd)"
 
   mkdir -p module
-  (set +f; echo "$shome"/module/*/) | runmany 'ln -nfs $1 module/'
+  ln -nfs "$shome/module" module/fogg
 
   mkdir -p bin
   for nm_org in "$@"; do

@@ -10,7 +10,7 @@ variable "app_bucket" {}
 variable "app_key" {}
 variable "app_region" {}
 
-data "terraform_remote_state" "global" {
+data "terraform_remote_state" "org" {
   backend = "s3"
 
   config {
@@ -68,10 +68,10 @@ resource "aws_subnet" "service" {
 
   availability_zone = "${element(data.aws_availability_zones.azs.names,count.index)}"
 
-  cidr_block              = "${cidrsubnet(data.aws_vpc.current.cidr_block,var.service_bits,element(concat(split(" ",lookup(data.terraform_remote_state.global.org,"service_${data.terraform_remote_state.app.app_name}_${var.service_name}","")),split(" ",lookup(data.terraform_remote_state.global.org,"service_${var.service_name}",""))),count.index))}"
+  cidr_block              = "${cidrsubnet(data.aws_vpc.current.cidr_block,var.service_bits,element(concat(split(" ",lookup(data.terraform_remote_state.org.org,"service_${data.terraform_remote_state.app.app_name}_${var.service_name}","")),split(" ",lookup(data.terraform_remote_state.org.org,"service_${var.service_name}",""))),count.index))}"
   map_public_ip_on_launch = "${signum(var.public_network) == 1 ? "true" : "false"}"
 
-  #ipv6_cidr_block                 = "${cidrsubnet(data.aws_vpc.current.ipv6_cidr_block,64,element(concat(split(" ",lookup(data.terraform_remote_state.global.org,"service_v6_${data.terraform_remote_state.app.app_name}_${var.service_name}","")),split(" ",lookup(data.terraform_remote_state.global.org,"service_v_${var.service_name}",""))),count.index))}"
+  #ipv6_cidr_block                 = "${cidrsubnet(data.aws_vpc.current.ipv6_cidr_block,64,element(concat(split(" ",lookup(data.terraform_remote_state.org.org,"service_v6_${data.terraform_remote_state.app.app_name}_${var.service_name}","")),split(" ",lookup(data.terraform_remote_state.org.org,"service_v_${var.service_name}",""))),count.index))}"
   assign_ipv6_address_on_creation = "${var.want_ipv6 ? "true" : "false"}"
 
   count = "${var.az_count}"
@@ -393,7 +393,7 @@ resource "aws_alb" "service" {
 }
 
 data "aws_acm_certificate" "service" {
-  domain   = "${data.terraform_remote_state.app.app_name}${var.service_default == "1" ? "" : "-${var.service_name}"}.${data.terraform_remote_state.env.private_zone_name}"
+  domain   = "${(var.want_alb*var.asg_count) == 0 ? "${data.terraform_remote_state.org.default_acm}" : "${data.terraform_remote_state.app.app_name}${var.service_default == "1" ? "" : "-${var.service_name}"}.${data.terraform_remote_state.env.private_zone_name}"}"
   statuses = ["ISSUED"]
 }
 
@@ -450,8 +450,8 @@ resource "aws_route53_record" "service" {
 }
 
 resource "aws_route53_record" "service-eip" {
-  zone_id = "${data.terraform_remote_state.global.public_zone_id}"
-  name    = "${data.terraform_remote_state.app.app_name}${var.service_default == "1" ? "" : "-${var.service_name}"}.${data.terraform_remote_state.global.domain_name}"
+  zone_id = "${data.terraform_remote_state.org.public_zone_id}"
+  name    = "${data.terraform_remote_state.app.app_name}${var.service_default == "1" ? "" : "-${var.service_name}"}.${data.terraform_remote_state.org.domain_name}"
   type    = "A"
   ttl     = 60
   records = ["${element(aws_eip.service.*.public_ip,count.index)}"]
@@ -510,7 +510,7 @@ data "aws_iam_policy_document" "service-sns-sqs" {
     }
 
     resources = [
-      "arn:aws:sqs:${var.env_region}:${data.terraform_remote_state.global.aws_account_id}:${data.terraform_remote_state.env.env_name}-${data.terraform_remote_state.app.app_name}-${var.service_name}-${element(var.asg_name,count.index)}",
+      "arn:aws:sqs:${var.env_region}:${data.terraform_remote_state.org.aws_account_id}:${data.terraform_remote_state.env.env_name}-${data.terraform_remote_state.app.app_name}-${var.service_name}-${element(var.asg_name,count.index)}",
     ]
 
     condition {
