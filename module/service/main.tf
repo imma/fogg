@@ -301,6 +301,7 @@ resource "aws_ses_receipt_rule" "s3" {
   s3_action {
     bucket_name       = "${data.terraform_remote_state.env.s3_env_ses}"
     object_key_prefix = "${data.terraform_remote_state.app.app_name}${var.service_default == "1" ? "" : "-${var.service_name}"}.${data.terraform_remote_state.env.private_zone_name}"
+    topic_arn         = "${aws_sns_topic.ses.arn}"
     position          = 1
   }
 }
@@ -566,6 +567,47 @@ resource "aws_sns_topic_subscription" "service" {
   endpoint  = "${element(aws_sqs_queue.service.*.arn,count.index)}"
   protocol  = "sqs"
   count     = "${var.asg_count}"
+}
+
+resource "aws_sns_topic" "ses" {
+  name = "${data.terraform_remote_state.env.env_name}-${data.terraform_remote_state.app.app_name}-${var.service_name}-${element(var.asg_name,count.index)}-ses"
+}
+
+resource "aws_sqs_queue" "ses" {
+  name   = "${data.terraform_remote_state.env.env_name}-${data.terraform_remote_state.app.app_name}-${var.service_name}-${element(var.asg_name,count.index)}-ses"
+  policy = "${element(data.aws_iam_policy_document.service-sns-sqs-ses.*.json,count.index)}"
+}
+
+data "aws_iam_policy_document" "service-sns-sqs-ses" {
+  statement {
+    actions = [
+      "sqs:SendMessage",
+    ]
+
+    principals {
+      type        = "AWS"
+      identifiers = ["*"]
+    }
+
+    resources = [
+      "arn:aws:sqs:${var.env_region}:${data.terraform_remote_state.org.aws_account_id}:${data.terraform_remote_state.env.env_name}-${data.terraform_remote_state.app.app_name}-${var.service_name}-${element(var.asg_name,count.index)}",
+    ]
+
+    condition {
+      test     = "ArnEquals"
+      variable = "aws:SourceArn"
+
+      values = [
+        "${element(aws_sns_topic.ses.*.arn,count.index)}",
+      ]
+    }
+  }
+}
+
+resource "aws_sns_topic_subscription" "ses" {
+  topic_arn = "${element(aws_sns_topic.ses.*.arn,count.index)}"
+  endpoint  = "${element(aws_sqs_queue.ses.*.arn,count.index)}"
+  protocol  = "sqs"
 }
 
 resource "aws_ecs_cluster" "service" {
