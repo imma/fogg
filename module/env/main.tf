@@ -443,6 +443,26 @@ resource "aws_s3_bucket" "ses" {
     enabled = true
   }
 
+  policy = <<EOF
+{
+  "Version": "2012-10-17",
+  "Statement": [{
+    "Sid": "",
+    "Action": "s3:PutObject",
+    "Effect": "Allow",
+    "Resource": "arn:aws:s3:::b-${format("%.8s",sha1(data.terraform_remote_state.global.aws_account_id))}-${var.env_name}-ses/*",
+    "Principal": {
+      "AWS": "ses.amazonaws.com"
+    },
+    "Condition": {
+      "StringEquals": {
+        "aws:Referer": "${data.terraform_remote_state.global.aws_account_id}"
+      }
+    }
+  }]
+}
+EOF
+
   tags {
     "ManagedBy" = "terraform"
     "Env"       = "${var.env_name}"
