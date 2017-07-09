@@ -86,10 +86,6 @@ variable "block" {
   default = "block-ubuntu"
 }
 
-variable "iam_index" {
-  default = "0"
-}
-
 output "asg_names" {
   value = ["${aws_autoscaling_group.service.*.name}"]
 }

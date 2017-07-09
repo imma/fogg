@@ -207,7 +207,7 @@ resource "aws_iam_role_policy_attachment" "cc_ro" {
 
 resource "aws_iam_instance_profile" "service" {
   name = "${data.terraform_remote_state.env.env_name}-${data.terraform_remote_state.app.app_name}-${var.service_name}"
-  role = "${element(concat(data.terraform_remote_state.env.iam_extra,list(aws_iam_role.service.name)),var.iam_index)}"
+  role = "${aws_iam_role.service.name}"
 }
 
 resource "aws_iam_group" "service" {
@@ -253,7 +253,7 @@ resource "aws_launch_configuration" "service" {
   iam_instance_profile = "${data.terraform_remote_state.env.env_name}-${data.terraform_remote_state.app.app_name}-${var.service_name}"
   key_name             = "${data.terraform_remote_state.env.key_name}"
   user_data            = "${data.template_file.user_data_service.rendered}"
-  security_groups      = ["${concat(data.terraform_remote_state.env.sg_extra,list(data.terraform_remote_state.env.sg_env,signum(var.public_network) == 1 ?  data.terraform_remote_state.env.sg_env_public : data.terraform_remote_state.env.sg_env_private,aws_security_group.service.id),list(data.terraform_remote_state.app.app_sg))}"]
+  security_groups      = ["${concat(list(data.terraform_remote_state.env.sg_env,signum(var.public_network) == 1 ?  data.terraform_remote_state.env.sg_env_public : data.terraform_remote_state.env.sg_env_private,aws_security_group.service.id),list(data.terraform_remote_state.app.app_sg))}"]
   count                = "${var.asg_count}"
 
   lifecycle {
@@ -590,7 +590,7 @@ data "aws_iam_policy_document" "service-sns-sqs-ses" {
     }
 
     resources = [
-      "arn:aws:sqs:${var.env_region}:${data.terraform_remote_state.org.aws_account_id}:${data.terraform_remote_state.env.env_name}-${data.terraform_remote_state.app.app_name}-${var.service_name}-ses"
+      "arn:aws:sqs:${var.env_region}:${data.terraform_remote_state.org.aws_account_id}:${data.terraform_remote_state.env.env_name}-${data.terraform_remote_state.app.app_name}-${var.service_name}-ses",
     ]
 
     condition {

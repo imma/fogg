@@ -48,14 +48,6 @@ variable "want_ipv6" {
 
 variable "public_key" {}
 
-variable "sg_extra" {
-  default = []
-}
-
-variable "iam_extra" {
-  default = []
-}
-
 variable "override_env_sg_name" {
   default = ""
 }
@@ -130,14 +122,6 @@ output "sg_env_lb_private" {
 
 output "sg_env_lb_public" {
   value = "${aws_security_group.env_lb_public.id}"
-}
-
-output "sg_extra" {
-  value = ["${var.sg_extra}"]
-}
-
-output "iam_extra" {
-  value = ["${var.iam_extra}"]
 }
 
 output "nat_eips" {
