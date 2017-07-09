@@ -297,8 +297,6 @@ resource "aws_ses_receipt_rule" "s3" {
   enabled       = true
   scan_enabled  = true
 
-  depends_on = ["aws_ses_receipt_rule_set.service"]
-
   s3_action {
     bucket_name       = "${data.terraform_remote_state.env.s3_env_ses}"
     object_key_prefix = "${data.terraform_remote_state.app.app_name}${var.service_default == "1" ? "" : "-${var.service_name}"}.${data.terraform_remote_state.env.private_zone_name}"
