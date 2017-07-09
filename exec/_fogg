@@ -26,7 +26,7 @@ function gen_state {
     -n -r '"terraform { backend \"s3\" { lock_table=\"terraform_state_lock\" bucket=\"\($remote_bucket)\" key=\"\($remote_path)\" region=\"\($remote_region)\" } }\nprovider \"aws\" { region=\"\($provider_region)\" }"'
 }
 
-function gen_global { 
+function gen_org { 
   local nm_module="$1"; shift
   gen_xxx "$nm_module"
 }

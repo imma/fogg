@@ -102,15 +102,11 @@ output "elb_names" {
   value = ["${aws_elb.service.*.name}"]
 }
 
-output "elb_dns" {
+output "elb_dns_names" {
   value = ["${aws_elb.service.*.dns_name}"]
 }
 
-output "elb_dns_name" {
-  value = ["${aws_elb.service.*.dns_name}"]
-}
-
-output "elb_zone_id" {
+output "elb_zone_ids" {
   value = ["${aws_elb.service.*.zone_id}"]
 }
 
@@ -118,16 +114,12 @@ output "alb_names" {
   value = ["${aws_alb.service.*.name}"]
 }
 
-output "alb_dns_name" {
+output "alb_dns_names" {
   value = ["${aws_alb.service.*.dns_name}"]
 }
 
-output "alb_zone_id" {
+output "alb_zone_ids" {
   value = ["${aws_alb.service.*.zone_id}"]
-}
-
-output "elb_sg" {
-  value = "${aws_security_group.lb.id}"
 }
 
 output "lb_sg" {

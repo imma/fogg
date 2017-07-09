@@ -85,7 +85,7 @@ output "private_zone_name" {
 }
 
 output "sg_efs" {
-  value = "${module.fs.efs_sg}"
+  value = "${module.efs.efs_sg}"
 }
 
 output "sg_env" {

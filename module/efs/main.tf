@@ -1,4 +1,4 @@
-variable fs_name {}
+variable efs_name {}
 
 variable az_count {}
 
@@ -6,7 +6,7 @@ variable subnets {
   default = []
 }
 
-variable want_fs {
+variable want_efs {
   default = "1"
 }
 
@@ -19,8 +19,8 @@ data "aws_vpc" "current" {
 }
 
 resource "aws_security_group" "fs" {
-  name        = "${var.fs_name}-efs"
-  description = "${var.fs_name}"
+  name        = "${var.efs_name}-efs"
+  description = "${var.efs_name}"
   vpc_id      = "${data.aws_vpc.current.id}"
 
   lifecycle {
@@ -29,12 +29,12 @@ resource "aws_security_group" "fs" {
   }
 
   tags {
-    "Name"      = "${var.fs_name}"
+    "Name"      = "${var.efs_name}"
     "Env"       = "${var.env_name}"
     "ManagedBy" = "terraform"
   }
 
-  count = "${var.want_fs}"
+  count = "${var.want_efs}"
 }
 
 resource "aws_security_group_rule" "fs_egress" {
@@ -45,24 +45,24 @@ resource "aws_security_group_rule" "fs_egress" {
   cidr_blocks       = ["0.0.0.0/0"]
   security_group_id = "${aws_security_group.fs.id}"
 
-  count = "${var.want_fs}"
+  count = "${var.want_efs}"
 }
 
 resource "aws_efs_file_system" "fs" {
   tags {
-    "Name"      = "${var.fs_name}"
+    "Name"      = "${var.efs_name}"
     "Env"       = "${var.env_name}"
     "ManagedBy" = "terraform"
   }
 
-  count = "${var.want_fs}"
+  count = "${var.want_efs}"
 }
 
 resource "aws_efs_mount_target" "fs" {
   file_system_id  = "${aws_efs_file_system.fs.id}"
   subnet_id       = "${element(var.subnets,count.index)}"
   security_groups = ["${aws_security_group.fs.id}"]
-  count           = "${var.az_count*var.want_fs}"
+  count           = "${var.az_count*var.want_efs}"
 }
 
 output "efs_dns_names" {
