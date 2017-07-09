@@ -312,8 +312,15 @@ resource "aws_s3_bucket" "lb" {
   bucket = "b-${format("%.8s",sha1(data.terraform_remote_state.global.aws_account_id))}-${var.env_name}-lb"
   acl    = "private"
 
+  depends_on = ["aws_s3_bucket.s3"]
+
   versioning {
     enabled = true
+  }
+
+  logging {
+    target_bucket = "b-${format("%.8s",sha1(data.terraform_remote_state.global.aws_account_id))}-${var.env_name}-s3"
+    target_prefix = "log/"
   }
 
   policy = <<EOF
@@ -386,8 +393,8 @@ resource "aws_flow_log" "env" {
   traffic_type   = "ALL"
 }
 
-resource "aws_s3_bucket" "s3-meta" {
-  bucket = "b-${format("%.8s",sha1(data.terraform_remote_state.global.aws_account_id))}-${var.env_name}-s3-meta"
+resource "aws_s3_bucket" "meta" {
+  bucket = "b-${format("%.8s",sha1(data.terraform_remote_state.global.aws_account_id))}-${var.env_name}-meta"
   acl    = "log-delivery-write"
 
   versioning {
@@ -404,10 +411,10 @@ resource "aws_s3_bucket" "s3" {
   bucket = "b-${format("%.8s",sha1(data.terraform_remote_state.global.aws_account_id))}-${var.env_name}-s3"
   acl    = "log-delivery-write"
 
-  depends_on = ["aws_s3_bucket.s3-meta"]
+  depends_on = ["aws_s3_bucket.meta"]
 
   logging {
-    target_bucket = "b-${format("%.8s",sha1(data.terraform_remote_state.global.aws_account_id))}-${var.env_name}-s3-meta"
+    target_bucket = "b-${format("%.8s",sha1(data.terraform_remote_state.global.aws_account_id))}-${var.env_name}-meta"
     target_prefix = "log/"
   }
 
@@ -421,28 +428,8 @@ resource "aws_s3_bucket" "s3" {
   }
 }
 
-resource "aws_s3_bucket" "cloudfront" {
-  bucket = "b-${format("%.8s",sha1(data.terraform_remote_state.global.aws_account_id))}-${var.env_name}-cloudfront"
-
-  depends_on = ["aws_s3_bucket.s3"]
-
-  logging {
-    target_bucket = "b-${format("%.8s",sha1(data.terraform_remote_state.global.aws_account_id))}-${var.env_name}-s3"
-    target_prefix = "log/"
-  }
-
-  versioning {
-    enabled = true
-  }
-
-  tags {
-    "ManagedBy" = "terraform"
-    "Env"       = "${var.env_name}"
-  }
-}
-
-resource "aws_s3_bucket" "website" {
-  bucket = "b-${format("%.8s",sha1(data.terraform_remote_state.global.aws_account_id))}-${var.env_name}-website"
+resource "aws_s3_bucket" "ses" {
+  bucket = "b-${format("%.8s",sha1(data.terraform_remote_state.global.aws_account_id))}-${var.env_name}-ses"
   acl    = "private"
 
   depends_on = ["aws_s3_bucket.s3"]
@@ -450,11 +437,6 @@ resource "aws_s3_bucket" "website" {
   logging {
     target_bucket = "b-${format("%.8s",sha1(data.terraform_remote_state.global.aws_account_id))}-${var.env_name}-s3"
     target_prefix = "log/"
-  }
-
-  website {
-    index_document = "index.html"
-    error_document = "error.html"
   }
 
   versioning {
