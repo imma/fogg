@@ -290,6 +290,28 @@ resource "aws_ses_domain_identity" "service" {
   domain = "${data.terraform_remote_state.app.app_name}${var.service_default == "1" ? "" : "-${var.service_name}"}.${data.terraform_remote_state.env.private_zone_name}"
 }
 
+resource "aws_ses_receipt_rule_set" "service" {
+  rule_set_name = "${data.terraform_remote_state.app.app_name}${var.service_default == "1" ? "" : "-${var.service_name}"}.${data.terraform_remote_state.env.private_zone_name}"
+}
+
+resource "aws_ses_active_receipt_rule_set" "service" {
+  rule_set_name = "${data.terraform_remote_state.app.app_name}${var.service_default == "1" ? "" : "-${var.service_name}"}.${data.terraform_remote_state.env.private_zone_name}"
+}
+
+resource "aws_ses_receipt_rule" "s3" {
+  name          = "s3"
+  rule_set_name = "${data.terraform_remote_state.app.app_name}${var.service_default == "1" ? "" : "-${var.service_name}"}.${data.terraform_remote_state.env.private_zone_name}"
+  recipients    = []
+  enabled       = true
+  scan_enabled  = true
+
+  s3_action {
+    bucket_name       = "${data.terraform_remote_state.env.s3_env_ses}"
+    object_key_prefix = "${data.terraform_remote_state.app.app_name}${var.service_default == "1" ? "" : "-${var.service_name}"}.${data.terraform_remote_state.env.private_zone_name}"
+    position          = "1"
+  }
+}
+
 resource "aws_route53_record" "verify_ses" {
   zone_id = "${data.terraform_remote_state.org.public_zone_id}"
   name    = "_amazonses.${data.terraform_remote_state.app.app_name}${var.service_default == "1" ? "" : "-${var.service_name}"}.${data.terraform_remote_state.env.private_zone_name}"
