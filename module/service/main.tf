@@ -300,7 +300,7 @@ resource "aws_route53_record" "verify_ses" {
 
 resource "aws_route53_record" "mx" {
   zone_id = "${data.terraform_remote_state.org.public_zone_id}"
-  name    = "_amazonses.${data.terraform_remote_state.app.app_name}${var.service_default == "1" ? "" : "-${var.service_name}"}.${data.terraform_remote_state.env.private_zone_name}"
+  name    = "${data.terraform_remote_state.app.app_name}${var.service_default == "1" ? "" : "-${var.service_name}"}.${data.terraform_remote_state.env.private_zone_name}"
   type    = "MX"
   ttl     = "60"
   records = ["10 inbound-smtp.${var.env_region}.amazonaws.com"]
