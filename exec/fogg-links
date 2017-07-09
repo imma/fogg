@@ -12,9 +12,11 @@ function main {
 
   mkdir -p bin
   for nm_org in "$@"; do
-    (set +f; echo ${nm_org}/*/*/*/) | runmany 'ln -nfs $(pwd)/$1 ${WORK}/$(echo $1 | cut -d/ -f2-4 | tr / -)'
-    (set +f; echo ${nm_org}/*/*/*/) | env org_pwd="$(pwd)" runmany 'cd ${WORK}/$(echo $1 | cut -d/ -f2-4 | tr / -) && ln -nfs "$org_pwd/module" module'
-    (set +f; echo ${nm_org}/*/*/*/) | runmany 'cd bin && ln -nfs "$(which fogg-proxy-service)" $(echo $1 | cut -d/ -f2-4 | tr / -)'
+    # modules in each terraform config
+    find immanent -name '*.tf' -o -name '*.tf.json' -o -name '*.tfvars' | perl -pe 's{[^/\s]+$}{}' | uniq | runmany 'cd ${WORK}/$1 && ln -nfs "$(git rev-parse --show-cdup)/module" .'
+
+    # bin/ service scripts
+    (set +f; ls -d ${nm_org}/*/*/*/) | grep -v /module/ | runmany 'test -d "$1" && cd bin && ln -vnfs "$(which fogg-proxy-service)" $(echo $1 | cut -d/ -f2-4 | tr / -)'
   done
 }
 
