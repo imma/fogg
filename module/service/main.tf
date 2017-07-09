@@ -286,6 +286,18 @@ resource "aws_launch_configuration" "service" {
   }
 }
 
+resource "aws_ses_domain_identity" "service" {
+  domain = "${data.terraform_remote_state.app.app_name}${var.service_default == "1" ? "" : "-${var.service_name}"}.${data.terraform_remote_state.env.private_zone_name}"
+}
+
+resource "aws_route53_record" "verify_ses" {
+  zone_id = "${data.terraform_remote_state.org.public_zone_id}"
+  name    = "_amazonses.${data.terraform_remote_state.app.app_name}${var.service_default == "1" ? "" : "-${var.service_name}"}.${data.terraform_remote_state.env.private_zone_name}"
+  type    = "TXT"
+  ttl     = "60"
+  records = ["${aws_ses_domain_identity.service.verification_token}"]
+}
+
 resource "aws_security_group" "lb" {
   name        = "${data.terraform_remote_state.env.env_name}-${data.terraform_remote_state.app.app_name}-${var.service_name}-lb"
   description = "LB ${data.terraform_remote_state.app.app_name}-${var.service_name}"
@@ -367,6 +379,11 @@ resource "aws_elb" "service" {
   }
 }
 
+data "aws_acm_certificate" "service" {
+  domain   = "${(var.want_alb*var.asg_count) == 0 ? "${data.terraform_remote_state.org.default_acm}" : "${data.terraform_remote_state.app.app_name}${var.service_default == "1" ? "" : "-${var.service_name}"}.${data.terraform_remote_state.env.private_zone_name}"}"
+  statuses = ["ISSUED"]
+}
+
 resource "aws_alb" "service" {
   name    = "${data.terraform_remote_state.env.env_name}-${data.terraform_remote_state.app.app_name}-${var.service_name}-${element(var.asg_name,count.index)}"
   count   = "${var.want_alb*var.asg_count}"
@@ -390,11 +407,6 @@ resource "aws_alb" "service" {
     ManagedBy = "terraform"
     Color     = "${element(var.asg_name,count.index)}"
   }
-}
-
-data "aws_acm_certificate" "service" {
-  domain   = "${(var.want_alb*var.asg_count) == 0 ? "${data.terraform_remote_state.org.default_acm}" : "${data.terraform_remote_state.app.app_name}${var.service_default == "1" ? "" : "-${var.service_name}"}.${data.terraform_remote_state.env.private_zone_name}"}"
-  statuses = ["ISSUED"]
 }
 
 resource "aws_alb_listener" "service" {
@@ -619,12 +631,12 @@ resource "aws_eip_association" "service" {
 
 module "efs" {
   source   = "../efs"
-  efs_name  = "${data.terraform_remote_state.env.env_name}-${data.terraform_remote_state.app.app_name}-${var.service_name}"
+  efs_name = "${data.terraform_remote_state.env.env_name}-${data.terraform_remote_state.app.app_name}-${var.service_name}"
   vpc_id   = "${data.terraform_remote_state.env.vpc_id}"
   env_name = "${data.terraform_remote_state.env.env_name}"
   subnets  = ["${aws_subnet.service.*.id}"]
   az_count = "${var.az_count}"
-  want_efs  = "${var.want_efs}"
+  want_efs = "${var.want_efs}"
 }
 
 resource "aws_security_group_rule" "allow_service_mount" {

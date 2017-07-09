@@ -291,12 +291,12 @@ resource "aws_route53_zone_association" "associates" {
 
 module "efs" {
   source   = "../efs"
-  efs_name  = "${var.env_name}"
+  efs_name = "${var.env_name}"
   vpc_id   = "${aws_vpc.env.id}"
   env_name = "${var.env_name}"
   subnets  = ["${aws_subnet.common.*.id}"]
   az_count = "${var.az_count}"
-  want_efs  = "${var.want_efs}"
+  want_efs = "${var.want_efs}"
 }
 
 resource "aws_route53_record" "efs" {
