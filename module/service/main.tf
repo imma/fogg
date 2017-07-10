@@ -225,11 +225,6 @@ data "template_file" "user_data_service" {
   }
 }
 
-resource "aws_eip" "service" {
-  vpc   = true
-  count = "${var.want_eip}"
-}
-
 data "aws_ami" "block" {
   most_recent = true
 
@@ -485,16 +480,6 @@ resource "aws_route53_record" "service" {
   count = "${var.asg_count*signum(var.want_elb+var.want_alb)}"
 }
 
-resource "aws_route53_record" "service-eip" {
-  zone_id = "${data.terraform_remote_state.org.public_zone_id}"
-  name    = "${data.terraform_remote_state.app.app_name}${var.service_default == "1" ? "" : "-${var.service_name}"}.${data.terraform_remote_state.org.domain_name}"
-  type    = "A"
-  ttl     = 60
-  records = ["${element(aws_eip.service.*.public_ip,count.index)}"]
-
-  count = "${var.want_eip}"
-}
-
 resource "aws_route53_record" "service_live" {
   zone_id = "${data.terraform_remote_state.env.private_zone_id}"
   name    = "${data.terraform_remote_state.app.app_name}${var.service_default == "1" ? "" : "-${var.service_name}"}.${data.terraform_remote_state.env.private_zone_name}"
@@ -686,12 +671,6 @@ data "external" "asg_instance" {
     "${data.terraform_remote_state.env.env_name}-${data.terraform_remote_state.app.app_name}-${var.service_name}-${element(var.asg_name,0)}",
     "${data.terraform_remote_state.env.env_name}-${data.terraform_remote_state.app.app_name}-${var.service_name}-${element(var.asg_name,1)}",
   ]
-}
-
-resource "aws_eip_association" "service" {
-  instance_id   = "${lookup(data.external.asg_instance.result,"${data.terraform_remote_state.env.env_name}-${data.terraform_remote_state.app.app_name}-${var.service_name}-${element(var.asg_name,count.index)}")}"
-  allocation_id = "${element(aws_eip.service.*.id,count.index)}"
-  count         = "${0*var.want_eip}"
 }
 
 module "efs" {

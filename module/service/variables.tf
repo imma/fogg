@@ -38,10 +38,6 @@ variable "want_alb" {
   default = "0"
 }
 
-variable "want_eip" {
-  default = "0"
-}
-
 variable "user_data" {
   default = "../../../.etc/user-data.template"
 }
@@ -140,10 +136,6 @@ output "service_subnets" {
 
 output "key_name" {
   value = "${data.terraform_remote_state.env.key_name}"
-}
-
-output "service_eips" {
-  value = ["${aws_eip.service.*.public_ip}"]
 }
 
 output "service_sqs" {
