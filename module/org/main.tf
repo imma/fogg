@@ -1,3 +1,13 @@
+provider "aws" {
+  alias = "us_west_2"
+  region = "us-west-2"
+}
+
+provider "aws" {
+  alias = "us_east_1"
+  region = "us-east-1"
+}
+
 data "aws_caller_identity" "current" {}
 
 data "aws_region" "current" {
@@ -421,10 +431,12 @@ resource "aws_dynamodb_table" "terraform_state_lock" {
 }
 
 resource "aws_ses_receipt_rule_set" "org" {
+  provider = "aws.us_east_1"
   rule_set_name = "${var.domain_name}"
 }
 
 resource "aws_ses_active_receipt_rule_set" "org" {
+  provider = "aws.us_east_1"
   rule_set_name = "${var.domain_name}"
   depends_on    = ["aws_ses_receipt_rule_set.org"]
 }
