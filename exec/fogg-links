@@ -13,7 +13,7 @@ function main {
   mkdir -p bin
   for nm_org in "$@"; do
     # modules in each terraform config
-    find immanent -name '*.tf' -o -name '*.tf.json' -o -name '*.tfvars' | perl -pe 's{[^/\s]+$}{}' | uniq | runmany 'cd ${WORK}/$1 && ln -nfs "$(git rev-parse --show-cdup)/module" .'
+    find "$nm_org" -name '*.tf' -o -name '*.tf.json' -o -name '*.tfvars' | perl -pe 's{[^/\s]+$}{}' | uniq | runmany 'cd ${WORK}/$1 && ln -nfs "$(git rev-parse --show-cdup)/module" .'
 
     # bin/ service scripts
     (set +f; ls -d ${nm_org}/*/*/*/) | grep -v /module/ | runmany 'test -d "$1" && cd bin && ln -vnfs "$(which fogg-proxy-service)" $(echo $1 | cut -d/ -f2-4 | tr / -)'
