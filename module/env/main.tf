@@ -33,12 +33,12 @@ resource "aws_vpc" "env" {
 }
 
 resource "aws_security_group" "env" {
-  name        = "${coalesce(var.override_env_sg_name,var.env_name)}"
+  name        = "${var.env_name}"
   description = "Environment ${var.env_name}"
   vpc_id      = "${aws_vpc.env.id}"
 
   tags {
-    "Name"      = "${coalesce(var.override_env_sg_name,var.env_name)}"
+    "Name"      = "${var.env_name}"
     "Env"       = "${var.env_name}"
     "ManagedBy" = "terraform"
   }

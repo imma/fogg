@@ -48,10 +48,6 @@ variable "want_ipv6" {
 
 variable "public_key" {}
 
-variable "override_env_sg_name" {
-  default = ""
-}
-
 output "vpc_id" {
   value = "${aws_vpc.env.id}"
 }
