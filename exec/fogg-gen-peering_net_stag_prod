@@ -1,0 +1,32 @@
+#!/usr/bin/env bash
+
+function gen {
+  local tmp_seed="$1"; shift
+  local tmp_modules="$1"; shift
+  local nm_env="$1"
+
+  local remote_bucket="$(hcltool ../terraform.tfvars | jq -r '.remote_bucket')"
+  local remote_path="$(cd -P .. && basename $(pwd -P))_$(basename $(pwd -P))/terraform.tfstate"
+  local remote_region="$(hcltool ../terraform.tfvars | jq -r '.remote_region')"
+  local az_count="$(hcltool ../terraform.tfvars | jq -r '.az_count')"
+
+	jq -n \
+        --argfile seed     "$tmp_seed" \
+        --argfile modules  "$tmp_modules" \
+        --arg     remote_bucket "$remote_bucket" \
+        --arg     remote_path   "$remote_path" \
+        --arg     remote_region "$remote_region" \
+        '$seed * $modules | .variable |= .*
+            { remote_bucket:{ default: "\($remote_bucket)" },
+              remote_path:  { default: "\($remote_path)" },
+              remote_region:{ default: "\($remote_region)" }
+            }'
+}
+
+function main {
+  local shome="$(cd -P -- "${BASH_SOURCE%/*}/.." && pwd -P)"
+  source "$shome/script/profile"
+  source _fogg "$@"
+}
+
+source sub "$BASH_SOURCE" "$@"

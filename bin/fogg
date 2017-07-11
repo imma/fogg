@@ -24,6 +24,11 @@ function main {
         "$(echo "$pth_config" | cut -d_ -f2)" \
         "${pth_config##*_}"
       ;;
+    *_peering*)
+      set -x
+      set -- peering_net_stag_prod \
+        "${pth_config##*_}"
+      ;;
     *_*)
       set -- env \
         "${pth_config##*_}"

@@ -1,5 +1,5 @@
-module "peering" {
-  source = "module/fogg/peering-net-stag-prod"
+module "peering_net_stag_prod" {
+  source = "module/fogg/peering_net_stag_prod"
 
   remote_bucket   = "${var.remote_bucket}"
   remote_region   = "${var.remote_region}"
