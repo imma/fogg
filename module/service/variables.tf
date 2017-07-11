@@ -157,3 +157,7 @@ output "service_ami" {
 output "block" {
   value = "${var.block}"
 }
+
+output "route_tables" {
+  value = ["${aws_route_table.service.*.id}"]
+}
