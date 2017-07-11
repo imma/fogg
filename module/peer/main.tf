@@ -1,18 +1,13 @@
-variable "peer_name" {}
-variable "vpc_id" {}
+variable "cidr_block" {}
+variable "peer_id" {}
+variable "route_table_id" {}
 
-data "aws_caller_identity" "current" {}
-
-data "aws_vpc" "peer" {
-  filter {
-    name   = "tag:Name"
-    values = ["${var.peer_name}"]
-  }
+data "aws_route_table" "rt" {
+  route_table_id = "${var.route_table_id}"
 }
 
-resource "aws_vpc_peering_connection" "peer" {
-  vpc_id        = "${var.vpc_id}"
-  peer_owner_id = "${data.aws_caller_identity.current.account_id}"
-  peer_vpc_id   = "${data.aws_vpc.peer.id}"
-  auto_accept   = true
+resource "aws_route" "rt" {
+  route_table_id            = "${data.aws_route_table.rt.id}"
+  destination_cidr_block    = "${var.cidr_block}"
+  vpc_peering_connection_id = "${var.peer_id}"
 }
