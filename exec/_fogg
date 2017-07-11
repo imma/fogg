@@ -38,7 +38,6 @@ function gen_env {
 }
 
 function gen_peering_net_stag_prod { 
-  set -x
   local nm_module="$1"; shift
   shift
   gen_xxx "$nm_module"

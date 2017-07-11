@@ -25,7 +25,6 @@ function main {
         "${pth_config##*_}"
       ;;
     *_peering*)
-      set -x
       set -- peering_net_stag_prod \
         "${pth_config##*_}"
       ;;
