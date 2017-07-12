@@ -20,8 +20,8 @@ resource "aws_ebs_volume" "this" {
 }
 
 resource "aws_volume_attachment" "this" {
-  device_name = "${element(var.devices,count.index)}"
-  volume_id   = "${element(aws_ebs_volume.this.*.id,count.index)}"
+  device_name = "${var.devices[count.index]}"
+  volume_id   = "${aws_ebs_volume.this.*.id[count.index]}"
   instance_id = "${var.instance_id}"
   count       = "${var.ebs_count}"
 }
