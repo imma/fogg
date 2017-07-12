@@ -9,3 +9,7 @@ variable "want_eip" {
 variable "devices" {
   default = ["/dev/sdh", "/dev/sdi"]
 }
+
+output "eip" {
+  value = "${aws_eip.this.public_ip}"
+}
