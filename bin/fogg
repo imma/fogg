@@ -12,7 +12,6 @@ function main {
 
   local pth_config="$(pwd -P . | sed "s#$(cd -P . && git rev-parse --show-toplevel)/##" | perl -pe 's{/+}{_}g')"
 
-  set -x
   case "$pth_config" in
     *_i-*)
       set -- instance \

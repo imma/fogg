@@ -1,3 +1,5 @@
+variable "instance_id" { }
+
 variable "ebs_count" {
   default = "2"
 }

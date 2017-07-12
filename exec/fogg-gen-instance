@@ -1,8 +1,6 @@
 #!/usr/bin/env bash
 
 function gen {
-  set -x
-
   local tmp_seed="$1"; shift
   local tmp_modules="$1"; shift
   local nm_env="$1"; shift
