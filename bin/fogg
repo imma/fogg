@@ -12,7 +12,15 @@ function main {
 
   local pth_config="$(pwd -P . | sed "s#$(cd -P . && git rev-parse --show-toplevel)/##" | perl -pe 's{/+}{_}g')"
 
+  set -x
   case "$pth_config" in
+    *_i-*)
+      set -- instance \
+        "$(echo "$pth_config" | cut -d_ -f2)" \
+        "$(echo "$pth_config" | cut -d_ -f3)" \
+        "$(echo "$pth_config" | cut -d_ -f4)" \
+        "${pth_config##*_}"
+      ;;
     *_*_*_*)
       set -- service \
         "$(echo "$pth_config" | cut -d_ -f2)" \

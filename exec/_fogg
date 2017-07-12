@@ -58,6 +58,15 @@ function gen_service {
   gen_xxx "$nm_module"
 }
 
+function gen_instance { 
+  local nm_module="$1"; shift
+  shift
+  shift
+  shift
+  shift
+  gen_xxx "$nm_module"
+}
+
 function gen_xxx {
   local nm_module="$1"; shift
   (

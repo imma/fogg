@@ -1,0 +1,44 @@
+#!/usr/bin/env bash
+
+function gen {
+  set -x
+
+  local tmp_seed="$1"; shift
+  local tmp_modules="$1"; shift
+  local nm_env="$1"; shift
+  local nm_app="$1"; shift
+  local nm_service="$1"; shift
+  local id_instance="$1"; shift
+
+  local remote_bucket="$(hcltool ../../../../../terraform.tfvars | jq -r '.remote_bucket')"
+  local remote_path="$(cd -P ../../../../.. && basename $(pwd -P))_$(cd -P ../../../.. && basename $(pwd -P))_$(cd -P ../../.. && basename $(pwd -P))_$(cd -P ../.. && basename $(pwd -P))_$(basename $(pwd -P))/terraform.tfstate"
+  local remote_region="$(hcltool ../../../../../terraform.tfvars | jq -r '.remote_region')"
+
+	jq -n \
+        --argfile seed     "$tmp_seed" \
+        --argfile modules  "$tmp_modules" \
+        --arg     remote_bucket "$remote_bucket" \
+        --arg     remote_path   "$remote_path" \
+        --arg     remote_region "$remote_region" \
+	      --arg     env_name     "$nm_env" \
+        --arg     app_name     "$nm_app" \
+        --arg     service_name "$nm_service" \
+        --arg     instance_id  "$id_instance" \
+        '$seed * $modules | .variable |= .*
+            { remote_bucket:{ default: "\($remote_bucket)" },
+              remote_path:  { default: "\($remote_path)" },
+              remote_region:{ default: "\($remote_region)" },
+              env_name:     { default: "\($env_name)" },
+              app_name:     { default: "\($app_name)" },
+              service_name: { default: "\($service_name)" },
+              instance_id:  { default: "\($instance_id)" }
+            }'
+}
+
+function main {
+  local shome="$(cd -P -- "${BASH_SOURCE%/*}/.." && pwd -P)"
+  source "$shome/script/profile"
+  source _fogg "$@"
+}
+
+source sub "$BASH_SOURCE" "$@"

@@ -667,14 +667,6 @@ resource "aws_autoscaling_notification" "service" {
   count = "${var.asg_count}"
 }
 
-data "external" "asg_instance" {
-  program = [
-    "${path.module}/script/asg-first-instance",
-    "${data.terraform_remote_state.env.env_name}-${data.terraform_remote_state.app.app_name}-${var.service_name}-${element(var.asg_name,0)}",
-    "${data.terraform_remote_state.env.env_name}-${data.terraform_remote_state.app.app_name}-${var.service_name}-${element(var.asg_name,1)}",
-  ]
-}
-
 module "efs" {
   source   = "../efs"
   efs_name = "${data.terraform_remote_state.env.env_name}-${data.terraform_remote_state.app.app_name}-${var.service_name}"
