@@ -28,8 +28,8 @@ resource "aws_iam_group_policy_attachment" "administrators_administrator_access"
   policy_arn = "arn:aws:iam::aws:policy/AdministratorAccess"
 }
 
-resource "aws_s3_bucket" "s3-meta" {
-  bucket = "b-${format("%.8s",sha1(data.aws_caller_identity.current.account_id))}-global-s3-meta"
+resource "aws_s3_bucket" "meta" {
+  bucket = "b-${format("%.8s",sha1(data.aws_caller_identity.current.account_id))}-global-meta"
   acl    = "log-delivery-write"
 
   versioning {
@@ -47,7 +47,7 @@ resource "aws_s3_bucket" "s3" {
   acl    = "log-delivery-write"
 
   logging {
-    target_bucket = "b-${format("%.8s",sha1(data.aws_caller_identity.current.account_id))}-global-s3-meta"
+    target_bucket = "b-${format("%.8s",sha1(data.aws_caller_identity.current.account_id))}-global-meta"
     target_prefix = "log/"
   }
 
