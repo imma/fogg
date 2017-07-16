@@ -1,10 +1,11 @@
 #!/usr/bin/env bash
 
 function init_service {
-  local nm_app="${nm_service#*-}"
-  nm_app="${nm_app%-*}"
-
-  cd "${_org_home}/${nm_service}"
+  local pth_service="${nm_service/-/\/}"
+  pth_service="${pth_service/-/\/}"
+  set +f
+  eval cd "${_org_home}/*/${pth_service}"
+  set -f
   "$@"
 }
 
@@ -20,8 +21,6 @@ function main {
       shift
       if [[ "$#" -gt 0 ]]; then
         init_service deploy "$@" --list-hosts -e deploy_role=nothing
-      else
-        "$0" list-all
       fi
       ;;
     deploy|run)
@@ -56,22 +55,6 @@ function main {
     "")
       figlet terraform
       "$0" terraform output
-      "$0" list-all
-      ;;
-    list-all)
-      local tmp_list="$(mktemp -d -t XXXXXX)"
-
-      "$0" list blue -e deploy_role=nothing 2>/dev/null > "$tmp_list/blue" &
-      "$0" list green -e deploy_role=nothing 2>/dev/null > "$tmp_list/green" &
-      wait 
-
-      figlet blue
-      cat "$tmp_list/blue" 
-
-      figlet green
-      cat "$tmp_list/green" 
-
-      rm -rf "$tmp_list"
       ;;
     *)
       echo "ERROR: unknown sub-command: $*" 1>&2
