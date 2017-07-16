@@ -80,6 +80,25 @@ resource "aws_s3_bucket" "tf_remote_state" {
   }
 }
 
+resource "aws_s3_bucket" "cache" {
+  bucket = "b-${format("%.8s",sha1(data.aws_caller_identity.current.account_id))}-global-cache"
+  acl    = "private"
+
+  logging {
+    target_bucket = "b-${format("%.8s",sha1(data.aws_caller_identity.current.account_id))}-global-s3"
+    target_prefix = "log/"
+  }
+
+  versioning {
+    enabled = true
+  }
+
+  tags {
+    "ManagedBy" = "terraform"
+    "Env"       = "global"
+  }
+}
+
 resource "aws_s3_bucket" "config" {
   bucket = "b-${format("%.8s",sha1(data.aws_caller_identity.current.account_id))}-global-config"
   acl    = "private"
