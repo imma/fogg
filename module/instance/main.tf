@@ -18,7 +18,7 @@ data "aws_instance" "this" {
 }
 
 data "aws_route53_zone" "public" {
-  name         = "${coalesce(var.public_zone,data.terraform_remote_state.global.name)}"
+  name         = "${coalesce(var.public_zone,data.terraform_remote_state.global.domain_name)}"
   private_zone = false
 }
 
