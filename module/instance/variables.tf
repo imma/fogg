@@ -12,6 +12,14 @@ variable "devices" {
   default = ["/dev/sdh", "/dev/sdi"]
 }
 
+variable "public_zone" {
+  default = ""
+}
+
+variable "public_name" {
+  default = ""
+}
+
 output "eip" {
   value = "${aws_eip.this.public_ip}"
 }
