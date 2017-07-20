@@ -18,7 +18,7 @@ data "aws_instance" "this" {
 }
 
 data "aws_route53_zone" "public" {
-  name         = "${coalesce(var.public_zone,data.terraform_remote_state.global.public_zone_id)}"
+  name         = "${coalesce(var.public_zone,data.terraform_remote_state.global.name)}"
   private_zone = false
 }
 
@@ -29,7 +29,7 @@ resource "aws_eip" "this" {
 
 resource "aws_route53_record" "public" {
   zone_id = "${data.aws_route53_zone.public.zone_id}"
-  name    = "${var.public_name}.${data.terraform_remote_state.global.name}"
+  name    = "${var.public_name}.${data.aws_route53_zone.public.name}"
   type    = "A"
   ttl     = "60"
   records = ["${aws_eip.this.public_ip}"]
