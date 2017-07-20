@@ -13,7 +13,7 @@ resource "aws_eip" "this" {
 }
 
 resource "aws_route53_record" "public" {
-  zone_id = "${aws_route53_zone.public.zone_id}"
+  zone_id = "${data.aws_route53_zone.public.zone_id}"
   name    = "${var.public_name}"
   type    = "A"
   ttl     = "60"
