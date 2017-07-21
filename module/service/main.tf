@@ -10,6 +10,16 @@ variable "app_bucket" {}
 variable "app_key" {}
 variable "app_region" {}
 
+provider "aws" {
+  alias  = "us_west_2"
+  region = "us-west-2"
+}
+
+provider "aws" {
+  alias  = "us_east_1"
+  region = "us-east-1"
+}
+
 data "terraform_remote_state" "org" {
   backend = "s3"
 
