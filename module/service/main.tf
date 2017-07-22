@@ -215,6 +215,11 @@ resource "aws_iam_role_policy_attachment" "cc_ro" {
   policy_arn = "arn:aws:iam::aws:policy/AWSCodeCommitReadOnly"
 }
 
+resource "aws_iam_role_policy_attachment" "ssm-agent" {
+  role       = "${aws_iam_role.service.name}"
+  policy_arn = "arn:aws:iam::aws:policy/AmazonEC2RoleforSSM"
+}
+
 resource "aws_iam_instance_profile" "service" {
   name = "${data.terraform_remote_state.env.env_name}-${data.terraform_remote_state.app.app_name}-${var.service_name}"
   role = "${aws_iam_role.service.name}"
