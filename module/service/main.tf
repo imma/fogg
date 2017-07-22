@@ -217,7 +217,12 @@ resource "aws_iam_role_policy_attachment" "cc_ro" {
 
 resource "aws_iam_role_policy_attachment" "ssm-agent" {
   role       = "${aws_iam_role.service.name}"
-  policy_arn = "arn:aws:iam::aws:policy/AmazonEC2RoleforSSM"
+  policy_arn = "arn:aws:iam::aws:policy/service-role/AmazonEC2RoleforSSM"
+}
+
+resource "aws_iam_role_policy_attachment" "ssm-ro" {
+  role       = "${aws_iam_role.service.name}"
+  policy_arn = "arn:aws:iam::aws:policy/AmazonSSMReadOnlyAccess"
 }
 
 resource "aws_iam_instance_profile" "service" {
