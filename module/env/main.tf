@@ -480,3 +480,18 @@ resource "aws_key_pair" "service" {
     create_before_destroy = true
   }
 }
+
+resource "aws_kms_key" "env" {
+  description         = "Environment ${var.env_name}"
+  enable_key_rotation = true
+
+  tags {
+    "ManagedBy" = "terraform"
+    "Env"       = "${var.env_name}"
+  }
+}
+
+resource "aws_kms_alias" "env" {
+  description   = "alias/${data.terraform_remote_state.global.aws_account_id}-${var.env_name}"
+  target_key_id = "${aws_kms_key.env.id}"
+}
