@@ -459,3 +459,7 @@ resource "aws_ses_active_receipt_rule_set" "org" {
   rule_set_name = "${var.domain_name}"
   depends_on    = ["aws_ses_receipt_rule_set.org"]
 }
+
+resource "aws_iam_account_alias" "org" {
+  account_alias = "${var.account_name}"
+}
