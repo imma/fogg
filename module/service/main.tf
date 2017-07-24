@@ -10,6 +10,16 @@ variable "app_bucket" {}
 variable "app_key" {}
 variable "app_region" {}
 
+provider "aws" {
+  alias  = "us_west_2"
+  region = "us-west-2"
+}
+
+provider "aws" {
+  alias  = "us_east_1"
+  region = "us-east-1"
+}
+
 data "terraform_remote_state" "org" {
   backend = "s3"
 
@@ -203,6 +213,16 @@ resource "aws_iam_role_policy_attachment" "ecs-container" {
 resource "aws_iam_role_policy_attachment" "cc_ro" {
   role       = "${aws_iam_role.service.name}"
   policy_arn = "arn:aws:iam::aws:policy/AWSCodeCommitReadOnly"
+}
+
+resource "aws_iam_role_policy_attachment" "ssm-agent" {
+  role       = "${aws_iam_role.service.name}"
+  policy_arn = "arn:aws:iam::aws:policy/service-role/AmazonEC2RoleforSSM"
+}
+
+resource "aws_iam_role_policy_attachment" "ssm-ro" {
+  role       = "${aws_iam_role.service.name}"
+  policy_arn = "arn:aws:iam::aws:policy/AmazonSSMReadOnlyAccess"
 }
 
 resource "aws_iam_instance_profile" "service" {

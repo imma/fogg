@@ -1,10 +1,39 @@
+variable "global_bucket" {}
+variable "global_key" {}
+variable "global_region" {}
+
+data "terraform_remote_state" "global" {
+  backend = "s3"
+
+  config {
+    bucket     = "${var.global_bucket}"
+    key        = "${var.global_key}"
+    region     = "${var.global_region}"
+    lock_table = "terraform_state_lock"
+  }
+}
+
 data "aws_instance" "this" {
   instance_id = "${var.instance_id}"
+}
+
+data "aws_route53_zone" "public" {
+  name         = "${coalesce(var.public_zone,data.terraform_remote_state.global.domain_name)}"
+  private_zone = false
 }
 
 resource "aws_eip" "this" {
   vpc   = true
   count = "${var.want_eip}"
+}
+
+resource "aws_route53_record" "public" {
+  zone_id = "${data.aws_route53_zone.public.zone_id}"
+  name    = "${var.public_name}.${data.aws_route53_zone.public.name}"
+  type    = "A"
+  ttl     = "60"
+  records = ["${aws_eip.this.public_ip}"]
+  count   = "${var.want_eip}"
 }
 
 resource "aws_eip_association" "this" {
