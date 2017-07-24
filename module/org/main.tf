@@ -48,6 +48,8 @@ resource "aws_s3_bucket" "s3" {
   bucket = "b-${format("%.8s",sha1(data.aws_caller_identity.current.account_id))}-global-s3"
   acl    = "log-delivery-write"
 
+  depends_on = ["aws_s3_bucket.meta"]
+
   logging {
     target_bucket = "b-${format("%.8s",sha1(data.aws_caller_identity.current.account_id))}-global-meta"
     target_prefix = "log/"
@@ -66,6 +68,8 @@ resource "aws_s3_bucket" "s3" {
 resource "aws_s3_bucket" "tf_remote_state" {
   bucket = "b-${format("%.8s",sha1(data.aws_caller_identity.current.account_id))}-global-tf-remote-state"
   acl    = "private"
+
+  depends_on = ["aws_s3_bucket.s3"]
 
   logging {
     target_bucket = "b-${format("%.8s",sha1(data.aws_caller_identity.current.account_id))}-global-s3"
@@ -86,6 +90,8 @@ resource "aws_s3_bucket" "cache" {
   bucket = "b-${format("%.8s",sha1(data.aws_caller_identity.current.account_id))}-global-cache"
   acl    = "private"
 
+  depends_on = ["aws_s3_bucket.s3"]
+
   logging {
     target_bucket = "b-${format("%.8s",sha1(data.aws_caller_identity.current.account_id))}-global-s3"
     target_prefix = "log/"
@@ -105,6 +111,8 @@ resource "aws_s3_bucket" "config" {
   bucket = "b-${format("%.8s",sha1(data.aws_caller_identity.current.account_id))}-global-config"
   acl    = "private"
   policy = "${data.aws_iam_policy_document.config_s3.json}"
+
+  depends_on = ["aws_s3_bucket.s3"]
 
   logging {
     target_bucket = "b-${format("%.8s",sha1(data.aws_caller_identity.current.account_id))}-global-s3"
@@ -362,6 +370,8 @@ resource "aws_s3_bucket" "billing" {
   bucket = "b-${format("%.8s",sha1(data.aws_caller_identity.current.account_id))}-global-billing"
   acl    = "private"
   policy = "${data.aws_iam_policy_document.billing.json}"
+
+  depends_on = ["aws_s3_bucket.s3"]
 
   logging {
     target_bucket = "b-${format("%.8s",sha1(data.aws_caller_identity.current.account_id))}-global-s3"
