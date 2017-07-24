@@ -469,6 +469,56 @@ EOF
   }
 }
 
+resource "aws_s3_bucket" "ssm" {
+  bucket = "b-${format("%.8s",sha1(data.terraform_remote_state.global.aws_account_id))}-${var.env_name}-ssm"
+  acl    = "private"
+
+  depends_on = ["aws_s3_bucket.s3"]
+
+  logging {
+    target_bucket = "b-${format("%.8s",sha1(data.terraform_remote_state.global.aws_account_id))}-${var.env_name}-s3"
+    target_prefix = "log/"
+  }
+
+  versioning {
+    enabled = true
+  }
+
+  policy = <<EOF
+{
+  "Version": "2012-10-17",
+  "Statement": [{
+    "Sid": "",
+    "Action": "s3:GetBucketAcl",
+    "Effect": "Allow",
+    "Resource": "arn:aws:s3:::b-${format("%.8s",sha1(data.terraform_remote_state.global.aws_account_id))}-${var.env_name}-ssm",
+    "Principal": {
+      "Service": "ssm.amazonaws.com"
+    }
+  },
+  {
+    "Sid": "",
+    "Action": "s3:PutObject",
+    "Effect": "Allow",
+    "Resource": "arn:aws:s3:::b-${format("%.8s",sha1(data.terraform_remote_state.global.aws_account_id))}-${var.env_name}-ssm/*/accountid=${data.terraform_remote_state.global.aws_account_id}/*",
+    "Principal": {
+      "Service": "ssm.amazonaws.com"
+    },
+    "Condition": {
+      "StringEquals": {
+        "s3:x-amz-acl": "bucket-owner-full-control"
+      }
+    }
+  }]
+}
+EOF
+
+  tags {
+    "ManagedBy" = "terraform"
+    "Env"       = "${var.env_name}"
+  }
+}
+
 data "template_file" "key_pair_service" {
   template = "${file(var.public_key)}"
 }
