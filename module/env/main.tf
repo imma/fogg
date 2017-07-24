@@ -556,6 +556,7 @@ resource "aws_kms_key" "env" {
   tags {
     "ManagedBy" = "terraform"
     "Env"       = "${var.env_name}"
+    "Name"      = "${var.env_name}"
   }
 }
 
@@ -571,4 +572,21 @@ data "aws_vpc_endpoint_service" "s3" {
 resource "aws_vpc_endpoint" "s3" {
   vpc_id       = "${aws_vpc.env.id}"
   service_name = "${data.aws_vpc_endpoint_service.s3.service_name}"
+}
+
+resource "aws_vpc_dhcp_options" "env" {
+  domain_name_servers = ["8.8.8.8", "8.8.4.4"]
+  domain_name         = "${aws_route53_zone.private.name}"
+
+  tags {
+    "ManagedBy" = "terraform"
+    "Env"       = "${var.env_name}"
+    "Name"      = "${var.env_name}"
+  }
+}
+
+resource "aws_vpc_dhcp_options_association" "env" {
+  count           = 0
+  vpc_id          = "${aws_vpc.env.id}"
+  dhcp_options_id = "${aws_vpc_dhcp_options.env.id}"
 }
