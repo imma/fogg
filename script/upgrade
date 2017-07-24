@@ -1,0 +1,13 @@
+#!/usr/bin/env bash
+
+function main {
+  local shome="$(cd -P -- "${BASH_SOURCE%/*}/.." && pwd -P)"
+  source normalize
+
+  cd "$shome"
+  "$shome/vendor/virtualenv/bin/pip" install --upgrade -r <(cat requirements.txt | cut -d= -f1)
+  "$shome/vendor/virtualenv/bin/pip" freeze > requirements.txt
+  "$shome/vendor/virtualenv/bin/pip" list --format json | jq -r 'map(select(.name == "pyhcl"))' > .pyhcl-version.json
+}
+
+main "$@"

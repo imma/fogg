@@ -1,0 +1,11 @@
+#!/usr/bin/env bash
+
+function version {
+  local shome="$(cd -P -- "${BASH_SOURCE%/*}/.." && pwd -P)"
+  source "$shome/script/profile"
+
+  local ver_pyhcl="$(vendor/virtualenv/bin/pip list --format json 2>/dev/null | jq -r 'map(select(.name == "pyhcl"))[].version' || true)"
+  jq -n --arg pyhcl "$ver_pyhcl" '{pyhcl: $pyhcl}'
+}
+
+version "$@"
