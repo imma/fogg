@@ -23,7 +23,7 @@ function gen_state {
 		--arg remote_path "$remote_path" \
 		--arg remote_region "$remote_region" \
 		--arg provider_region "$provider_region" \
-    -n -r '"terraform { backend \"s3\" { lock_table=\"terraform_state_lock\" bucket=\"\($remote_bucket)\" key=\"\($remote_path)\" region=\"\($remote_region)\" } }\nprovider \"aws\" { region=\"\($provider_region)\" }"'
+    -n -r '"terraform { backend \"s3\" { lock_table=\"terraform_state_lock\" bucket=\"\($remote_bucket)\" key=\"\($remote_path)\" region=\"\($remote_region)\" } }\nprovider \"aws\" { region=\"\($provider_region)\" }\nprovider \"digitalocean\" { }\n"'
 }
 
 function gen_org { 

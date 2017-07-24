@@ -551,6 +551,15 @@ resource "aws_key_pair" "service" {
   }
 }
 
+resource "digitalocean_ssh_key" "service" {
+  name       = "${data.terraform_remote_state.env.env_name}-${data.terraform_remote_state.app.app_name}-${var.service_name}"
+  public_key = "${data.template_file.key_pair_service.rendered}"
+
+  lifecycle {
+    create_before_destroy = true
+  }
+}
+
 resource "aws_kms_key" "env" {
   description         = "Environment ${var.env_name}"
   enable_key_rotation = true
