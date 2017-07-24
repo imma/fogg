@@ -717,7 +717,7 @@ resource "aws_route53_record" "efs" {
 }
 
 resource "aws_kms_key" "service" {
-  description         = "Service ${var.app_name}"
+  description         = "Service ${var.service_name}"
   enable_key_rotation = true
 
   tags {
