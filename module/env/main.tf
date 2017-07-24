@@ -576,8 +576,14 @@ resource "aws_vpc_endpoint" "s3" {
   service_name = "${data.aws_vpc_endpoint_service.s3.service_name}"
 }
 
+resource "aws_default_vpc_dhcp_options" "default" {
+  tags {
+    "Env" = "${var.env_name}"
+  }
+}
+
 resource "aws_vpc_dhcp_options" "env" {
-  domain_name_servers = ["8.8.8.8", "8.8.4.4"]
+  domain_name_servers = ["${aws_default_vpc_dhcp_options.default.domain_name_servers}"]
   domain_name         = "${aws_route53_zone.private.name}"
 
   tags {
