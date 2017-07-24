@@ -10,6 +10,8 @@ provider "aws" {
 
 data "aws_caller_identity" "current" {}
 
+data "aws_partition" "current" {}
+
 data "aws_region" "current" {
   current = true
 }
@@ -293,7 +295,7 @@ data "aws_iam_policy_document" "billing" {
     ]
 
     resources = [
-      "arn:aws:s3:::b-${format("%.8s",sha1(data.aws_caller_identity.current.account_id))}-global-billing",
+      "arn:${data.aws_partition.current.partition}:s3:::b-${format("%.8s",sha1(data.aws_caller_identity.current.account_id))}-global-billing",
     ]
 
     principals {
@@ -308,7 +310,7 @@ data "aws_iam_policy_document" "billing" {
     ]
 
     resources = [
-      "arn:aws:s3:::b-${format("%.8s",sha1(data.aws_caller_identity.current.account_id))}-global-billing/AWSLogs/*",
+      "arn:${data.aws_partition.current.partition}:s3:::b-${format("%.8s",sha1(data.aws_caller_identity.current.account_id))}-global-billing/AWSLogs/*",
     ]
 
     principals {
@@ -325,7 +327,7 @@ data "aws_iam_policy_document" "config_s3" {
     ]
 
     resources = [
-      "arn:aws:s3:::b-${format("%.8s",sha1(data.aws_caller_identity.current.account_id))}-global-config",
+      "arn:${data.aws_partition.current.partition}:s3:::b-${format("%.8s",sha1(data.aws_caller_identity.current.account_id))}-global-config",
     ]
 
     principals {
@@ -340,7 +342,7 @@ data "aws_iam_policy_document" "config_s3" {
     ]
 
     resources = [
-      "arn:aws:s3:::b-${format("%.8s",sha1(data.aws_caller_identity.current.account_id))}-global-config/AWSLogs/*",
+      "arn:${data.aws_partition.current.partition}:s3:::b-${format("%.8s",sha1(data.aws_caller_identity.current.account_id))}-global-config/AWSLogs/*",
     ]
 
     principals {
@@ -391,7 +393,7 @@ data "aws_iam_policy_document" "cloudtrail" {
     ]
 
     resources = [
-      "arn:aws:s3:::b-${format("%.8s",sha1(data.aws_caller_identity.current.account_id))}-global-cloudtrail",
+      "arn:${data.aws_partition.current.partition}:s3:::b-${format("%.8s",sha1(data.aws_caller_identity.current.account_id))}-global-cloudtrail",
     ]
 
     principals {
@@ -406,7 +408,7 @@ data "aws_iam_policy_document" "cloudtrail" {
     ]
 
     resources = [
-      "arn:aws:s3:::b-${format("%.8s",sha1(data.aws_caller_identity.current.account_id))}-global-cloudtrail/*",
+      "arn:${data.aws_partition.current.partition}:s3:::b-${format("%.8s",sha1(data.aws_caller_identity.current.account_id))}-global-cloudtrail/*",
     ]
 
     principals {

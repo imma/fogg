@@ -19,6 +19,8 @@ data "aws_vpc" "current" {
 
 data "aws_availability_zones" "azs" {}
 
+data "aws_partition" "current" {}
+
 resource "aws_vpc" "env" {
   cidr_block                       = "${data.terraform_remote_state.global.org["cidr_${var.env_name}"]}"
   enable_dns_support               = true
@@ -348,7 +350,7 @@ resource "aws_s3_bucket" "lb" {
     "Sid": "",
     "Action": "s3:PutObject",
     "Effect": "Allow",
-    "Resource": "arn:aws:s3:::b-${format("%.8s",sha1(data.terraform_remote_state.global.aws_account_id))}-${var.env_name}-lb/*",
+    "Resource": "arn:${data.aws_partition.current.partition}:s3:::b-${format("%.8s",sha1(data.terraform_remote_state.global.aws_account_id))}-${var.env_name}-lb/*",
     "Principal": {
       "AWS": "arn:aws:iam::${lookup(data.terraform_remote_state.global.org,"aws_account_${var.env_name}")}:root"
     }
@@ -468,7 +470,7 @@ resource "aws_s3_bucket" "ses" {
     "Sid": "",
     "Action": "s3:PutObject",
     "Effect": "Allow",
-    "Resource": "arn:aws:s3:::b-${format("%.8s",sha1(data.terraform_remote_state.global.aws_account_id))}-${var.env_name}-ses/*",
+    "Resource": "arn:${data.aws_partition.current.partition}:s3:::b-${format("%.8s",sha1(data.terraform_remote_state.global.aws_account_id))}-${var.env_name}-ses/*",
     "Principal": {
       "Service": "ses.amazonaws.com"
     },
@@ -509,7 +511,7 @@ resource "aws_s3_bucket" "ssm" {
     "Sid": "",
     "Action": "s3:GetBucketAcl",
     "Effect": "Allow",
-    "Resource": "arn:aws:s3:::b-${format("%.8s",sha1(data.terraform_remote_state.global.aws_account_id))}-${var.env_name}-ssm",
+    "Resource": "arn:${data.aws_partition.current.partition}:s3:::b-${format("%.8s",sha1(data.terraform_remote_state.global.aws_account_id))}-${var.env_name}-ssm",
     "Principal": {
       "Service": "ssm.amazonaws.com"
     }
@@ -518,7 +520,7 @@ resource "aws_s3_bucket" "ssm" {
     "Sid": "",
     "Action": "s3:PutObject",
     "Effect": "Allow",
-    "Resource": "arn:aws:s3:::b-${format("%.8s",sha1(data.terraform_remote_state.global.aws_account_id))}-${var.env_name}-ssm/*/accountid=${data.terraform_remote_state.global.aws_account_id}/*",
+    "Resource": "arn:${data.aws_partition.current.partition}:s3:::b-${format("%.8s",sha1(data.terraform_remote_state.global.aws_account_id))}-${var.env_name}-ssm/*/accountid=${data.terraform_remote_state.global.aws_account_id}/*",
     "Principal": {
       "Service": "ssm.amazonaws.com"
     },
