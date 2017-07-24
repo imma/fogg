@@ -492,6 +492,6 @@ resource "aws_kms_key" "env" {
 }
 
 resource "aws_kms_alias" "env" {
-  description   = "alias/${data.terraform_remote_state.global.aws_account_id}-${var.env_name}"
+  name          = "alias/${data.terraform_remote_state.global.aws_account_id}-${var.env_name}"
   target_key_id = "${aws_kms_key.env.id}"
 }

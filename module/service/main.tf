@@ -715,3 +715,21 @@ resource "aws_route53_record" "efs" {
   records = ["${element(module.efs.efs_dns_names,count.index)}"]
   count   = "${var.want_efs}"
 }
+
+resource "aws_kms_key" "service" {
+  description         = "Service ${var.app_name}"
+  enable_key_rotation = true
+
+  tags {
+    "Name"      = "${data.terraform_remote_state.env.env_name}-${data.terraform_remote_state.app.app_name}-${var.service_name}"
+    "Env"       = "${data.terraform_remote_state.env.env_name}"
+    "App"       = "${data.terraform_remote_state.app.app_name}"
+    "Service"   = "${var.service_name}"
+    "ManagedBy" = "terraform"
+  }
+}
+
+resource "aws_kms_alias" "service" {
+  name          = "alias/${data.terraform_remote_state.global.aws_account_id}-${data.terraform_remote_state.env.env_name}-${data.terraform_remote_state.app.app_name}-${var.service_name}"
+  target_key_id = "${aws_kms_key.service.id}"
+}
