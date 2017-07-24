@@ -594,7 +594,6 @@ resource "aws_vpc_dhcp_options" "env" {
 }
 
 resource "aws_vpc_dhcp_options_association" "env" {
-  count           = 0
   vpc_id          = "${aws_vpc.env.id}"
   dhcp_options_id = "${aws_vpc_dhcp_options.env.id}"
 }
