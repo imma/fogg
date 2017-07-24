@@ -545,3 +545,12 @@ resource "aws_kms_alias" "env" {
   name          = "alias/${var.env_name}"
   target_key_id = "${aws_kms_key.env.id}"
 }
+
+data "aws_vpc_endpoint_service" "s3" {
+  service = "s3"
+}
+
+resource "aws_vpc_endpoint" "s3" {
+  vpc_id       = "${aws_vpc.env.id}"
+  service_name = "${data.aws_vpc_endpoint_service.s3.service_name}"
+}
