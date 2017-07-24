@@ -552,7 +552,7 @@ resource "aws_key_pair" "service" {
 }
 
 resource "digitalocean_ssh_key" "service" {
-  name       = "${data.terraform_remote_state.env.env_name}-${data.terraform_remote_state.app.app_name}-${var.service_name}"
+  name       = "${var.env_name}"
   public_key = "${data.template_file.key_pair_service.rendered}"
 
   lifecycle {
