@@ -56,6 +56,6 @@ resource "aws_kms_key" "app" {
 }
 
 resource "aws_kms_alias" "app" {
-  name          = "alias/${data.terraform_remote_state.global.aws_account_id}-${data.terraform_remote_state.env.env_name}-${var.app_name}"
+  name          = "alias/${data.terraform_remote_state.env.env_name}-${var.app_name}"
   target_key_id = "${aws_kms_key.app.id}"
 }
