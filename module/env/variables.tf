@@ -147,3 +147,7 @@ output "key_name" {
 output "route_tables" {
   value = ["${concat(aws_route_table.common.*.id,aws_route_table.public.*.id,aws_route_table.nat.*.id)}"]
 }
+
+output "s3_endpoint_id" {
+  value = "${aws_vpc_endpoint.s3.id}"
+}

@@ -174,6 +174,12 @@ resource "aws_route_table_association" "public" {
   count          = "${var.az_count}"
 }
 
+resource "aws_vpc_endpoint_route_table_association" "s3-public" {
+  vpc_endpoint_id = "${aws_vpc_endpoint.s3.id}"
+  route_table_id  = "${element(aws_route_table.public.*.id,count.index)}"
+  count           = "${var.az_count}"
+}
+
 resource "aws_route_table" "public" {
   vpc_id = "${aws_vpc.env.id}"
 
@@ -215,6 +221,12 @@ resource "aws_route_table_association" "nat" {
   subnet_id      = "${element(aws_subnet.nat.*.id,count.index)}"
   route_table_id = "${element(aws_route_table.nat.*.id,count.index)}"
   count          = "${var.az_count}"
+}
+
+resource "aws_vpc_endpoint_route_table_association" "s3-nat" {
+  vpc_endpoint_id = "${aws_vpc_endpoint.s3.id}"
+  route_table_id  = "${element(aws_route_table.nat.*.id,count.index)}"
+  count           = "${var.az_count}"
 }
 
 resource "aws_nat_gateway" "env" {
@@ -259,6 +271,12 @@ resource "aws_route_table_association" "common" {
   subnet_id      = "${element(aws_subnet.common.*.id,count.index)}"
   route_table_id = "${element(aws_route_table.common.*.id,count.index)}"
   count          = "${var.az_count}"
+}
+
+resource "aws_vpc_endpoint_route_table_association" "s3-common" {
+  vpc_endpoint_id = "${aws_vpc_endpoint.s3.id}"
+  route_table_id  = "${element(aws_route_table.common.*.id,count.index)}"
+  count           = "${var.az_count}"
 }
 
 resource "aws_route_table" "common" {
