@@ -144,6 +144,10 @@ output "key_name" {
   value = "${aws_key_pair.service.key_name}"
 }
 
+output "do_ssh_key" {
+  value = "${digitalocean_ssh_key.service.id}"
+}
+
 output "route_tables" {
   value = ["${concat(aws_route_table.common.*.id,aws_route_table.public.*.id,aws_route_table.nat.*.id)}"]
 }
