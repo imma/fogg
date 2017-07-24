@@ -174,7 +174,7 @@ resource "aws_route_table_association" "public" {
   count          = "${var.az_count}"
 }
 
-resource "aws_vpc_endpoint_route_table_association" "s3-public" {
+resource "aws_vpc_endpoint_route_table_association" "s3_public" {
   vpc_endpoint_id = "${aws_vpc_endpoint.s3.id}"
   route_table_id  = "${element(aws_route_table.public.*.id,count.index)}"
   count           = "${var.az_count}"
@@ -223,7 +223,7 @@ resource "aws_route_table_association" "nat" {
   count          = "${var.az_count}"
 }
 
-resource "aws_vpc_endpoint_route_table_association" "s3-nat" {
+resource "aws_vpc_endpoint_route_table_association" "s3_nat" {
   vpc_endpoint_id = "${aws_vpc_endpoint.s3.id}"
   route_table_id  = "${element(aws_route_table.nat.*.id,count.index)}"
   count           = "${var.az_count}"
@@ -273,7 +273,7 @@ resource "aws_route_table_association" "common" {
   count          = "${var.az_count}"
 }
 
-resource "aws_vpc_endpoint_route_table_association" "s3-common" {
+resource "aws_vpc_endpoint_route_table_association" "s3_common" {
   vpc_endpoint_id = "${aws_vpc_endpoint.s3.id}"
   route_table_id  = "${element(aws_route_table.common.*.id,count.index)}"
   count           = "${var.az_count}"
