@@ -475,3 +475,80 @@ resource "aws_ses_active_receipt_rule_set" "org" {
 resource "aws_iam_account_alias" "org" {
   account_alias = "${var.account_name}"
 }
+
+resource "aws_s3_bucket" "website" {
+  bucket = "b-${format("%.8s",sha1(data.aws_caller_identity.current.account_id))}-global-website"
+  acl    = "private"
+
+  policy = <<EOF
+{
+    "Version": "2008-10-17",
+    "Id": "PolicyForCloudFrontPrivateContent",
+    "Statement": [
+        {
+            "Sid": "1",
+            "Effect": "Allow",
+            "Principal": {
+                "AWS": "${aws_cloudfront_origin_access_identity.website.iam_arn}"
+            },
+            "Action": "s3:GetObject",
+            "Resource": "arn:aws:s3:::b-${format("%.8s",sha1(data.aws_caller_identity.current.account_id))}-global-website/*"
+        }
+    ]
+}
+EOF
+
+  tags {
+    "Env"       = "global"
+    "ManagedBy" = "terraform"
+  }
+}
+
+resource "aws_cloudfront_origin_access_identity" "website" {
+  comment = "b-${format("%.8s",sha1(data.aws_caller_identity.current.account_id))}-global-website"
+}
+
+resource "aws_cloudfront_distribution" "website" {
+  origin {
+    domain_name = "b-${format("%.8s",sha1(data.aws_caller_identity.current.account_id))}-global-website.s3.amazonaws.com"
+    origin_id   = "b-${format("%.8s",sha1(data.aws_caller_identity.current.account_id))}-global-website"
+
+    s3_origin_config {
+      origin_access_identity = "${aws_cloudfront_origin_access_identity.website.cloudfront_access_identity_path}"
+    }
+  }
+
+  enabled             = true
+  default_root_object = "index.html"
+  price_class         = "PriceClass_100"
+
+  default_cache_behavior {
+    allowed_methods  = ["GET", "HEAD"]
+    cached_methods   = ["GET", "HEAD"]
+    target_origin_id = "b-${format("%.8s",sha1(data.aws_caller_identity.current.account_id))}-global-website"
+
+    forwarded_values {
+      query_string = false
+
+      cookies {
+        forward = "none"
+      }
+    }
+
+    viewer_protocol_policy = "allow-all"
+    min_ttl                = 0
+    default_ttl            = 3600
+    max_ttl                = 86400
+  }
+
+  restrictions {
+    geo_restriction {
+      restriction_type = "whitelist"
+      locations        = ["US", "CA"]
+    }
+  }
+
+  viewer_certificate {
+    cloudfront_default_certificate = true
+  }
+}

@@ -585,8 +585,7 @@ resource "aws_vpc_endpoint" "s3" {
   service_name = "${data.aws_vpc_endpoint_service.s3.service_name}"
 }
 
-resource "aws_default_vpc_dhcp_options" "default" {
-}
+resource "aws_default_vpc_dhcp_options" "default" {}
 
 resource "aws_vpc_dhcp_options" "env" {
   domain_name_servers = ["${aws_default_vpc_dhcp_options.default.domain_name_servers}"]
