@@ -586,9 +586,6 @@ resource "aws_vpc_endpoint" "s3" {
 }
 
 resource "aws_default_vpc_dhcp_options" "default" {
-  tags {
-    "Env" = "${var.env_name}"
-  }
 }
 
 resource "aws_vpc_dhcp_options" "env" {
