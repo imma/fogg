@@ -25,3 +25,7 @@ output "public_zone_servers" {
 output "config_sqs" {
   value = "${aws_sqs_queue.config.id}"
 }
+
+output "cloudfront" {
+  value = "${aws_cloudfront_distribution.website.domain_name}"
+}
