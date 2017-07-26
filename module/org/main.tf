@@ -16,7 +16,7 @@ data "aws_region" "current" {
   current = true
 }
 
-data "aws_acm_certificate" "service" {
+data "aws_acm_certificate" "website" {
   domain   = "cf.${var.domain_name}"
   statuses = ["ISSUED"]
 }
