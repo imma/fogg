@@ -23,7 +23,23 @@ function gen_state {
 		--arg remote_path "$remote_path" \
 		--arg remote_region "$remote_region" \
 		--arg provider_region "$provider_region" \
-    -n -r '"terraform { backend \"s3\" { lock_table=\"terraform_state_lock\" bucket=\"\($remote_bucket)\" key=\"\($remote_path)\" region=\"\($remote_region)\" } }\nprovider \"aws\" { region=\"\($provider_region)\" }\nprovider \"digitalocean\" { }\n"'
+    -n -r '{ 
+        provider:
+        { aws: { region: "\($provider_region)" },
+          digitalocean: {},
+          dnsimple: {} 
+        },
+        terraform: 
+        { backend: 
+          { s3: 
+            { bucket: "\($remote_bucket)", 
+              key: "\($remote_path)", 
+              lock_table: "terraform_state_lock", 
+              region: "\($remote_region)" 
+            } 
+          } 
+        }
+      }'
 }
 
 function gen_org { 
@@ -88,9 +104,7 @@ function _main {
     "$@" | jq -S . > terraform.tf.json.1
   mv terraform.tf.json.1 _terraform.tf.json
 
-  gen_state > state.tf.1
-  mv state.tf.1 state.tf
-  hcltool state.tf > state.tf.json.1
+  gen_state > state.tf.json.1
   mv state.tf.json.1 state.tf.json
 
   cat _terraform.tf.json state.tf.json | merge_map > terraform.tf.json.1
