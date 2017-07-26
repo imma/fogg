@@ -449,6 +449,18 @@ resource "aws_route53_zone" "public" {
   }
 }
 
+resource "aws_route53_record" "website" {
+  zone_id = "${aws_route53_zone.public.zone_id}"
+  name    = "cf.${var.domain_name}"
+  type    = "A"
+
+  alias {
+    name                   = "${aws_cloudfront_distribution.website.domain_name}"
+    zone_id                = "${aws_cloudfront_distribution.website.hosted_zone_id}"
+    evaluate_target_health = false
+  }
+}
+
 resource "aws_dynamodb_table" "terraform_state_lock" {
   name           = "terraform_state_lock"
   read_capacity  = 20
@@ -521,6 +533,8 @@ resource "aws_cloudfront_distribution" "website" {
   enabled             = true
   default_root_object = "index.html"
   price_class         = "PriceClass_100"
+
+  aliases = ["cf.${var.domain_name}"]
 
   default_cache_behavior {
     allowed_methods  = ["GET", "HEAD"]
