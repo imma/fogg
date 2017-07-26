@@ -509,7 +509,7 @@ resource "aws_s3_bucket" "website" {
                 "AWS": "${aws_cloudfront_origin_access_identity.website.iam_arn}"
             },
             "Action": "s3:GetObject",
-            "Resource": "arn:aws:s3:::b-${format("%.8s",sha1(data.aws_caller_identity.current.account_id))}-global-website/*"
+            "Resource": "arn:${data.aws_partition.current.partition}:s3:::b-${format("%.8s",sha1(data.aws_caller_identity.current.account_id))}-global-website/*"
         }
     ]
 }
