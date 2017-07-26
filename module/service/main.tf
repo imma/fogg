@@ -433,7 +433,7 @@ resource "aws_elb" "service" {
 }
 
 data "aws_acm_certificate" "service" {
-  domain   = "${(var.want_alb*var.asg_count) == 0 ? "${data.terraform_remote_state.org.default_acm}" : "${data.terraform_remote_state.app.app_name}${var.service_default == "1" ? "" : "-${var.service_name}"}.${data.terraform_remote_state.env.private_zone_name}"}"
+  domain   = "${(var.want_alb*var.asg_count) == 0 ? "cf.${data.terraform_remote_state.org.domain_name}" : "${data.terraform_remote_state.app.app_name}${var.service_default == "1" ? "" : "-${var.service_name}"}.${data.terraform_remote_state.env.private_zone_name}"}"
   statuses = ["ISSUED"]
 }
 

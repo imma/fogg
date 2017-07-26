@@ -16,6 +16,11 @@ data "aws_region" "current" {
   current = true
 }
 
+data "aws_acm_certificate" "service" {
+  domain   = "cf.${var.domain_name}"
+  statuses = ["ISSUED"]
+}
+
 resource "aws_iam_group" "administrators" {
   name = "administrators"
 }
