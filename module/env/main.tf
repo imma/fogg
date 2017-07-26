@@ -558,6 +558,8 @@ resource "digitalocean_ssh_key" "service" {
   lifecycle {
     create_before_destroy = true
   }
+
+  count = "${var.want_digitalocean}"
 }
 
 resource "aws_kms_key" "env" {

@@ -46,6 +46,10 @@ variable "want_ipv6" {
   default = "0"
 }
 
+variable "want_digitalocean" {
+  default = "0"
+}
+
 variable "public_key" {}
 
 output "vpc_id" {
