@@ -7,12 +7,11 @@ function gen {
   local nm_app="$1"; shift
   local nm_service="$1"; shift
 
-  local want_nat="$(hcltool ../../terraform.tfvars | jq -r '.want_nat//1')"
-
-  local remote_bucket="$(hcltool ../../../terraform.tfvars | jq -r '.remote_bucket')"
   local remote_path="$(cd -P ../../.. && basename $(pwd -P))_$(cd -P ../.. && basename $(pwd -P))_$(cd -P .. && basename $(pwd -P))_$(basename $(pwd -P))/terraform.tfstate"
-  local remote_region="$(hcltool ../../../terraform.tfvars | jq -r '.remote_region')"
-  local az_count="$(hcltool ../../../terraform.tfvars | jq -r '.az_count')"
+  local remote_bucket="$(jq -r '.variable.remote_bucket.default' terraform.tf.json)"
+  local remote_region="$(jq -r '.variable.remote_region.default' terraform.tf.json)"
+  local az_count="$(jq -r '.variable.az_count.default' terraform.tf.json)"
+  local want_nat="$(jq -r '.variable.want_nat.default' ../../terraform.tf.json)"
 
 	jq -n \
         --argfile seed         "$tmp_seed" \
@@ -26,14 +25,14 @@ function gen {
         --arg     service_name "$nm_service" \
         --arg     want_nat     "$want_nat" \
         '$seed * $modules | .variable |= .*
-            { remote_bucket:{ default: "\($remote_bucket)" },
-              remote_path:  { default: "\($remote_path)" },
-              remote_region:{ default: "\($remote_region)" },
-              az_count:     { default: "\($az_count)" },
-              env_name:     { default: "\($env_name)" },
-              app_name:     { default: "\($app_name)" },
-              service_name: { default: "\($service_name)" },
-              want_nat:     { default: "\($want_nat)" }
+            { remote_bucket: { default: "\($remote_bucket)" },
+              remote_path:   { default: "\($remote_path)" },
+              remote_region: { default: "\($remote_region)" },
+              az_count:      { default: "\($az_count)" },
+              env_name:      { default: "\($env_name)" },
+              app_name:      { default: "\($app_name)" },
+              service_name:  { default: "\($service_name)" },
+              want_nat:      { default: "\($want_nat)" }
             }'
 }
 

@@ -4,8 +4,8 @@ function gen {
   local tmp_seed="$1"; shift
   local tmp_modules="$1"; shift
 
-  local remote_bucket="$(jq -r '.variable.remote_bucket.default' terraform.tf.json)"
   local remote_path="$(basename $(pwd -P))/terraform.tfstate"
+  local remote_bucket="$(jq -r '.variable.remote_bucket.default' terraform.tf.json)"
   local remote_region="$(jq -r '.variable.remote_region.default' terraform.tf.json)"
   local az_count="$(jq -r '.variable.az_count.default' terraform.tf.json)"
 
@@ -17,10 +17,10 @@ function gen {
         --arg     remote_region "$remote_region" \
         --arg     az_count "$az_count" \
         '$seed * $modules | .variable |= .*
-            { remote_bucket:{ default: "\($remote_bucket)" },
-              remote_path:  { default: "\($remote_path)" },
-              remote_region:{ default: "\($remote_region)" },
-              az_count:     { default: "\($az_count)" }
+            { remote_bucket: { default: "\($remote_bucket)" },
+              remote_path:   { default: "\($remote_path)" },
+              remote_region: { default: "\($remote_region)" },
+              az_count:      { default: "\($az_count)" }
             }'
 }
 

@@ -7,9 +7,9 @@ function gen {
   local nm_app="$1"; shift
   
   local remote_path="$(cd -P ../.. && basename $(pwd -P))_$(cd -P .. && basename $(pwd -P))_$(basename $(pwd -P))/terraform.tfstate"
-  local remote_bucket="$(hcltool ../../terraform.tfvars | jq -r '.remote_bucket')"
-  local remote_region="$(hcltool ../../terraform.tfvars | jq -r '.remote_region')"
-  local az_count="$(hcltool ../../terraform.tfvars | jq -r '.az_count')"
+  local remote_bucket="$(jq -r '.variable.remote_bucket.default' terraform.tf.json)"
+  local remote_region="$(jq -r '.variable.remote_region.default' terraform.tf.json)"
+  local az_count="$(jq -r '.variable.az_count.default' terraform.tf.json)"
 
 	jq -n \
         --argfile seed          "$tmp_seed" \
