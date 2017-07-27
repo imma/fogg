@@ -5,8 +5,8 @@ function main {
   source "$shome/script/profile"
   source normalize
 
-  runmany 'terraform fmt $1' $(find . -name '*.tf' -o -name '*.tfvars')
-  runmany 'cat $1 | jq . > $1.tmp && mv $1.tmp $1' $(find . -name '*.json')
+  runmany 8 'terraform fmt $1' $(find . -name '*.tf' -o -name '*.tfvars')
+  runmany 8 'cat $1 | jq . > $1.tmp && mv $1.tmp $1' $(find . -name '*.json')
 }
 
 source sub "$BASH_SOURCE" "$@"
