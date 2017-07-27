@@ -17,8 +17,9 @@ data "aws_region" "current" {
 }
 
 data "aws_acm_certificate" "website" {
+  provider = "aws.us_east_1"
   domain   = "cf.${var.domain_name}"
-  statuses = ["ISSUED"]
+  statuses = ["ISSUED", "PENDING_VALIDATION"]
 }
 
 resource "aws_iam_group" "administrators" {
