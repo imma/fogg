@@ -2,10 +2,10 @@ data "terraform_remote_state" "org" {
   backend = "s3"
 
   config {
-    bucket     = "${var.remote_bucket}"
-    key        = "${var.remote_key_org}"
-    region     = "${var.remote_region}"
-    lock_table = "terraform_state_lock"
+    bucket         = "${var.remote_bucket}"
+    key            = "${var.remote_key_org}"
+    region         = "${var.remote_region}"
+    dynamodb_table = "terraform_state_lock"
   }
 }
 
@@ -13,10 +13,10 @@ data "terraform_remote_state" "env_net" {
   backend = "s3"
 
   config {
-    bucket     = "${var.remote_bucket}"
-    key        = "${var.remote_key_net}"
-    region     = "${var.remote_region}"
-    lock_table = "terraform_state_lock"
+    bucket         = "${var.remote_bucket}"
+    key            = "${var.remote_key_net}"
+    region         = "${var.remote_region}"
+    dynamodb_table = "terraform_state_lock"
   }
 }
 
@@ -24,10 +24,10 @@ data "terraform_remote_state" "env_stag" {
   backend = "s3"
 
   config {
-    bucket     = "${var.remote_bucket}"
-    key        = "${var.remote_key_stag}"
-    region     = "${var.remote_region}"
-    lock_table = "terraform_state_lock"
+    bucket         = "${var.remote_bucket}"
+    key            = "${var.remote_key_stag}"
+    region         = "${var.remote_region}"
+    dynamodb_table = "terraform_state_lock"
   }
 }
 
@@ -35,10 +35,10 @@ data "terraform_remote_state" "env_prod" {
   backend = "s3"
 
   config {
-    bucket     = "${var.remote_bucket}"
-    key        = "${var.remote_key_prod}"
-    region     = "${var.remote_region}"
-    lock_table = "terraform_state_lock"
+    bucket         = "${var.remote_bucket}"
+    key            = "${var.remote_key_prod}"
+    region         = "${var.remote_region}"
+    dynamodb_table = "terraform_state_lock"
   }
 }
 

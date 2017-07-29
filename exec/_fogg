@@ -33,7 +33,7 @@ function gen_state {
           { s3: 
             { bucket: "\($remote_bucket)", 
               key: "\($remote_path)", 
-              lock_table: "terraform_state_lock", 
+              dynamodb_table: "terraform_state_lock", 
               region: "\($remote_region)" 
             } 
           } 

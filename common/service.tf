@@ -18,10 +18,10 @@ data "terraform_remote_state" "env" {
   backend = "s3"
 
   config {
-    bucket     = "${var.remote_bucket}"
-    key        = "${join("_",slice(split("_",var.remote_path),0,2))}/terraform.tfstate"
-    region     = "${var.remote_region}"
-    lock_table = "terraform_state_lock"
+    bucket         = "${var.remote_bucket}"
+    key            = "${join("_",slice(split("_",var.remote_path),0,2))}/terraform.tfstate"
+    region         = "${var.remote_region}"
+    dynamodb_table = "terraform_state_lock"
   }
 }
 
@@ -29,9 +29,9 @@ data "terraform_remote_state" "app" {
   backend = "s3"
 
   config {
-    bucket     = "${var.remote_bucket}"
-    key        = "${join("_",slice(split("_",var.remote_path),0,3))}/terraform.tfstate"
-    region     = "${var.remote_region}"
-    lock_table = "terraform_state_lock"
+    bucket         = "${var.remote_bucket}"
+    key            = "${join("_",slice(split("_",var.remote_path),0,3))}/terraform.tfstate"
+    region         = "${var.remote_region}"
+    dynamodb_table = "terraform_state_lock"
   }
 }
