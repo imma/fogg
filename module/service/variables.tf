@@ -161,3 +161,7 @@ output "block" {
 output "route_tables" {
   value = ["${aws_route_table.service.*.id}"]
 }
+
+output "region" {
+  value = "${var.env_region}"
+}
