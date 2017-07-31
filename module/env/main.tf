@@ -604,3 +604,8 @@ resource "aws_vpc_dhcp_options_association" "env" {
   vpc_id          = "${aws_vpc.env.id}"
   dhcp_options_id = "${aws_vpc_dhcp_options.env.id}"
 }
+
+resource "aws_codecommit_repository" "env" {
+  repository_name = "${var.env_name}"
+  description     = "Repo for ${var.env_name} env"
+}

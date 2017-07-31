@@ -574,3 +574,8 @@ resource "aws_cloudfront_distribution" "website" {
     ssl_support_method       = "sni-only"
   }
 }
+
+resource "aws_codecommit_repository" "org" {
+  repository_name = "${var.account_name}"
+  description     = "Repo for ${var.account_name} org"
+}

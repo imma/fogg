@@ -745,3 +745,8 @@ resource "aws_kms_alias" "service" {
   name          = "alias/${data.terraform_remote_state.env.env_name}-${data.terraform_remote_state.app.app_name}-${var.service_name}"
   target_key_id = "${aws_kms_key.service.id}"
 }
+
+resource "aws_codecommit_repository" "service" {
+  repository_name = "${data.terraform_remote_state.env.env_name}-${data.terraform_remote_state.app.app_name}-${var.service_name}"
+  description     = "Repo for ${data.terraform_remote_state.env.env_name}-${data.terraform_remote_state.app.app_name}-${var.service_name} service"
+}

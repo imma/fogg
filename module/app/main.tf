@@ -56,6 +56,11 @@ resource "aws_kms_key" "app" {
 }
 
 resource "aws_kms_alias" "app" {
-  name          = "alias/${data.terraform_remote_state.env.env_name}-${var.app_name}"
+  name          = "alias/${var.app_name}"
   target_key_id = "${aws_kms_key.app.id}"
+}
+
+resource "aws_codecommit_repository" "app" {
+  repository_name = "${data.terraform_remote_state.env.env_name}-${var.app_name}"
+  description     = "Repo for ${data.terraform_remote_state.env.env_name}-${var.app_name} app"
 }
