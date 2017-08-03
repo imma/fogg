@@ -7,6 +7,7 @@ function main {
 
   fogg
   terraform get
+  terraform validate
   terraform plan -no-color "$@"
 }
 

@@ -5,8 +5,7 @@ function main {
   source "$shome/script/profile"
   source normalize
 
-  terraform validate
-  terraform apply -auto-approve true "$@"
+  fogg init -upgrade "$@"
 }
 
 source sub "$BASH_SOURCE" "$@"

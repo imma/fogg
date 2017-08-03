@@ -7,7 +7,7 @@ function main {
 
   mkdir -p .terraform
   fogg
-  terraform init
+  terraform init "$@"
 }
 
 source sub "$BASH_SOURCE" "$@"
