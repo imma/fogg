@@ -7,6 +7,10 @@ function main {
 
   local id_tfvars="$(pwd)"
   id_tfvars="org--$(echo "${id_tfvars#*/org/}" | perl -pe 's{/}{--}g')/terraform.tfvars"
+  
+  if [[ -n "${1:-}" ]]; then
+    id_tfvars="$1"; shift
+  fi
 
   local tmp_config="$(mktemp -t XXXXXX)"
   local tmp_config2="$(mktemp -t XXXXXX)"
