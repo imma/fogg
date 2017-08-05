@@ -14,7 +14,10 @@ data "terraform_remote_state" "global" {
 }
 
 data "aws_instance" "this" {
-  instance_id = "${var.instance_id}"
+  filter {
+    name   = "tag:Name"
+    values = ["${var.instance_name}"]
+  }
 }
 
 data "aws_route53_zone" "public" {

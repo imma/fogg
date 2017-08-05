@@ -1,4 +1,4 @@
-variable "instance_id" {}
+variable "instance_name" {}
 
 variable "ebs_count" {
   default = "2"
