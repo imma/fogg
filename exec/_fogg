@@ -89,20 +89,21 @@ function merge_map {
 function _main {
   source normalize
 
-  local id_tfvars="$(pwd -P | perl -pe 's{^.*?/(org/.*)}{$1}; s{/instances/}{/}; s{/}{--}g')/terraform.tfvars"
-  local remote_path="$(pwd -P | perl -pe 's{^.*?/org/(.*)}{$1}; s{/instances/}{/}; s{/}{_}g')/terraform.tfstate"
-
+  local id_credstash_tfvars="$(pwd -P | perl -pe 's{^.*?/(org/.*)}{$1}; s{/instances/}{/}; s{/}{--}g')/terraform.tfvars"
   local id_credstash_env="$(echo "$(pwd -P | perl -pe 's{^.*?/(org/[^/]+(/[^/]+)?).*?$}{$1}; s{/}{--}g')")"
   local id_credstash_org="$(echo "$(pwd -P | perl -pe 's{^.*?/(org/[^/]+).*?$}{$1}; s{/}{--}g')")"
 
   local tmp_org="$(mktemp -t XXXXXX)"
   local tmp_env="$(mktemp -t XXXXXX)"
-  trap "$(printf 'rm -f %q %q' "$tmp_org" "$tmp_env")" EXIT
+  local tmp_tfvars="$(mktemp -t XXXXXX)"
+  trap "$(printf 'rm -f %q %q %q' "$tmp_org" "$tmp_env" "$tmp_tfvars")" EXIT
 
   credstash get "$id_credstash_org" > "$tmp_org" &
   credstash get "$id_credstash_env" > "$tmp_env" &
+  credstash get "$id_credstash_tfvars" > "$tmp_tfvars" &
   wait
 
+  local remote_path="$(pwd -P | perl -pe 's{^.*?/org/(.*)}{$1}; s{/instances/}{/}; s{/}{_}g')/terraform.tfstate"
   local remote_bucket="$(jq -r '.remote_bucket' "$tmp_org")"
   local remote_region="$(jq -r '.remote_region' "$tmp_org")"
 
@@ -116,7 +117,7 @@ function _main {
       "$@" | jq -S .
     gen_state
   } | merge_map \
-    | jq --argfile tfvars <(hcltool <(credstash get "$id_tfvars") | jq 'to_entries | map(.value |= { default: . }) | from_entries') '.variable |= (.+$tfvars)' > terraform.tf.json.1
+    | jq --argfile tfvars <(hcltool "$tmp_tfvars" | jq 'to_entries | map(.value |= { default: . }) | from_entries') '.variable |= (.+$tfvars)' > terraform.tf.json.1
   mv terraform.tf.json.1 terraform.tf.json
 }
 
