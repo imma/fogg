@@ -40,7 +40,7 @@ resource "aws_route53_record" "public" {
 }
 
 resource "aws_eip_association" "this" {
-  instance_id   = "${data.aws_instance.this.instance_id}"
+  instance_id   = "${data.aws_instance.this.id}"
   allocation_id = "${aws_eip.this.id}"
   count         = "${var.want_eip}"
 }
@@ -54,6 +54,6 @@ resource "aws_ebs_volume" "this" {
 resource "aws_volume_attachment" "this" {
   device_name = "${var.devices[count.index]}"
   volume_id   = "${aws_ebs_volume.this.*.id[count.index]}"
-  instance_id = "${data.aws_instance.this.instance_id}"
+  instance_id = "${data.aws_instance.this.id}"
   count       = "${var.ebs_count}"
 }
