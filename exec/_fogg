@@ -89,7 +89,7 @@ function merge_map {
 function _main {
   source normalize
 
-  local id_credstash_tfvars="$(pwd -P | perl -pe 's{^.*?/(org/.*)}{$1}; s{/instances/}{/}; s{/}{--}g')/terraform.tfvars"
+  local id_credstash_tfvars="$(pwd -P | perl -pe 's{^.*?/(org/.*)}{$1}; s{/}{--}g')/terraform.tfvars"
   local id_credstash_env="$(echo "$(pwd -P | perl -pe 's{^.*?/(org/[^/]+(/[^/]+)?).*?$}{$1}; s{/}{--}g')")"
   local id_credstash_org="$(echo "$(pwd -P | perl -pe 's{^.*?/(org/[^/]+).*?$}{$1}; s{/}{--}g')")"
 
