@@ -10,19 +10,21 @@ function use_module {
 }
 
 function gen_state {
-  local remote_bucket="$(jq -r '.variable.remote_bucket.default' terraform.tf.json)"
   local remote_path="$(jq -r '.variable.remote_path.default' terraform.tf.json)"
-  local remote_region="$(jq -r '.variable.remote_region.default' terraform.tf.json)"
-  local provider_region="$(jq -r '.variable.region.default' terraform.tf.json)"
-  if [[ -z "$provider_region" ]]; then
-    provider_region="$remote_region"
-  fi
+
+  local id_credstash_env="$(echo "$(pwd -P | perl -pe 's{^.*?/(org/[^/]+(/[^/]+)?).*?$}{$1}; s{/}{--}g')")"
+  local id_credstash_org="$(echo "$(pwd -P | perl -pe 's{^.*?/(org/[^/]+).*?$}{$1}; s{/}{--}g')")"
+
+  local remote_bucket="$(credstash get "$id_credstash_org" | jq -r '.remote_bucket')"
+  local remote_region="$(credstash get "$id_credstash_org" | jq -r '.remote_region')"
+
+  local region="$(credstash get "$id_credstash_env" | jq -r '.region')"
 
 	jq \
 		--arg remote_bucket "$remote_bucket" \
 		--arg remote_path "$remote_path" \
 		--arg remote_region "$remote_region" \
-		--arg provider_region "$provider_region" \
+		--arg provider_region "$region" \
     -n -r '{ 
         provider:
         { aws: { region: "\($provider_region)" },
