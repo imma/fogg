@@ -6,18 +6,6 @@ function gen {
   local nm_env="$1"; shift
   local nm_app="$1"; shift
   
-  local remote_path="$(pwd -P | perl -pe 's{^.*?/org/(.*)}{$1}; s{/instances/}{/}; s{/}{_}g')/terraform.tfstate"
-
-  local id_credstash_env="$(echo "$(pwd -P | perl -pe 's{^.*?/(org/[^/]+(/[^/]+)?).*?$}{$1}; s{/}{--}g')")"
-  local id_credstash_org="$(echo "$(pwd -P | perl -pe 's{^.*?/(org/[^/]+).*?$}{$1}; s{/}{--}g')")"
-
-  local remote_bucket="$(credstash get "$id_credstash_org" | jq -r '.remote_bucket')"
-  local remote_region="$(credstash get "$id_credstash_org" | jq -r '.remote_region')"
-
-  local region="$(credstash get "$id_credstash_env" | jq -r '.region')"
-  local az_count="$(credstash get "$id_credstash_env" | jq -r '.az_count')"
-  local want_nat="$(credstash get "$id_credstash_env" | jq -r '.want_nat')"
-
 	jq -n \
         --argfile seed          "$tmp_seed" \
         --argfile modules       "$tmp_modules" \

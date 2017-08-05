@@ -10,16 +10,6 @@ function use_module {
 }
 
 function gen_state {
-  local remote_path="$(pwd -P | perl -pe 's{^.*?/org/(.*)}{$1}; s{/instances/}{/}; s{/}{_}g')/terraform.tfstate"
-
-  local id_credstash_env="$(pwd -P | perl -pe 's{^.*?/(org/[^/]+(/[^/]+)?).*?$}{$1}; s{/}{--}g')"
-  local id_credstash_org="$(pwd -P | perl -pe 's{^.*?/(org/[^/]+).*?$}{$1}; s{/}{--}g')"
-
-  local remote_bucket="$(credstash get "$id_credstash_org" | jq -r '.remote_bucket')"
-  local remote_region="$(credstash get "$id_credstash_org" | jq -r '.remote_region')"
-
-  local region="$(credstash get "$id_credstash_env" | jq -r '.region')"
-
 	jq \
 		--arg remote_bucket "$remote_bucket" \
 		--arg remote_path "$remote_path" \
@@ -98,6 +88,20 @@ function merge_map {
 
 function _main {
   source normalize
+
+  local remote_path="$(pwd -P | perl -pe 's{^.*?/org/(.*)}{$1}; s{/instances/}{/}; s{/}{_}g')/terraform.tfstate"
+
+  local id_credstash_env="$(echo "$(pwd -P | perl -pe 's{^.*?/(org/[^/]+(/[^/]+)?).*?$}{$1}; s{/}{--}g')")"
+  local id_credstash_org="$(echo "$(pwd -P | perl -pe 's{^.*?/(org/[^/]+).*?$}{$1}; s{/}{--}g')")"
+
+  local remote_bucket="$(credstash get "$id_credstash_org" | jq -r '.remote_bucket')"
+  local remote_region="$(credstash get "$id_credstash_org" | jq -r '.remote_region')"
+
+  local region="$(credstash get "$id_credstash_env" | jq -r '.region')"
+  local az_count="$(credstash get "$id_credstash_env" | jq -r '.az_count')"
+  local want_nat="$(credstash get "$id_credstash_env" | jq -r '.want_nat')"
+
+  local region="$(credstash get "$id_credstash_env" | jq -r '.region')"
 
   local id_tfvars="$(pwd)"
   id_tfvars="org--$(echo "${id_tfvars#*/org/}" | perl -pe 's{/}{--}g')/terraform.tfvars"
