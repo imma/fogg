@@ -89,22 +89,26 @@ function merge_map {
 function _main {
   source normalize
 
+  local id_tfvars="$(pwd -P | perl -pe 's{^.*?/(org/.*)}{$1}; s{/instances/}{/}; s{/}{--}g')/terraform.tfvars"
   local remote_path="$(pwd -P | perl -pe 's{^.*?/org/(.*)}{$1}; s{/instances/}{/}; s{/}{_}g')/terraform.tfstate"
 
   local id_credstash_env="$(echo "$(pwd -P | perl -pe 's{^.*?/(org/[^/]+(/[^/]+)?).*?$}{$1}; s{/}{--}g')")"
   local id_credstash_org="$(echo "$(pwd -P | perl -pe 's{^.*?/(org/[^/]+).*?$}{$1}; s{/}{--}g')")"
 
-  local remote_bucket="$(credstash get "$id_credstash_org" | jq -r '.remote_bucket')"
-  local remote_region="$(credstash get "$id_credstash_org" | jq -r '.remote_region')"
+  local tmp_org="$(mktemp -t XXXXXX)"
+  local tmp_env="$(mktemp -t XXXXXX)"
+  trap "$(printf 'rm -f %q %q' "$tmp_org" "$tmp_env")" EXIT
 
-  local region="$(credstash get "$id_credstash_env" | jq -r '.region')"
-  local az_count="$(credstash get "$id_credstash_env" | jq -r '.az_count')"
-  local want_nat="$(credstash get "$id_credstash_env" | jq -r '.want_nat')"
+  credstash get "$id_credstash_org" > "$tmp_org" &
+  credstash get "$id_credstash_env" > "$tmp_env" &
+  wait
 
-  local region="$(credstash get "$id_credstash_env" | jq -r '.region')"
+  local remote_bucket="$(jq -r '.remote_bucket' "$tmp_org")"
+  local remote_region="$(jq -r '.remote_region' "$tmp_org")"
 
-  local id_tfvars="$(pwd)"
-  id_tfvars="org--$(echo "${id_tfvars#*/org/}" | perl -pe 's{/}{--}g')/terraform.tfvars"
+  local region="$(jq -r '.region' "$tmp_env")"
+  local az_count="$(jq -r '.az_count' "$tmp_env")"
+  local want_nat="$(jq -r '.want_nat' "$tmp_env")"
 
   { gen \
       <("gen_${BASH_SOURCE[2]##*-}" "${BASH_SOURCE[2]##*-}" "$@") \
