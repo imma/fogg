@@ -4,7 +4,7 @@ function gen {
   local tmp_seed="$1"; shift
   local tmp_modules="$1"; shift
 
-  local remote_path="$(basename $(pwd -P))/terraform.tfstate"
+  local remote_path="$(pwd -P | perl -pe 's{^.*?/org/(.*)}{$1}; s{/instances/}{/}; s{/}{_}g')/terraform.tfstate"
 
   local id_credstash_env="$(echo "$(pwd -P | perl -pe 's{^.*?/(org/[^/]+(/[^/]+)?).*?$}{$1}; s{/}{--}g')")"
   local id_credstash_org="$(echo "$(pwd -P | perl -pe 's{^.*?/(org/[^/]+).*?$}{$1}; s{/}{--}g')")"
