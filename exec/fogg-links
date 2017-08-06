@@ -7,8 +7,9 @@ function main {
 
   export WORK="$(pwd)"
 
-  mkdir -p module
-  ln -nfs "$shome/module" module/fogg
+  rm module/fogg 2>/dev/null || true
+  mkdir -p module/fogg
+  compgen -A variable | grep '^_fogg_' | runmany 'a="$1"; nm="${!a}"; nm="${nm#*/fogg-}"; nm="${nm%_home}"; if test -f "${!a}/main.tf"; then ln -nfs "${!a}" "module/fogg/${nm}"; fi'
 
   mkdir -p bin
   for nm_org in "$@"; do
