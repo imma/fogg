@@ -1,5 +1,14 @@
 {
   "require": [
-    "python"
+    "python",
+    "fogg-org",
+    "fogg-env",
+    "fogg-app",
+    "fogg-service",
+    "fogg-efs",
+    "fogg-instance",
+    "fogg-peering_net_stag_prod",
+    "fogg-peer",
+    "fogg-peers"
   ]
 }
