@@ -9,7 +9,16 @@ function main {
   id_tfvars="org--$(echo "${id_tfvars#*/org/}" | perl -pe 's{/}{--}g')/terraform.tfvars"
   
   if [[ -n "${1:-}" ]]; then
+    if [[ -f "$1" ]]; then
+      credstash put -a "$id_tfvars" "$(cat "$1")"
+      return
+    fi
+    
     id_tfvars="$1"; shift
+    if [[ -f "${1:-}" ]]; then
+      credstash put -a "$id_tfvars" "$(cat "$1")"
+      return
+    fi
   fi
 
   local tmp_config="$(mktemp -t XXXXXX)"

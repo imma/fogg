@@ -1,0 +1,18 @@
+#!/usr/bin/env bash
+
+function main {
+  local shome="$(cd -P -- "${BASH_SOURCE%/*}/.." && pwd -P)"
+  source "$shome/script/profile"
+  source normalize
+
+  local id_tfvars="$(pwd)"
+  id_tfvars="org--$(echo "${id_tfvars#*/org/}" | perl -pe 's{/}{--}g')/terraform.tfvars"
+  
+  if [[ -n "${1:-}" ]]; then
+    id_tfvars="$1"; shift
+  fi
+
+  credstash get "$id_tfvars"
+}
+
+source sub "$BASH_SOURCE" "$@"
