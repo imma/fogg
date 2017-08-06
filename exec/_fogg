@@ -2,7 +2,8 @@
 
 function use_module {
   local nm_module="$1"; shift
-  hcltool "$shome/module/${nm_module}/variables.tf" \
+  local nm_block="_fogg_${nm_module}_home"
+  hcltool "${!nm_block}/variables.tf" \
     | jq --arg tfmod "$nm_module" '{
           variable: (.variable//{} as $vars | reduce (.variable | keys[]) as $v ({}; .[$v] = $vars[$v])), 
           output: (.output//{} | reduce keys[] as $o ({}; .[$o] = {value: "${module.\($tfmod).\($o)}"}))
@@ -76,9 +77,10 @@ function gen_instance {
 
 function gen_xxx {
   local nm_module="$1"; shift
+  local nm_block="_fogg_${nm_module}_home"
   (
     hcltool "$shome/common/${nm_module}.tf" 
-    hcltool "$shome/module/${nm_module}/variables.tf" | jq 'reduce (.variable | to_entries)[] as $ele ({}; .[$ele.key] = ($ele.value.default | if (. | type) == "array" then [ "${var.\($ele.key)}" ] else "${var.\($ele.key)}" end))' | jq --arg m "$nm_module" '{ module: { "\($m)": . } }'
+    hcltool "${!nm_block}/variables.tf" | jq 'reduce (.variable | to_entries)[] as $ele ({}; .[$ele.key] = ($ele.value.default | if (. | type) == "array" then [ "${var.\($ele.key)}" ] else "${var.\($ele.key)}" end))' | jq --arg m "$nm_module" '{ module: { "\($m)": . } }'
   ) | merge_map
 }
 
