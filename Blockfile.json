@@ -7,8 +7,8 @@
     "fogg-service",
     "fogg-efs",
     "fogg-instance",
-    "fogg-peering_net_stag_prod",
-    "fogg-peer",
-    "fogg-peers"
+    "fogg-peering-connection",
+    "fogg-peering-route",
+    "fogg-peering_net_stag_prod"
   ]
 }
