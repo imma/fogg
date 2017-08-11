@@ -11,12 +11,12 @@ function use_module {
 }
 
 function gen_state {
-	jq \
-		--arg remote_bucket "$remote_bucket" \
-		--arg remote_path "$remote_path" \
-		--arg remote_region "$remote_region" \
-		--arg provider_region "$region" \
-		--arg credstash "$id_credstash_org" \
+  jq \
+    --arg remote_bucket "$remote_bucket" \
+    --arg remote_path "$remote_path" \
+    --arg remote_region "$remote_region" \
+    --arg provider_region "$region" \
+    --arg credstash "$id_credstash_org" \
     -n -r '{ 
         provider:
         { aws: { region: "\($provider_region)" },
@@ -32,12 +32,9 @@ function gen_state {
             } 
           } 
         },
-        data:
-        { external:
-          { org:
-            { program:
-              [ "credstash", "get", "\($credstash)" ]
-            }
+        variable:
+        { org:
+          { default: [ "credstash", "get", "\($credstash)" ]
           }
         }
       }'
