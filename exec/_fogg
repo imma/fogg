@@ -16,6 +16,7 @@ function gen_state {
 		--arg remote_path "$remote_path" \
 		--arg remote_region "$remote_region" \
 		--arg provider_region "$region" \
+		--arg credstash "$id_credstash_org" \
     -n -r '{ 
         provider:
         { aws: { region: "\($provider_region)" },
@@ -30,6 +31,14 @@ function gen_state {
               region: "\($remote_region)" 
             } 
           } 
+        },
+        data:
+        { external:
+          { org:
+            { program:
+              [ "credstash", "get", "\($credstash)" ]
+            }
+          }
         }
       }'
 }
