@@ -79,7 +79,7 @@ function gen_xxx {
   local nm_module="$1"; shift
   local nm_block="_fogg_${nm_module}_home"
   (
-    hcltool "$shome/common/${nm_module}.tf" 
+    hcltool "${!nm_block}/.wrapper.tf"
     hcltool "${!nm_block}/variables.tf" | jq 'reduce (.variable | to_entries)[] as $ele ({}; .[$ele.key] = ($ele.value.default | if (. | type) == "array" then [ "${var.\($ele.key)}" ] else "${var.\($ele.key)}" end))' | jq --arg m "$nm_module" '{ module: { "\($m)": . } }'
   ) | merge_map
 }
