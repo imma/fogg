@@ -5,8 +5,7 @@ function main {
   source "$shome/script/profile"
   source normalize
 
-  local id_tfvars="$(pwd)"
-  id_tfvars="org--$(echo "${id_tfvars#*/org/}" | perl -pe 's{/}{--}g')/terraform.tfvars"
+  local id_tfvars="org--$(cat .fogg-name | perl -pe 's{/}{--}g')/terraform.tfvars"
   
   if [[ -n "${1:-}" ]]; then
     id_tfvars="$1"; shift
