@@ -11,36 +11,42 @@ function main {
   fi
 
   local pth_config="$(cat .fogg-name | tr '/' '_')"
+  local nm_module="$(cat .fogg-module 2>/dev/null || true)"
 
-  case "$pth_config" in
-    *_instances_*)
+  if [[ -z "$nm_module" ]]; then
+    case "$pth_config" in
+      *_*_*_*) nm_module=service ;;
+        *_*_*) nm_module=app ;;
+          *_*) nm_module=env ;;
+            *) nm_module=org ;;
+    esac
+  fi
+
+  case "$nm_module" in
+    instance)
       set -- instance \
         "$(echo "$pth_config" | cut -d_ -f2)" \
         "$(echo "$pth_config" | cut -d_ -f3)" \
         "$(echo "$pth_config" | cut -d_ -f4)" \
         "${pth_config##*_}"
       ;;
-    *_*_*_*)
+    service)
       set -- service \
         "$(echo "$pth_config" | cut -d_ -f2)" \
         "$(echo "$pth_config" | cut -d_ -f3)" \
         "${pth_config##*_}"
       ;;
-    *_*_*)
+    app)
       set -- app \
         "$(echo "$pth_config" | cut -d_ -f2)" \
         "${pth_config##*_}"
       ;;
-    *_peer*)
-      set -- peering_net_stag_prod \
-        "${pth_config##*_}"
-      ;;
-    *_*)
-      set -- env \
-        "${pth_config##*_}"
+    org)
+      set -- org
       ;;
     *)
-      set -- org
+      set -- "$nm_module" \
+        "${pth_config##*_}"
       ;;
   esac
   
