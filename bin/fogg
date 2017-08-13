@@ -10,12 +10,7 @@ function main {
     return 1
   fi
 
-  local pth_config
-  if [[ -f .fogg-name ]]; then
-    pth_config="$(cat .fogg-name | tr '/' '_')"
-  else
-    pth_config="$(pwd -P . | sed "s#$(cd -P . && git rev-parse --show-toplevel)/##" | perl -pe 's{/+}{_}g')"
-  fi
+  local pth_config="$(cat .fogg-name | tr '/' '_')"
 
   case "$pth_config" in
     *_instances_*)
