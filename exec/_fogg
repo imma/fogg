@@ -97,9 +97,17 @@ function merge_map {
 function _main {
   source normalize
 
-  local id_credstash_tfvars="$(pwd -P | perl -pe 's{^.*?/(org/.*)}{$1}; s{/}{--}g')/terraform.tfvars"
-  local id_credstash_env="$(echo "$(pwd -P | perl -pe 's{^.*?/(org/[^/]+(/[^/]+)?).*?$}{$1}; s{/}{--}g')")"
-  local id_credstash_org="$(echo "$(pwd -P | perl -pe 's{^.*?/(org/[^/]+).*?$}{$1}; s{/}{--}g')")"
+  if [[ -f .fogg-name ]]; then
+    local id_credstash_tfvars="org--$(cat .fogg-name | perl -pe 's{/}{--}g')/terraform.tfvars"
+    local id_credstash_env="org--$(cat .fogg-name | cut -d/ -f1-2 | perl -pe 's{/}{--}g')"
+    local id_credstash_org="org--$(cat .fogg-name | cut -d/ -f1 | perl -pe 's{/}{--}g')"
+    local remote_path="$(cat .fogg-name | perl -pe 's{/}{_}g')/terraform.tfstate"
+  else
+    local id_credstash_tfvars="$(pwd -P | perl -pe 's{^.*?/(org/.*)}{$1}; s{/}{--}g')/terraform.tfvars"
+    local id_credstash_env="$(echo "$(pwd -P | perl -pe 's{^.*?/(org/[^/]+(/[^/]+)?).*?$}{$1}; s{/}{--}g')")"
+    local id_credstash_org="$(echo "$(pwd -P | perl -pe 's{^.*?/(org/[^/]+).*?$}{$1}; s{/}{--}g')")"
+    local remote_path="$(pwd -P | perl -pe 's{^.*?/org/(.*)}{$1}; s{/instances/}{/}; s{/}{_}g')/terraform.tfstate"
+  fi
 
   local tmp_org="$(mktemp -t XXXXXX)"
   local tmp_env="$(mktemp -t XXXXXX)"
@@ -111,7 +119,6 @@ function _main {
   credstash get "$id_credstash_tfvars" > "$tmp_tfvars" &
   wait
 
-  local remote_path="$(pwd -P | perl -pe 's{^.*?/org/(.*)}{$1}; s{/instances/}{/}; s{/}{_}g')/terraform.tfstate"
   local remote_bucket="$(jq -r '.remote_bucket' "$tmp_org")"
   local remote_region="$(jq -r '.remote_region' "$tmp_org")"
 
