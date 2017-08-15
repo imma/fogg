@@ -4,6 +4,11 @@ function main {
   local shome="$(cd -P -- "${BASH_SOURCE%/*}/.." && pwd -P)"
   source "$shome/script/profile" source normalize
 
+  local nm_region="$(jq -r '.provider.aws.region' terraform.tf.json 2>/dev/null || true)"
+  if [[ -n "$nm_region" ]]; then
+    export AWS_DEFAULT_REGION="$nm_region"
+  fi
+
   case "${1:-}" in
     */)
       local pth_service="$1"; shift
