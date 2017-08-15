@@ -1,14 +1,5 @@
 {
   "require": [
-    "python",
-    "fogg-org",
-    "fogg-env",
-    "fogg-app",
-    "fogg-service",
-    "fogg-efs",
-    "fogg-instance",
-    "fogg-peering_connection",
-    "fogg-peering_route",
-    "fogg-peering_net_stag_prod"
+    "python"
   ]
 }
