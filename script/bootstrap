@@ -5,7 +5,7 @@ function main {
   source "$shome/script/profile"
 
   block compile virtualenv
-  localhost -m file -- state=link src=../vendor/virtualenv/bin/hcltool dest="$shome/bin/hcltool"
+  ln -nfs ../vendor/virtualenv/bin/hcltool "$shome/bin/"
 }
 
 main "$@"
