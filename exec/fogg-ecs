@@ -5,6 +5,10 @@ function main {
   source "$shome/script/profile"
   source normalize
 
+  if [[ "$#" == 0 ]]; then
+    set -- list-container-instances
+  fi
+
   local nm_cmd="$1"; shift
   case "$nm_cmd" in
     list-task-definitions)
@@ -16,7 +20,8 @@ function main {
   esac
 }
 
-__fogg_ecs_pwd="$(pwd -P)"
+
+__fogg_ecs_pwd="$(cat .fogg-name)"
 export fogg_env="$(basename $(dirname $(dirname $__fogg_ecs_pwd)))" fogg_app="$(basename $(dirname $__fogg_ecs_pwd))" fogg_service="$(basename $__fogg_ecs_pwd)"
 
 source sub "$BASH_SOURCE" "$@"
