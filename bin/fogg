@@ -24,25 +24,25 @@ function main {
 
   case "$nm_module" in
     instance|asg_instances)
-      set -- instance \
+      set -- "$nm_module" \
         "$(echo "$pth_config" | cut -d_ -f2)" \
         "$(echo "$pth_config" | cut -d_ -f3)" \
         "$(echo "$pth_config" | cut -d_ -f4)" \
         "${pth_config##*_}"
       ;;
     service)
-      set -- service \
+      set -- "$nm_module" \
         "$(echo "$pth_config" | cut -d_ -f2)" \
         "$(echo "$pth_config" | cut -d_ -f3)" \
         "${pth_config##*_}"
       ;;
     app)
-      set -- app \
+      set -- "$nm_module" \
         "$(echo "$pth_config" | cut -d_ -f2)" \
         "${pth_config##*_}"
       ;;
     org)
-      set -- org
+      set -- "$nm_module"
       ;;
     *)
       set -- "$nm_module" \
