@@ -81,6 +81,15 @@ function gen_instance {
   gen_xxx "$nm_module"
 }
 
+function gen_asg_instances { 
+  local nm_module="$1"; shift
+  shift
+  shift
+  shift
+  shift
+  gen_xxx "$nm_module"
+}
+
 function gen_xxx {
   local nm_module="$1"; shift
   local nm_block="_fogg_${nm_module}_home"
