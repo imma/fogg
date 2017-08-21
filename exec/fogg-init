@@ -6,6 +6,7 @@ function main {
   source normalize
 
   mkdir -p .terraform
+  rm -rf .terraform/modules
   fogg
   terraform init "$@"
 }
