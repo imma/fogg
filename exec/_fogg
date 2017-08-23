@@ -82,6 +82,15 @@ function gen_instance {
   gen_xxx "$nm_module"
 }
 
+function gen_in_service { 
+  local nm_module="$1"; shift
+  shift
+  shift
+  shift
+  shift
+  gen_xxx "$nm_module"
+}
+
 function gen_asg_instances { 
   local nm_module="$1"; shift
   shift
