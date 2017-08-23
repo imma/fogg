@@ -23,7 +23,7 @@ function main {
   fi
 
   case "$nm_module" in
-    instance|asg_instances)
+    instance|asg_instances|in_service)
       set -- "$nm_module" \
         "$(echo "$pth_config" | cut -d_ -f2)" \
         "$(echo "$pth_config" | cut -d_ -f3)" \
