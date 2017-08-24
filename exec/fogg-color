@@ -36,6 +36,11 @@ function main {
       rm -f "$tmp_asg" "$tmp_instances"
       ;;
 
+    ssh)
+      shift # ssh
+      ssh "$(fogg "$nm_color" instances '\(.PrivateIpAddress)' | head -1)" "$@"
+      ;;
+
     asg)
       shift # asg
       local jq_refine="${1:-\(.AutoScalingGroupName) min:\(.MinSize) desired:\(.DesiredCapacity) max:\(.MaxSize)}"
