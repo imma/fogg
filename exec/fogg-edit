@@ -6,7 +6,7 @@ function main {
   source normalize
 
   local id_tfvars="org--$(cat .fogg-name | perl -pe 's{/}{--}g')/terraform.tfvars"
-  
+
   if [[ -n "${1:-}" ]]; then
     if [[ -f "$1" ]]; then
       credstash put -a "$id_tfvars" "$(cat "$1")"
@@ -23,8 +23,8 @@ function main {
   local tmp_config="$(mktemp -t XXXXXX)"
   local tmp_config2="$(mktemp -t XXXXXX)"
   trap "$(printf 'rm -f %q %q' "$tmp_config" "$tmp_config2")" EXIT
-  credstash get "$id_tfvars" > "$tmp_config"
-  cp "$tmp_config" "$tmp_config2"
+  credstash get "$id_tfvars" > "$tmp_config" || true
+  rsync -ia "$tmp_config" "$tmp_config2"
   ${VISUAL:-${EDITOR:-vi}}  "$tmp_config"
   if ! diff "$tmp_config" "$tmp_config2"; then
     credstash put -a "$id_tfvars" "$(cat "$tmp_config")"
