@@ -38,7 +38,7 @@ function main {
 
     ssh)
       shift # ssh
-      ssh "$(fogg "$nm_color" instances '\(.PrivateIpAddress)' | head -1)" "$@"
+      ssh "$(fogg "$nm_color" instances '\(.PrivateIpAddress)' | awk 'NR == 1 {print $1}')" "$@"
       ;;
 
     asg)
