@@ -5,10 +5,11 @@ function main {
   source "$shome/script/profile"
   source normalize
 
-  local id_tfvars="org--$(cat .fogg-name | perl -pe 's{/}{--}g')/terraform.tfvars"
-  
+  local id_tfvars
   if [[ -n "${1:-}" ]]; then
     id_tfvars="$1"; shift
+  else
+    id_tfvars="org--$(cat .fogg-name | perl -pe 's{/}{--}g')/terraform.tfvars"
   fi
 
   credstash get "$id_tfvars"

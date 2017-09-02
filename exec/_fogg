@@ -1,10 +1,15 @@
 #!/usr/bin/env bash
 
+function merge_map {
+  jq -s 'reduce .[] as $e ({}; . * $e)'
+}
+
 function use_module {
   local nm_module="$1"; shift
   local nm_block="_fogg_${nm_module}_home"
   hcltool "${!nm_block}/variables.tf" \
-    | jq --arg tfmod "$nm_module" '{
+    | jq --arg tfmod "$nm_module" '
+				{
           variable: (.variable//{} as $vars | reduce (.variable | keys[]) as $v ({}; .[$v] = $vars[$v])), 
           output: (.output//{} | reduce keys[] as $o ({}; .[$o] = {value: "${module.\($tfmod).\($o)}"}))
         }'
@@ -12,21 +17,29 @@ function use_module {
 
 function gen_state {
   jq \
-    --arg remote_bucket "$remote_bucket" \
-    --arg remote_path "$remote_path" \
-    --arg remote_region "$remote_region" \
-    --arg provider_region "$region" \
+    --arg remote_bucket "$rb" \
+    --arg remote_path "$rp" \
+    --arg remote_region "$rr" \
+    --arg provider_region "$provider_region" \
     --arg credstash "$id_credstash_org" \
-    -n -r '{ 
+    -n -r '
+			{ 
         provider:
-        { aws: { region: "\($provider_region)" },
+        { 
+					aws: 
+					{ 
+						region: "\($provider_region)" 
+					},
           digitalocean: {},
           packet: {}
         },
         terraform: 
-        { backend: 
-          { s3: 
-            { bucket: "\($remote_bucket)", 
+        { 
+					backend: 
+          { 
+						s3: 
+            { 
+							bucket: "\($remote_bucket)", 
               key: "\($remote_path)", 
               dynamodb_table: "terraform_state_lock", 
               region: "\($remote_region)" 
@@ -34,8 +47,10 @@ function gen_state {
           } 
         },
         variable:
-        { org:
-          { default: [ "credstash", "get", "\($credstash)" ]
+        { 
+					org:
+          { 
+						default: [ "credstash", "get", "\($credstash)" ]
           }
         }
       }'
@@ -60,91 +75,118 @@ function gen_peering_net_stag_prod {
 
 function gen_app {
   local nm_module="$1"; shift
-  shift
-  shift
+  shift; shift
   gen_xxx "$nm_module"
 }
 
 function gen_service {
   local nm_module="$1"; shift
-  shift
-  shift
-  shift
+  shift; shift; shift
   gen_xxx "$nm_module"
 }
 
 function gen_instance { 
   local nm_module="$1"; shift
-  shift
-  shift
-  shift
-  shift
+  shift; shift; shift; shift
   gen_xxx "$nm_module"
 }
 
 function gen_in_service { 
   local nm_module="$1"; shift
-  shift
-  shift
-  shift
-  shift
+  shift; shift; shift; shift
   gen_xxx "$nm_module"
 }
 
 function gen_asg_instances { 
   local nm_module="$1"; shift
-  shift
-  shift
-  shift
-  shift
+  shift; shift; shift; shift
   gen_xxx "$nm_module"
 }
 
 function gen_xxx {
   local nm_module="$1"; shift
   local nm_block="_fogg_${nm_module}_home"
-  (
-    hcltool "${!nm_block}/.wrapper.tf"
-    hcltool "${!nm_block}/variables.tf" | jq 'reduce (.variable | to_entries)[] as $ele ({}; .[$ele.key] = ($ele.value.default | if (. | type) == "array" then [ "${var.\($ele.key)}" ] else "${var.\($ele.key)}" end))' | jq --arg m "$nm_module" '{ module: { "\($m)": . } }'
-  ) | merge_map
+
+	(
+		hcltool "${!nm_block}/.wrapper.tf"
+		hcltool "${!nm_block}/variables.tf" \
+			| jq 'reduce (.variable | to_entries)[] as $ele ({}; .[$ele.key] = ($ele.value.default 
+							| if (. | type) == "array" then 
+									[ "${var.\($ele.key)}" ] 
+								else 
+									"${var.\($ele.key)}" 
+								end
+							))' \
+			| jq --arg m "$nm_module" '{ module: { "\($m)": . } }'
+	) | merge_map
 }
 
-function merge_map {
-  jq -s 'reduce .[] as $e ({}; . * $e)'
+function gen {
+  local tmp_seed="$1"; shift
+  local tmp_modules="$1"; shift
+
+  jq -n \
+		--argfile seed "$tmp_seed" \
+		--argfile modules "$tmp_modules" \
+		'$seed * $modules' \
+  | if [[ "$#" -gt 0 ]]; then 
+    jq --arg arg "$1" '.variable |= (.env_name = { default: $arg })'
+      shift
+    else
+      cat
+    fi \
+  | if [[ "$#" -gt 1 ]]; then 
+      shift
+      jq --arg arg "$1" '.variable |= (.app_name = { default: $arg })'
+      shift
+    else
+      cat
+    fi \
+  | if [[ "$#" -gt 2 ]]; then 
+      shift; shift
+      jq --arg arg "$1" '.variable |= (.service_name = { default: $arg })'
+      shift
+    else
+      cat
+    fi
 }
 
 function _main {
   source normalize
 
-  local id_credstash_tfvars="org--$(cat .fogg-name | perl -pe 's{/}{--}g')/terraform.tfvars"
-  local id_credstash_env="org--$(cat .fogg-name | cut -d/ -f1-2 | perl -pe 's{/}{--}g')"
   local id_credstash_org="org--$(cat .fogg-name | cut -d/ -f1 | perl -pe 's{/}{--}g')"
-  local remote_path="$(cat .fogg-name | perl -pe 's{/}{_}g')/terraform.tfstate"
+  local id_credstash_env="org--$(cat .fogg-name | cut -d/ -f1-2 | perl -pe 's{/}{--}g')"
+  local id_credstash_config="org--$(cat .fogg-name | perl -pe 's{/}{--}g')/terraform.tfvars"
 
   local tmp_org="$(mktemp -t XXXXXX)"
   local tmp_env="$(mktemp -t XXXXXX)"
-  local tmp_tfvars="$(mktemp -t XXXXXX)"
-  trap "$(printf 'rm -f %q %q %q' "$tmp_org" "$tmp_env" "$tmp_tfvars")" EXIT
+  local tmp_config="$(mktemp -t XXXXXX)"
+
+  trap "$(printf 'rm -f %q %q %q' "$tmp_org" "$tmp_env" "$tmp_config")" EXIT
 
   credstash get "$id_credstash_org" > "$tmp_org" &
   credstash get "$id_credstash_env" > "$tmp_env" &
-  credstash get "$id_credstash_tfvars" > "$tmp_tfvars" &
+  credstash get "$id_credstash_config" > "$tmp_config" &
   wait
 
-  local remote_bucket="$(jq -r '.remote_bucket' "$tmp_org")"
-  local remote_region="$(jq -r '.remote_region' "$tmp_org")"
+  local rp="$(cat .fogg-name | perl -pe 's{/}{_}g')/terraform.tfstate"
+  local rb="$(jq -r '.remote_bucket' "$tmp_org")"
+  local rr="$(jq -r '.remote_region' "$tmp_org")"
 
-  local region="$(jq -r '.region' "$tmp_env")"
-  local az_count="$(jq -r '.az_count' "$tmp_env")"
-  local want_nat="$(jq -r '.want_nat' "$tmp_env")"
+  local provider_region="$(jq -r '.region' "$tmp_env")"
 
-  { gen \
-      <("gen_${BASH_SOURCE[2]##*-}" "${BASH_SOURCE[2]##*-}" "$@") \
-      <(use_module "${BASH_SOURCE[2]##*-}") \
+  { 
+    local nm_module="$1"; shift
+    gen \
+      <("gen_${nm_module}" "${nm_module}" "$@") \
+      <(use_module "${nm_module}") \
       "$@" | jq -S .
     gen_state
   } | merge_map \
-    | jq --argfile tfvars <(hcltool "$tmp_tfvars" | jq 'to_entries | map(.value |= { default: . }) | from_entries') '.variable |= (.+$tfvars)' > terraform.tf.json.1
+    | jq \
+        --argfile config <(hcltool "$tmp_config" | jq 'to_entries | map(.value |= { default: . }) | from_entries') \
+        --argfile env <(cat "$tmp_env" | jq --arg rp "$rp" --arg rb "$rb" --arg rr "$rr" '{remote_path: $rp, remote_bucket: $rb, remote_region: $rr} * . | reduce to_entries[] as $kv ({}; .[$kv.key] = { default: $kv.value })') \
+          '.variable |= . + ($config * $env)' | jq -S . > terraform.tf.json.1
   mv terraform.tf.json.1 terraform.tf.json
 }
 

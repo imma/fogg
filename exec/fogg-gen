@@ -1,3 +1,9 @@
 #!/usr/bin/env bash
 
+function main {
+  local shome="$(cd -P -- "${BASH_SOURCE%/*}/.." && pwd -P)"
+  source "$shome/script/profile"
+  source _fogg "$@"
+}
+
 source sub "$BASH_SOURCE" "$@"
