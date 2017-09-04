@@ -1,0 +1,18 @@
+#!/usr/bin/env bash
+
+function main {
+  local shome="$(cd -P -- "${BASH_SOURCE%/*}/.." && pwd -P)"
+  source "$shome/script/profile"
+  source normalize
+
+  local nm_table="fogg_inventory"
+  local nm_item="$1"; shift
+
+  aws dynamodb put-item \
+    --table "$nm_table" \
+    --item "$(jq -n --arg item "$nm_item" '{Item: {S: $item}}')" \
+    --condition-expression 'attribute_not_exists(#item)' \
+    --expression-attribute-names "$(jq -n '{"#item": "Item"}')"
+}
+
+source sub "$BASH_SOURCE" "$@"

@@ -1,0 +1,16 @@
+#!/usr/bin/env bash
+
+function main {
+  local shome="$(cd -P -- "${BASH_SOURCE%/*}/.." && pwd -P)"
+  source "$shome/script/profile"
+  source normalize
+
+  local nm_table="fogg_inventory"
+
+  aws dynamodb create-table \
+    --table-name "$nm_table" --provisioned-throughput ReadCapacityUnits=1,WriteCapacityUnits=1 \
+    --attribute-definitions AttributeName=Item,AttributeType=S \
+    --key-schema AttributeName=Item,KeyType=HASH
+}
+
+source sub "$BASH_SOURCE" "$@"
