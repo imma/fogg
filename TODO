@@ -1,0 +1,24 @@
+#!/usr/bin/env bash
+
+nm_cidr="$1"; shift
+
+aws dynamodb create-table \
+  --table-name fogg_networks --provisioned-throughput ReadCapacityUnits=1,WriteCapacityUnits=1 \
+  --attribute-definitions AttributeName=Cidr,AttributeType=S \
+  --key-schema AttributeName=Cidr,KeyType=HASH
+
+aws dynamodb put-item \
+  --table fogg_networks \
+  --item "$(jq -n --arg cidr "$nm_cidr" '{Cidr: {S: $cidr}}')" \
+  --condition-expression 'attribute_not_exists(#cidr)' \
+  --expression-attribute-names "$(jq -n '{"#cidr": "Cidr"}')"
+
+aws dynamodb update-item \
+  --table fogg_networks \
+  --key "$(jq -n --arg cidr "$nm_cidr" '{Cidr: { S: $cidr}}')" \
+  --update-expression 'set Taken = :taken' \
+  --condition-expression '#cidr = :cidr AND attribute_not_exists(#taken)' \
+  --expression-attribute-names "$(jq -n '{"#cidr": "Cidr", "#taken": "Taken"}')" \
+  --expression-attribute-values "$(jq -n --arg cidr "$nm_cidr" --arg taken "yes" '{":cidr": {S: $cidr}, ":taken": { S: $taken}}')"
+
+aws dynamodb scan --table-name fogg_networks
