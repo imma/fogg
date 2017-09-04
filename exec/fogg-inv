@@ -1,4 +1,0 @@
-#!/usr/bin/env bash
-
-source sub "$BASH_SOURCE" "$@"
-
