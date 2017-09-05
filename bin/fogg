@@ -10,47 +10,16 @@ function main {
     return 1
   fi
 
-  local pth_config="$(cat .fogg-name | tr '/' '_')"
-  local nm_module="$(cat .fogg-module 2>/dev/null || true)"
+  local nm_config="$(cat .fogg-name | cut -d: -f1)"
+  local nm_module="$(cat .fogg-module)"
 
-  if [[ -z "$nm_module" ]]; then
-    case "$pth_config" in
-      *_*_*_*) nm_module=service ;;
-        *_*_*) nm_module=app ;;
-          *_*) nm_module=env ;;
-            *) nm_module=org ;;
-    esac
-  fi
+  local nm_org="$(echo "$nm_config" | cut -d/ -f1)"
+  local nm_env="$(echo "$nm_config" | cut -s -d/ -f1)"
+  local nm_app="$(echo "$nm_config" | cut -s -d/ -f1)"
+  local nm_service="$(echo "$nm_config" | cut -s -d/ -f1)"
+  local nm_rest="$(echo "$nm_config" | cut -s -d: -f2)"
 
-  case "$nm_module" in
-    instance|asg_instances|in_service)
-      set -- "$nm_module" \
-        "$(echo "$pth_config" | cut -d_ -f2)" \
-        "$(echo "$pth_config" | cut -d_ -f3)" \
-        "$(echo "$pth_config" | cut -d_ -f4)" \
-        "${pth_config##*_}"
-      ;;
-    service)
-      set -- "$nm_module" \
-        "$(echo "$pth_config" | cut -d_ -f2)" \
-        "$(echo "$pth_config" | cut -d_ -f3)" \
-        "${pth_config##*_}"
-      ;;
-    app)
-      set -- "$nm_module" \
-        "$(echo "$pth_config" | cut -d_ -f2)" \
-        "${pth_config##*_}"
-      ;;
-    org)
-      set -- "$nm_module"
-      ;;
-    *)
-      set -- "$nm_module" \
-        "${pth_config##*_}"
-      ;;
-  esac
-  
-  fogg gen "$@"
+  fogg gen "$nm_module" "$nm_org" "$nm_env" "$nm_app" "$nm_service" "$nm_rest"
 }
 
 source sub "$BASH_SOURCE" "$@"

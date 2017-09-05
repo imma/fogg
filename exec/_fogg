@@ -9,7 +9,7 @@ function use_module {
   local nm_block="_fogg_${nm_module}_home"
   hcltool "${!nm_block}/variables.tf" \
     | jq --arg tfmod "$nm_module" '
-				{
+        {
           variable: (.variable//{} as $vars | reduce (.variable | keys[]) as $v ({}; .[$v] = $vars[$v])), 
           output: (.output//{} | reduce keys[] as $o ({}; .[$o] = {value: "${module.\($tfmod).\($o)}"}))
         }'
@@ -23,23 +23,23 @@ function gen_state {
     --arg provider_region "$provider_region" \
     --arg credstash "$id_credstash_org" \
     -n -r '
-			{ 
+      { 
         provider:
         { 
-					aws: 
-					{ 
-						region: "\($provider_region)" 
-					},
+          aws: 
+          { 
+            region: "\($provider_region)" 
+          },
           digitalocean: {},
           packet: {}
         },
         terraform: 
         { 
-					backend: 
+          backend: 
           { 
-						s3: 
+            s3: 
             { 
-							bucket: "\($remote_bucket)", 
+              bucket: "\($remote_bucket)", 
               key: "\($remote_path)", 
               dynamodb_table: "terraform_state_lock", 
               region: "\($remote_region)" 
@@ -48,77 +48,30 @@ function gen_state {
         },
         variable:
         { 
-					org:
+          org:
           { 
-						default: [ "credstash", "get", "\($credstash)" ]
+            default: [ "credstash", "get", "\($credstash)" ]
           }
         }
       }'
-}
-
-function gen_org { 
-  local nm_module="$1"; shift
-  gen_xxx "$nm_module"
-}
-
-function gen_env { 
-  local nm_module="$1"; shift
-  shift
-  gen_xxx "$nm_module"
-}
-
-function gen_peering_net_stag_prod { 
-  local nm_module="$1"; shift
-  shift
-  gen_xxx "$nm_module"
-}
-
-function gen_app {
-  local nm_module="$1"; shift
-  shift; shift
-  gen_xxx "$nm_module"
-}
-
-function gen_service {
-  local nm_module="$1"; shift
-  shift; shift; shift
-  gen_xxx "$nm_module"
-}
-
-function gen_instance { 
-  local nm_module="$1"; shift
-  shift; shift; shift; shift
-  gen_xxx "$nm_module"
-}
-
-function gen_in_service { 
-  local nm_module="$1"; shift
-  shift; shift; shift; shift
-  gen_xxx "$nm_module"
-}
-
-function gen_asg_instances { 
-  local nm_module="$1"; shift
-  shift; shift; shift; shift
-  gen_xxx "$nm_module"
 }
 
 function gen_xxx {
   local nm_module="$1"; shift
   local nm_block="_fogg_${nm_module}_home"
 
-	(
-		hcltool "${!nm_block}/.wrapper.tf"
-		hcltool "${!nm_block}/variables.tf" \
-			| jq 'reduce (.variable | to_entries)[] as $ele ({}; .[$ele.key] = ($ele.value.default 
-							| if (. | type) == "array" then 
-									[ "${var.\($ele.key)}" ] 
-								else 
-									"${var.\($ele.key)}" 
-								end
-							))' \
-			| jq --arg m "$nm_module" '{ module: { "\($m)": . } }'
-	) | merge_map
+  (
+    hcltool "${!nm_block}/.wrapper.tf"
+    hcltool "${!nm_block}/variables.tf" \
+      | jq 'reduce (.variable | to_entries)[] as $ele ({}; .[$ele.key] = ($ele.value.default 
+              | if (. | type) == "array" then 
+                  [ "${var.\($ele.key)}" ] 
+                else 
+                  "${var.\($ele.key)}" 
+                end
+              ))' \
+      | jq --arg m "$nm_module" '{ module: { "\($m)": . } }'
+  ) | merge_map
 }
 
 function gen {
@@ -126,26 +79,35 @@ function gen {
   local tmp_modules="$1"; shift
 
   jq -n \
-		--argfile seed "$tmp_seed" \
-		--argfile modules "$tmp_modules" \
-		'$seed * $modules' \
+    --argfile seed "$tmp_seed" \
+    --argfile modules "$tmp_modules" \
+    '$seed * $modules' \
   | if [[ "$#" -gt 0 ]]; then 
-    jq --arg arg "$1" '.variable |= (.env_name = { default: $arg })'
-      shift
+      if [[ -n "$1" ]]; then
+        jq --arg arg "$1" '.variable |= (.env_name = { default: $arg })'
+      else
+        cat
+      fi
     else
       cat
     fi \
   | if [[ "$#" -gt 1 ]]; then 
       shift
-      jq --arg arg "$1" '.variable |= (.app_name = { default: $arg })'
-      shift
+      if [[ -n "$1" ]]; then
+        jq --arg arg "$1" '.variable |= (.app_name = { default: $arg })'
+      else
+        cat
+      fi
     else
       cat
     fi \
   | if [[ "$#" -gt 2 ]]; then 
       shift; shift
-      jq --arg arg "$1" '.variable |= (.service_name = { default: $arg })'
-      shift
+      if [[ -n "$1" ]]; then
+        jq --arg arg "$1" '.variable |= (.service_name = { default: $arg })'
+      else
+        cat
+      fi
     else
       cat
     fi
@@ -177,8 +139,9 @@ function _main {
 
   { 
     local nm_module="$1"; shift
+    shift # org
     gen \
-      <("gen_${nm_module}" "${nm_module}" "$@") \
+      <(gen_xxx "${nm_module}") \
       <(use_module "${nm_module}") \
       "$@" | jq -S .
     gen_state
