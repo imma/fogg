@@ -1,6 +1,7 @@
 {
   "require": [
     "python",
+    "wtf",
     "fogg-cli"
   ]
 }
