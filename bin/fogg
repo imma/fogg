@@ -14,9 +14,9 @@ function main {
   local nm_module="$(cat .fogg-module)"
 
   local nm_org="$(echo "$nm_config" | cut -d/ -f1)"
-  local nm_env="$(echo "$nm_config" | cut -s -d/ -f1)"
-  local nm_app="$(echo "$nm_config" | cut -s -d/ -f1)"
-  local nm_service="$(echo "$nm_config" | cut -s -d/ -f1)"
+  local nm_env="$(echo "$nm_config" | cut -s -d/ -f2)"
+  local nm_app="$(echo "$nm_config" | cut -s -d/ -f3)"
+  local nm_service="$(echo "$nm_config" | cut -s -d/ -f4)"
   local nm_rest="$(echo "$nm_config" | cut -s -d: -f2)"
 
   fogg gen "$nm_module" "$nm_org" "$nm_env" "$nm_app" "$nm_service" "$nm_rest"
