@@ -5,10 +5,8 @@ function main {
   source "$shome/script/profile"
   source normalize
 
-  mkdir -p .terraform
-  rm -rf .terraform/modules
   fogg
-  terraform init "$@"
+  tf init "$@"
 }
 
 source sub "$BASH_SOURCE" "$@"

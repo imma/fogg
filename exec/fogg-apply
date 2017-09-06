@@ -5,15 +5,7 @@ function main {
   source "$shome/script/profile"
   source normalize
 
-  if [[ ! -f .plan ]]; then
-    echo "ERROR: no .plan found" 1>&2
-    return 1
-  fi
-
-  terraform validate
-  if terraform apply -auto-approve=true .plan "$@"; then
-    rm -f .plan
-  fi
+  tf apply "$@"
 }
 
 source sub "$BASH_SOURCE" "$@"

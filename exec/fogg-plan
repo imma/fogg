@@ -6,12 +6,7 @@ function main {
   source normalize
 
   fogg
-  terraform get
-  terraform validate
-  terraform plan -no-color -out .plan "$@"
-  if [[ "$(terraform show .plan)" == "This plan does nothing." ]]; then
-    rm -f .plan
-  fi
+  tf plan "$@"
 }
 
 source sub "$BASH_SOURCE" "$@"
