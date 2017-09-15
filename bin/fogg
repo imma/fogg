@@ -22,4 +22,5 @@ function main {
   fogg gen "$nm_module" "$nm_org" "$nm_env" "$nm_app" "$nm_service" "$nm_rest"
 }
 
+export TF_IN_AUTOMATION=1
 source sub "$BASH_SOURCE" "$@"
