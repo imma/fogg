@@ -21,7 +21,6 @@ function gen_state {
     --arg remote_path "$rp" \
     --arg remote_region "$rr" \
     --arg provider_region "$provider_region" \
-    --arg credstash "$id_credstash_org" \
     -n -r '
       { 
         provider:
@@ -45,13 +44,6 @@ function gen_state {
               region: "\($remote_region)" 
             } 
           } 
-        },
-        variable:
-        { 
-          org:
-          { 
-            default: [ "credstash", "get", "\($credstash)" ]
-          }
         }
       }'
 }
@@ -81,61 +73,41 @@ function gen {
   jq -n \
     --argfile seed "$tmp_seed" \
     --argfile modules "$tmp_modules" \
-    '$seed * $modules' \
-  | if [[ "$#" -gt 0 ]]; then 
-      if [[ -n "$1" ]]; then
-        jq --arg arg "$1" '.variable |= (.env_name = { default: $arg })'
-      else
-        cat
-      fi
-    else
-      cat
-    fi \
-  | if [[ "$#" -gt 1 ]]; then 
-      shift
-      if [[ -n "$1" ]]; then
-        jq --arg arg "$1" '.variable |= (.app_name = { default: $arg })'
-      else
-        cat
-      fi
-    else
-      cat
-    fi \
-  | if [[ "$#" -gt 2 ]]; then 
-      shift; shift
-      if [[ -n "$1" ]]; then
-        jq --arg arg "$1" '.variable |= (.service_name = { default: $arg })'
-      else
-        cat
-      fi
-    else
-      cat
-    fi
+    '$seed * $modules' 
 }
 
 function _main {
   source normalize
 
-  local id_credstash_org="org/$(cat .fogg-name)"
-  local id_credstash_env="$(cat .fogg-name | cut -d/ -f1-2)"
-  local id_credstash_config="$(cat .fogg-name)"
+  local id_credstash_org="org/$(cat .fogg-name | cut -d/ -f1)"
 
   local tmp_org="$(mktemp -t XXXXXX)"
-  local tmp_env="$(mktemp -t XXXXXX)"
   local tmp_config="$(mktemp -t XXXXXX)"
 
-  trap "$(printf 'rm -f %q %q %q' "$tmp_org" "$tmp_env" "$tmp_config")" EXIT
+  trap "$(printf 'rm -f %q %q %q' "$tmp_org" "$tmp_config")" EXIT
 
-  credstash get "$id_credstash_org" > "$tmp_org" &
-  credstash get "$id_credstash_env" > "$tmp_env" &
-  credstash get "$id_credstash_config" > "$tmp_config" &
-  wait
+  credstash get "$id_credstash_org" > "$tmp_org"
+  local nm_config="$(cat .fogg-name | cut -d/ -f3-)"
+  if [[ -z "$nm_config" ]]; then
+    nm_config="$(cat .fogg-name | cut -d/ -f2)"
+    if [[ -z "$nm_config" ]]; then
+      nm_config="$(cat .fogg-name | cut -d/ -f1)"
+    fi
+  fi
+
+  cat "$tmp_org" | jq \
+    --arg org "$(cat .fogg-name | cut -d/ -f1)" \
+    --arg env "$(cat .fogg-name | cut -d/ -f2)" \
+    --arg config "$nm_config" \
+    '.[$org].inherit + .[$env].inherit + .[$config].inherit + .[$config].vars' | jq -S . > "$tmp_config"
+
+  cat "$tmp_config" 1>&2
 
   local rp="$(cat .fogg-name | perl -pe 's{/}{_}g')/terraform.tfstate"
-  local rb="$(jq -r '.remote_bucket' "$tmp_org")"
-  local rr="$(jq -r '.remote_region' "$tmp_org")"
+  local rb="$(jq -r '.remote_bucket' "$tmp_config")"
+  local rr="$(jq -r '.remote_region' "$tmp_config")"
 
-  local provider_region="$(jq -r '.region' "$tmp_env")"
+  local provider_region="$(jq -r '.region' "$tmp_config")"
 
   { 
     local nm_module="$1"; shift
@@ -148,7 +120,7 @@ function _main {
   } | merge_map \
     | jq \
         --argfile config <(hcltool "$tmp_config" | jq 'to_entries | map(.value |= { default: . }) | from_entries') \
-        --argfile env <(cat "$tmp_env" | jq --arg rp "$rp" --arg rb "$rb" --arg rr "$rr" '{remote_path: $rp, remote_bucket: $rb, remote_region: $rr} * . | reduce to_entries[] as $kv ({}; .[$kv.key] = { default: $kv.value })') \
+        --argfile env <(cat "$tmp_config" | jq --arg rp "$rp" --arg rb "$rb" --arg rr "$rr" '{remote_path: $rp, remote_bucket: $rb, remote_region: $rr} * . | reduce to_entries[] as $kv ({}; .[$kv.key] = { default: $kv.value })') \
           '.variable |= . + ($config * $env)' | jq -S . > terraform.tf.json.1
   mv terraform.tf.json.1 terraform.tf.json
 }
