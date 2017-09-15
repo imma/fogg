@@ -5,7 +5,7 @@ function main {
   source "$shome/script/profile"
   source normalize
 
-  local id_tfvars="org--$(cat .fogg-name | perl -pe 's{/}{--}g')/terraform.tfvars"
+  local id_tfvars="$(cat .fogg-name)"
   exec credstash put "$id_tfvars" "$@"
 }
 

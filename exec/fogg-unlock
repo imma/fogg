@@ -7,7 +7,7 @@ function main {
 
   local remote_path="$(cat .fogg-name | perl -pe 's{/}{_}g')/terraform.tfstate"
   local nm_org="$(cat .fogg-name | cut -d/ -f1)"
-  local remote_bucket="$(credstash get "org--${nm_org}" | jq -r '.remote_bucket')"
+  local remote_bucket="$(credstash get "org/${nm_org}" | jq -r '.remote_bucket')"
 
   aws dynamodb get-item --table-name terraform_state_lock --key "$(jq -n --arg remote "${remote_bucket}/${remote_path}" '{LockID: {S: "\($remote)-md5"}}')"
   aws dynamodb delete-item --table-name terraform_state_lock --key "$(jq -n --arg remote "${remote_bucket}/${remote_path}" '{LockID: {S: "\($remote)-md5"}}')"

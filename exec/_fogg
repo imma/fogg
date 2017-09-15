@@ -116,9 +116,9 @@ function gen {
 function _main {
   source normalize
 
-  local id_credstash_org="org--$(cat .fogg-name | cut -d/ -f1 | perl -pe 's{/}{--}g')"
-  local id_credstash_env="org--$(cat .fogg-name | cut -d/ -f1-2 | perl -pe 's{/}{--}g')"
-  local id_credstash_config="org--$(cat .fogg-name | perl -pe 's{/}{--}g')/terraform.tfvars"
+  local id_credstash_org="org/$(cat .fogg-name)"
+  local id_credstash_env="$(cat .fogg-name | cut -d/ -f1-2)"
+  local id_credstash_config="$(cat .fogg-name)"
 
   local tmp_org="$(mktemp -t XXXXXX)"
   local tmp_env="$(mktemp -t XXXXXX)"
