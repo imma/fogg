@@ -1,0 +1,32 @@
+#!/usr/bin/env bash
+
+function main {
+  local shome="$(cd -P -- "${BASH_SOURCE%/*}/.." && pwd -P)"
+  source normalize
+
+  local id_credstash_org="org/$(cat .fogg-name | cut -d/ -f1)"
+
+  local tmp_org="$(mktemp -t XXXXXX)"
+  local tmp_config="$(mktemp -t XXXXXX)"
+
+  trap "$(printf 'rm -f %q %q %q' "$tmp_org" "$tmp_config")" EXIT
+
+  credstash get "$id_credstash_org" > "$tmp_org"
+  local nm_config="$(cat .fogg-name | cut -d/ -f3-)"
+  if [[ -z "$nm_config" ]]; then
+    nm_config="$(cat .fogg-name | cut -d/ -f2)"
+    if [[ -z "$nm_config" ]]; then
+      nm_config="$(cat .fogg-name | cut -d/ -f1)"
+    fi
+  fi
+
+  cat "$tmp_org" | jq \
+    --arg org "$(cat .fogg-name | cut -d/ -f1)" \
+    --arg env "$(cat .fogg-name | cut -d/ -f2)" \
+    --arg config "$nm_config" \
+    '.[$org].inherit + .[$env].inherit + .[$config].inherit + .[$config].vars' | jq -S . > "$tmp_config"
+
+  cat "$tmp_config"
+}
+
+source sub "$BASH_SOURCE" "$@"
