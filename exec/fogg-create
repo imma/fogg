@@ -1,0 +1,16 @@
+#!/usr/bin/env bash
+
+function main {
+  local shome="$(cd -P -- "${BASH_SOURCE%/*}/.." && pwd -P)"
+  source "$shome/script/profile"
+  source normalize
+
+  local nm_module="$1"; shift
+  local nm_config="$1"; shift
+
+  echo "$nm_module" > .fogg-module
+  echo "$nm_config" -> .fogg-name
+  ln -nfs ../module .
+}
+
+source sub "$BASH_SOURCE" "$@"
