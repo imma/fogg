@@ -4,14 +4,14 @@ function main {
   local shome="$(cd -P -- "${BASH_SOURCE%/*}/.." && pwd -P)"
   source normalize
 
-  local id_credstash_org="org/$(cat .fogg-name | cut -d/ -f1)"
+  local nm_fogg="$(cat .fogg-name)/"
+  local id_credstash_org="org/$(echo "$nm_fogg" | cut -d/ -f1)"
   local id_credstash_local="$(cat .fogg-name)"
 
   local tmp_org="$(mktemp -t XXXXXX)"
   local tmp_local="$(mktemp -t XXXXXX)"
-  local tmp_config="$(mktemp -t XXXXXX)"
 
-  trap "$(printf 'rm -f %q %q %q' "$tmp_org" "$tmp_config" "$tmp_local")" EXIT
+  trap "$(printf 'rm -f %q %q %q' "$tmp_org" "$tmp_local")" EXIT
 
   credstash get "$id_credstash_org" > "$tmp_org" 2>/dev/null &
   credstash get "$id_credstash_local" > "$tmp_local" 2>/dev/null &
@@ -21,22 +21,26 @@ function main {
     echo '{}' > "$tmp_local"
   fi
 
-  local nm_config="$(cat .fogg-name | cut -d/ -f3-)"
+  local nm_config="$(echo "$nm_fogg" | cut -d/ -f4-)"
   if [[ -z "$nm_config" ]]; then
-    nm_config="$(cat .fogg-name | cut -d/ -f2)"
+    nm_config="$(echo "$nm_fogg" | cut -d/ -f3)"
     if [[ -z "$nm_config" ]]; then
-      nm_config="$(cat .fogg-name | cut -d/ -f1)"
+      nm_config="$(echo "$nm_fogg" | cut -d/ -f2)"
+      if [[ -z "$nm_config" ]]; then
+        nm_config="$(echo "$nm_fogg" | cut -d/ -f1)"
+      fi
     fi
   fi
 
+  set -x
   cat "$tmp_org" | jq \
-    --arg org "$(cat .fogg-name | cut -d/ -f1)" \
-    --arg env "$(cat .fogg-name | cut -d/ -f2)" \
+    --arg org "$(echo "$nm_fogg" | cut -d/ -f1)" \
+    --arg env "$(echo "$nm_fogg" | cut -d/ -f2)" \
+    --arg app "$(echo "$nm_fogg" | cut -d/ -f3)" \
+    --arg svc "$(echo "$nm_fogg" | cut -d/ -f4)" \
     --arg config "$nm_config" \
     --argfile local "$tmp_local" \
-    '.[$org].inherit + .[$env].inherit + .[$config].inherit + .[$config].vars + $local' | jq -S . > "$tmp_config"
-
-  cat "$tmp_config"
+    '. + {"":{inherit:{},vars:{}}} | .[$org].inherit + .[$env].inherit + .[$app].inherit + .[$svc].inherit + .[$config].inherit + .[$config].vars + $local' | jq -S .
 }
 
 source sub "$BASH_SOURCE" "$@"
