@@ -9,7 +9,7 @@ function main {
   local nm_config="$1"; shift
 
   echo "$nm_module" > .fogg-module
-  echo "$nm_config" -> .fogg-name
+  echo "$nm_config" > .fogg-name
   ln -nfs ../module .
 }
 
