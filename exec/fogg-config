@@ -32,7 +32,6 @@ function main {
     fi
   fi
 
-  set -x
   cat "$tmp_org" | jq \
     --arg org "$(echo "$nm_fogg" | cut -d/ -f1)" \
     --arg env "$(echo "$nm_fogg" | cut -d/ -f2)" \
