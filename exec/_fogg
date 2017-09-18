@@ -4,17 +4,6 @@ function merge_map {
   jq -s 'reduce .[] as $e ({}; . * $e)'
 }
 
-function use_module {
-  local nm_module="$1"; shift
-  local nm_block="_fogg_${nm_module}_home"
-  hcltool "${!nm_block}/variables.tf" \
-    | jq --arg tfmod "$nm_module" '
-        {
-          variable: (.variable//{} as $vars | reduce (.variable | keys[]) as $v ({}; .[$v] = $vars[$v])), 
-          output: (.output//{} | reduce keys[] as $o ({}; .[$o] = {value: "${module.\($tfmod).\($o)}"}))
-        }'
-}
-
 function gen_state {
   jq \
     --arg remote_bucket "$rb" \
@@ -48,32 +37,31 @@ function gen_state {
       }'
 }
 
-function gen_xxx {
+function gen {
   local nm_module="$1"; shift
   local nm_block="_fogg_${nm_module}_home"
 
   (
-    hcltool "${!nm_block}/.wrapper.tf"
+    (
+      hcltool "${!nm_block}/.wrapper.tf"
+      hcltool "${!nm_block}/variables.tf" \
+        | jq 'reduce (.variable | to_entries)[] as $ele ({}; .[$ele.key] = ($ele.value.default 
+                | if (. | type) == "array" then 
+                    [ "${var.\($ele.key)}" ] 
+                  else 
+                    "${var.\($ele.key)}" 
+                  end
+                ))' \
+        | jq --arg m "$nm_module" '{ module: { "\($m)": . } }'
+    ) | merge_map
+
     hcltool "${!nm_block}/variables.tf" \
-      | jq 'reduce (.variable | to_entries)[] as $ele ({}; .[$ele.key] = ($ele.value.default 
-              | if (. | type) == "array" then 
-                  [ "${var.\($ele.key)}" ] 
-                else 
-                  "${var.\($ele.key)}" 
-                end
-              ))' \
-      | jq --arg m "$nm_module" '{ module: { "\($m)": . } }'
-  ) | merge_map
-}
-
-function gen {
-  local tmp_seed="$1"; shift
-  local tmp_modules="$1"; shift
-
-  jq -n \
-    --argfile seed "$tmp_seed" \
-    --argfile modules "$tmp_modules" \
-    '$seed * $modules' 
+      | jq --arg tfmod "$nm_module" '
+          {
+            variable: (.variable//{} as $vars | reduce (.variable | keys[]) as $v ({}; .[$v] = $vars[$v])), 
+            output: (.output//{} | reduce keys[] as $o ({}; .[$o] = {value: "${module.\($tfmod).\($o)}"}))
+          }'
+  ) | jq -s '.[0] * .[1]'
 }
 
 function _main {
@@ -92,16 +80,12 @@ function _main {
 
   local provider_region="$(jq -r '.region' "$tmp_config")"
 
+  local nm_module="$1"; shift
+  shift # org
   { 
-    local nm_module="$1"; shift
-    shift # org
-    gen \
-      <(gen_xxx "${nm_module}") \
-      <(use_module "${nm_module}") \
-      "$@" | jq -S .
+    gen "${nm_module}"
     gen_state
-  } | merge_map \
-    | jq \
+  } | merge_map | jq \
         --argfile config <(hcltool "$tmp_config" | jq 'to_entries | map(.value |= { default: . }) | from_entries') \
         --argfile env <(cat "$tmp_config" | jq --arg rp "$rp" --arg rb "$rb" --arg rr "$rr" '{remote_path: $rp, remote_bucket: $rb, remote_region: $rr} * . | reduce to_entries[] as $kv ({}; .[$kv.key] = { default: $kv.value })') \
           '.variable |= . + ($config * $env)' | jq -S . > terraform.tf.json.1
