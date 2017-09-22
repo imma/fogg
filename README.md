@@ -1,1 +1,1 @@
-Visit http://defn.sh/fogg/ or open `docs/index.html`
+content/fogg.md
