@@ -3,8 +3,6 @@
 function _fogg_profile {
   local shome="${_fogg_home:="$(cd -P -- "$(dirname -- "$BASH_SOURCE")/.." && pwd -P)"}"
   PATH="$shome/bin:$shome/exec:$PATH"
-
-  PYHCL_VERSION="$(cat "$shome/.pyhcl-version.json" | jq -r '.[].version')"
 }
 
 _fogg_profile
