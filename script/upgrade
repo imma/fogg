@@ -4,10 +4,11 @@ function main {
   local shome="$(cd -P -- "${BASH_SOURCE%/*}/.." && pwd -P)"
   source normalize
 
+  local pth_requirements="$(realpath "$1")"; shift
+
   cd "$shome"
-  "$shome/vendor/virtualenv/bin/pip" install --upgrade -r <(cat requirements.txt | cut -d= -f1)
-  "$shome/vendor/virtualenv/bin/pip" freeze > requirements.txt
-  "$shome/vendor/virtualenv/bin/pip" list --format json | jq -r 'map(select(.name == "pyhcl"))' > .pyhcl-version.json
+  "$shome/vendor/virtualenv/bin/pip" install --upgrade -r <(cat "$pth_requirements" | cut -d= -f1)
+  "$shome/vendor/virtualenv/bin/pip" freeze | tee "$pth_requirements"
 }
 
 main "$@"
