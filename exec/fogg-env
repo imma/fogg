@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
 function main {
-  chamber exec "$(cat .fogg-name | cut -d/ -f2-4 | tr / -)" -- "$@"
+  exec chamber exec "$(cat .fogg-name | cut -d/ -f2-4 | tr / -)" -- "$@"
 }
 
 main "$@"
