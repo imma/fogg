@@ -1,20 +1,7 @@
 #!/usr/bin/env bash
 
-function fogg_env {
-  terraform output --json | jq -r '"export AWS_DEFAULT_REGION=\"\(.region.value)\" AWS_SG=\"\(.env_sg.value) \(.app_sg.value) \(.service_sg.value)\" AWS_SG_COMMA=\"\(.env_sg.value),\(.app_sg.value),\(.service_sg.value)\" AWS_SUBNET=\(.service_subnets.value[0]) AWS_KEYPAIR=\(.key_name.value) AWS_IAM=\(.service_iam_profile.value) AWS_AMI=\(.service_ami.value)"'
-}
-
 function main {
-  local shome="$(cd -P -- "${BASH_SOURCE%/*}/.." && pwd -P)"
-  source "$shome/script/profile"
-  source normalize
-
-  if [[ -n "${1:-}" ]]; then
-    eval $(fogg_env)
-    exec "$@"
-  else
-    fogg_env
-  fi
+  chamber exec "$(cat .fogg-name | cut -d/ -f2-4 | tr / -)" -- "$@"
 }
 
-source sub "$BASH_SOURCE" "$@"
+main "$@"
