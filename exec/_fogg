@@ -59,15 +59,14 @@ function gen {
       | jq --arg tfmod "$nm_module" '
           {
             variable: (.variable//{} as $vars | reduce (.variable | keys[]) as $v ({}; .[$v] = $vars[$v])), 
-            output: (.output//{} | reduce keys[] as $o ({}; .[$o] = {value: "${module.\($tfmod).\($o)}"}))
+            output: (.output//{} | to_entries | map(select(.key | endswith("__") | not)) | from_entries | reduce keys[] as $o ({}; .[$o] = {value: "${module.\($tfmod).\($o)}"}))
           }'
 
     hcltool "${!nm_block}/variables.tf" \
       | jq --arg service "$(cat .fogg-name | cut -d/ -f2-4  | tr / -)" '
-          .output | to_entries | map(select(.key | endswith("__"))) |
+          .output//{} | to_entries | map(select(.key | endswith("__"))) |
           if (. | length) > 0 then 
             { resource: { aws_ssm_parameter: (reduce .[] as $ele ({}; .[$ele.key | sub("__$"; "")] = {name: ($ele.key | sub("__$"; "") | "\($service).\(.)"), type: "String", value: $ele.value.value})) } } 
-
           else
             { }
           end'
