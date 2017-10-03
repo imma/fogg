@@ -61,7 +61,17 @@ function gen {
             variable: (.variable//{} as $vars | reduce (.variable | keys[]) as $v ({}; .[$v] = $vars[$v])), 
             output: (.output//{} | reduce keys[] as $o ({}; .[$o] = {value: "${module.\($tfmod).\($o)}"}))
           }'
-  ) | jq -s '.[0] * .[1]'
+
+    hcltool "${!nm_block}/variables.tf" \
+      | jq --arg service "$(cat .fogg-name | cut -d/ -f2-4  | tr / -)" '
+          .output | to_entries | map(select(.key | endswith("__"))) |
+          if (. | length) > 0 then 
+            { resource: { aws_ssm_parameter: (reduce .[] as $ele ({}; .[$ele.key | sub("__$"; "")] = {name: ($ele.key | sub("__$"; "") | "\($service).\(.)"), type: "String", value: $ele.value.value})) } } 
+
+          else
+            { }
+          end'
+  ) | jq -s 'reduce .[] as $e ({}; . * $e)'
 }
 
 function _main {
