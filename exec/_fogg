@@ -67,7 +67,7 @@ function gen {
         | jq --arg service "$(cat .fogg-name | cut -d/ -f2-4  | tr / -)" '
             .output//{} | to_entries | map(select(.key | endswith("__"))) |
             if (. | length) > 0 then 
-              { resource: { aws_ssm_parameter: (reduce .[] as $ele ({}; .[$ele.key | sub("__$"; "")] = {name: ($ele.key | sub("__$"; "") | "\($service).\(.)"), type: "String", value: $ele.value.value})) } } 
+              { resource: { aws_ssm_parameter: (reduce .[] as $ele ({}; .[$ele.key | sub("__$"; "")] = {name: ($ele.key | sub("__$"; "") | "\($service).\(.)"), type: "String", value: $ele.value.value, overwrite: true})) } } 
             else
               { }
             end'
