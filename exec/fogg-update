@@ -5,8 +5,7 @@ function main {
   source "$shome/script/profile"
   source normalize
 
-  rm -rf .terraform/modules
-  terraform get
+  tf update
   fogg
 }
 
