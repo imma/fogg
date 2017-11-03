@@ -4,8 +4,11 @@ function main {
   local shome="$(cd -P -- "${BASH_SOURCE%/*}/.." && pwd -P)"
   source "$shome/script/profile"
 
-  block compile virtualenv
-  ln -nfs ../vendor/virtualenv/bin/hcltool "$shome/bin/"
+  cd "$shome"
+  mkdir -p "$shome/bin"
+
+  block compile pipenv
+  ln -nfs "$(pipenv run which hcltool)" "$shome/bin/"
 }
 
 main "$@"
