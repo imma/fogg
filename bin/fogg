@@ -23,4 +23,5 @@ function main {
 }
 
 export TF_IN_AUTOMATION=1
-source sub "$BASH_SOURCE" "$@"
+
+source sub-start-chain "$BASH_SOURCE" aws "$@"
