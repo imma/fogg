@@ -22,6 +22,4 @@ function main {
   fogg gen "$nm_module" "$nm_org" "$nm_env" "$nm_app" "$nm_service" "$nm_rest"
 }
 
-export TF_IN_AUTOMATION=1
-
-source sub-start-chain "$BASH_SOURCE" aws-mw-region "$@"
+source sub "$BASH_SOURCE" "$@"
