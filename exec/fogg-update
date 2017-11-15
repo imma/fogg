@@ -6,7 +6,7 @@ function main {
   source normalize
 
   tf update
-  fogg
+  fogg default
 }
 
 source sub "$BASH_SOURCE" "$@"

@@ -1,0 +1,27 @@
+#!/usr/bin/env bash
+
+function main {
+  local shome="$(cd -P -- "${BASH_SOURCE%/*}/.." && pwd -P)"
+  source "$shome/script/profile"
+  source normalize
+
+  if [[ "$#" -gt 0 ]]; then
+    echo "ERROR: this command doesn't take arguments" 1>&2
+    return 1
+  fi
+
+  local nm_config="$(cat .fogg-name | cut -d: -f1)"
+  local nm_module="$(cat .fogg-module)"
+
+  local nm_org="$(echo "$nm_config" | cut -d/ -f1)"
+  local nm_env="$(echo "$nm_config" | cut -s -d/ -f2)"
+  local nm_app="$(echo "$nm_config" | cut -s -d/ -f3)"
+  local nm_service="$(echo "$nm_config" | cut -s -d/ -f4)"
+  local nm_rest="$(echo "$nm_config" | cut -s -d: -f2)"
+
+  fogg gen "$nm_module" "$nm_org" "$nm_env" "$nm_app" "$nm_service" "$nm_rest"
+}
+
+export TF_IN_AUTOMATION=1
+
+source sub-start-chain "$BASH_SOURCE" aws-mw-region "$@"

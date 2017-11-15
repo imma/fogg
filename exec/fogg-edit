@@ -28,7 +28,7 @@ function main {
   ${VISUAL:-${EDITOR:-vi}}  "$tmp_config"
   if ! diff "$tmp_config" "$tmp_config2"; then
     credstash put -a "$id_tfvars" "$(cat "$tmp_config")"
-    fogg
+    fogg default
   fi
 }
 

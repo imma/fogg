@@ -5,7 +5,7 @@ function main {
   source "$shome/script/profile"
   source normalize
 
-  fogg
+  fogg default
   tf plan "$@"
 }
 
