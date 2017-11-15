@@ -24,4 +24,4 @@ function main {
 
 export TF_IN_AUTOMATION=1
 
-source sub-start-chain "$BASH_SOURCE" aws "$@"
+source sub-start-chain "$BASH_SOURCE" aws-mw-region "$@"
