@@ -10,7 +10,7 @@ function main {
     return 1
   fi
 
-  local nm_config="$(cat .fogg-name | cut -d: -f1)"
+  local nm_config="$(fogg name | cut -d: -f1)"
   local nm_module="$(cat .fogg-module)"
 
   local nm_org="$(echo "$nm_config" | cut -d/ -f1)"

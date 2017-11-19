@@ -4,9 +4,9 @@ function main {
   local shome="$(cd -P -- "${BASH_SOURCE%/*}/.." && pwd -P)"
   source normalize
 
-  local nm_fogg="$(cat .fogg-name)/"
+  local nm_fogg="$(fogg name)/"
   local id_credstash_org="org/$(echo "$nm_fogg" | cut -d/ -f1)"
-  local id_credstash_local="$(cat .fogg-name)"
+  local id_credstash_local="$(fogg name)"
 
   local tmp_org="$(mktemp -t XXXXXX)"
   local tmp_local="$(mktemp -t XXXXXX)"

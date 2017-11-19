@@ -64,7 +64,7 @@ function gen {
 
     if [[ -f "variables.tf" ]]; then
       hcltool "variables.tf" \
-        | jq --arg service "$(cat .fogg-name | cut -d/ -f2-4  | tr / -)" '
+        | jq --arg service "$(fogg name | cut -d/ -f2-4  | tr / -)" '
             .output//{} | to_entries | map(select(.key | endswith("__"))) |
             if (. | length) > 0 then 
               { resource: { aws_ssm_parameter: (reduce .[] as $ele ({}; .[$ele.key | sub("__$"; "")] = {name: ($ele.key | sub("__$"; "") | "\($service).\(.)"), type: "String", value: $ele.value.value, overwrite: true})) } } 
@@ -85,7 +85,7 @@ function _main {
   fogg config > "$tmp_config"
   cat "$tmp_config" 1>&2
 
-  local rp="$(cat .fogg-name | perl -pe 's{/}{_}g')/terraform.tfstate"
+  local rp="$(cat .fogg-name-default | perl -pe 's{/}{_}g')/terraform.tfstate"
   local rb="$(jq -r '.remote_bucket' "$tmp_config")"
   local rr="$(jq -r '.remote_region' "$tmp_config")"
 

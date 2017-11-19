@@ -9,7 +9,7 @@ function main {
   if [[ -n "${1:-}" ]]; then
     id_tfvars="$1"; shift
   else
-    id_tfvars="$(cat .fogg-name)"
+    id_tfvars="$(fogg name)"
   fi
 
   credstash get "$id_tfvars"

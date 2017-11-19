@@ -5,8 +5,12 @@ function main {
   source "$shome/script/profile"
   source normalize
 
-  local id_tfvars="$(fogg name)"
-  exec credstash put "$id_tfvars" "$@"
+  local nm_workspace="$1"; shift
+  tf workspace \select "$nm_workspace"
+  fogg default
+  if [[ "$#" -gt 0 ]]; then
+    fogg "$@"
+  fi
 }
 
 source sub "$BASH_SOURCE" "$@"

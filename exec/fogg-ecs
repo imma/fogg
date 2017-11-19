@@ -21,7 +21,7 @@ function main {
 }
 
 
-__fogg_ecs_pwd="$(cat .fogg-name)"
+__fogg_ecs_pwd="$(fogg name)"
 export fogg_env="$(basename $(dirname $(dirname $__fogg_ecs_pwd)))" fogg_app="$(basename $(dirname $__fogg_ecs_pwd))" fogg_service="$(basename $__fogg_ecs_pwd)"
 
 source sub "$BASH_SOURCE" "$@"
