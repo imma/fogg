@@ -5,36 +5,24 @@ function merge_map {
 }
 
 function gen_state {
-  jq \
-    --arg remote_bucket "$rb" \
-    --arg remote_path "$rp" \
-    --arg remote_region "$rr" \
+  jq -n -r \
     --arg provider_region "$provider_region" \
-    -n -r '
+    '
       { 
-        provider:
-        { 
-          aws: 
-          { 
+        provider: { 
+          aws: { 
             region: "\($provider_region)" 
           },
           digitalocean: {},
           packet: {}
         },
-        terraform: 
-        { 
-          backend: 
-          { 
-            s3: 
-            { 
-              bucket: "\($remote_bucket)", 
-              key: "\($remote_path)", 
-              dynamodb_table: "terraform_state_lock", 
-              region: "\($remote_region)" 
-            } 
+        terraform: { 
+          backend: { 
+            s3: {}
           } 
         }
-      }'
+      }
+    '
 }
 
 function gen {
@@ -101,6 +89,14 @@ function _main {
         --argfile env <(cat "$tmp_config" | jq --arg rp "$rp" --arg rb "$rb" --arg rr "$rr" '{remote_path: $rp, remote_bucket: $rb, remote_region: $rr} * . | reduce to_entries[] as $kv ({}; .[$kv.key] = { default: $kv.value })') \
           '.variable |= . + ($config * $env)' | jq -S . > terraform.tf.json.1
   mv terraform.tf.json.1 terraform.tf.json
+
+  cat > terraform-init.tfvars.1 <<EOF
+region = "$rr"
+bucket = "$rb"
+key = "$rp" 
+dynamodb_table = "terraform_state_lock"
+EOF
+  mv terraform-init.tfvars.1 terraform-init.tfvars
 }
 
 _main "$@"
