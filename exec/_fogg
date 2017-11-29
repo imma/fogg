@@ -5,24 +5,22 @@ function merge_map {
 }
 
 function gen_state {
-  jq -n -r \
-    --arg provider_region "$provider_region" \
-    '
-      { 
-        provider: { 
-          aws: { 
-            region: "\($provider_region)" 
-          },
-          digitalocean: {},
-          packet: {}
+  jq -n -r '
+    { 
+      provider: { 
+        aws: { 
+          region: "${var.region}"
         },
-        terraform: { 
-          backend: { 
-            s3: {}
-          } 
-        }
+        digitalocean: {},
+        packet: {}
+      },
+      terraform: { 
+        backend: { 
+          s3: {}
+        } 
       }
-    '
+    }
+  '
 }
 
 function gen {
@@ -63,6 +61,17 @@ function gen {
   ) | jq -s 'reduce .[] as $e ({}; . * $e)'
 }
 
+function gen_config {
+  hcltool "$tmp_config" | jq 'to_entries | map(.value |= { default: . }) | from_entries'
+}
+
+function gen_env {
+  cat "$tmp_config" \
+    | jq --arg rp "$rp" --arg rb "$rb" --arg rr "$rr" '
+        {remote_path: $rp, remote_bucket: $rb, remote_region: $rr} * . | reduce to_entries[] as $kv ({}; .[$kv.key] = { default: $kv.value })
+      '
+}
+
 function _main {
   source normalize
 
@@ -84,10 +93,12 @@ function _main {
   { 
     gen "${nm_module}"
     gen_state
-  } | merge_map | jq \
-        --argfile config <(hcltool "$tmp_config" | jq 'to_entries | map(.value |= { default: . }) | from_entries') \
-        --argfile env <(cat "$tmp_config" | jq --arg rp "$rp" --arg rb "$rb" --arg rr "$rr" '{remote_path: $rp, remote_bucket: $rb, remote_region: $rr} * . | reduce to_entries[] as $kv ({}; .[$kv.key] = { default: $kv.value })') \
-          '.variable |= . + ($config * $env)' | jq -S . > terraform.tf.json.1
+  } | merge_map \
+    | jq \
+        --argfile config <(gen_config) \
+        --argfile env <(gen_env) \
+        '.variable |= . + ($config * $env)' \
+    | jq -S . > terraform.tf.json.1
   mv terraform.tf.json.1 terraform.tf.json
 
   cat > terraform-init.tfvars.1 <<EOF
