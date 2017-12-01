@@ -5,11 +5,11 @@ function merge_map {
 }
 
 function gen_state {
-  jq -n -r '
+  jq -n -r --arg provider_region "$provider_region" '
     { 
       provider: { 
         aws: { 
-          region: "${var.region}"
+          region: $provider_region
         },
         digitalocean: {},
         packet: {}
