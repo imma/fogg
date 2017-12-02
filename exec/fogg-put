@@ -5,7 +5,7 @@ function main {
   source "$shome/script/profile"
   source normalize
 
-  local id_tfvars="$(fogg name)"
+  local id_tfvars="$(fogg name | cut -d/ -f2-)"
   exec credstash put "$id_tfvars" "$@"
 }
 
