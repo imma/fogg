@@ -5,11 +5,20 @@ function main {
   source "$shome/script/profile"
   source normalize
 
-  if [[ -f ".fogg-name" ]]; then
-    cat .fogg-name
-  else
-    cat ".fogg-name-$(tf workspace show)"
-  fi
+  local pth_root="$(cd "$(git rev-parse --show-cdup)" && pwd)"
+
+  local env="$(cat .terraform/environment 2>/dev/null || echo default)"
+  local parts=()
+  while true; do
+    if [[ "$(pwd)" == "$pth_root" ]]; then
+      parts=( "$(cat .terraform/environment 2>/dev/null || echo default)" ${parts[@]:-} )
+      break
+    else
+      parts=( "$(basename $(pwd))" ${parts[@]:-} )
+    fi
+    cd ..
+  done
+  echo "$env ${parts[@]}" | sed 's# #/#g'
 }
 
 source sub "$BASH_SOURCE" "$@"

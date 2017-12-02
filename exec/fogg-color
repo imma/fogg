@@ -17,7 +17,7 @@ function main {
   esac
 
   local nm_color="${BASH_SOURCE##*-}"
-  local nm_asg="$(fogg name | cut -d/ -f2-4 | perl -pe 's{/}{-}g')-${nm_color}"
+  local nm_asg="$(fogg name | cut -d/ -f3-5 | perl -pe 's{/}{-}g')-${nm_color}"
 
   if [[ -z "$nm_asg" ]]; then
     echo "ERROR: no asg group matching color $nm_color" 1>&2
