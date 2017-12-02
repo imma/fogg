@@ -82,7 +82,7 @@ function _main {
   fogg config > "$tmp_config"
   cat "$tmp_config" 1>&2
 
-  local rp="$(cat .fogg-name | perl -pe 's{/}{_}g')/terraform.tfstate"
+  local rp="$(fogg name | cut -d/ -f2- | perl -pe 's{/}{_}g')/terraform.tfstate"
   local rb="$(jq -r '.remote_bucket' "$tmp_config")"
   local rr="$(jq -r '.remote_region' "$tmp_config")"
 

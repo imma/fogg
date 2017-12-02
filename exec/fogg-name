@@ -9,16 +9,21 @@ function main {
 
   local env="$(cat .terraform/environment 2>/dev/null || echo default)"
   local parts=()
+  local cnt_parts=0
   while true; do
     if [[ "$(pwd)" == "$pth_root" ]]; then
+      if [[ "$cnt_parts" == 0 ]]; then
+        env=
+      fi
       parts=( "$(cat .terraform/environment 2>/dev/null || echo default)" ${parts[@]:-} )
       break
     else
       parts=( "$(basename $(pwd))" ${parts[@]:-} )
+      cnt_parts="$(( cnt_parts + 1 ))"
     fi
     cd ..
   done
-  echo "$env ${parts[@]}" | sed 's# #/#g'
+  echo "${env:+${env}}/${parts[@]}" | sed 's# #/#g'
 }
 
 source sub "$BASH_SOURCE" "$@"
