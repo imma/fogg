@@ -15,7 +15,13 @@ function main {
       if [[ "$cnt_parts" == 0 ]]; then
         env=
       fi
-      parts=( "$(cat .terraform/environment 2>/dev/null || echo default)" ${parts[@]:-} )
+
+      local org="$(cat .terraform/environment 2>/dev/null || echo default)"
+      if [[ "$env" == "$org" ]]; then
+        env=
+      fi
+
+      parts=( "$org" ${parts[@]:-} )
       break
     else
       parts=( "$(basename $(pwd))" ${parts[@]:-} )
