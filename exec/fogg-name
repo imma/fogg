@@ -23,7 +23,7 @@ function main {
     fi
     cd ..
   done
-  echo "${env:+${env}}/${parts[@]}" | sed 's# #/#g'
+  echo "${env:+${env}}/${parts[@]}" | sed 's#^default/#/#; s# #/#g'
 }
 
 source sub "$BASH_SOURCE" "$@"
