@@ -6,8 +6,17 @@ function main {
   source normalize
 
   local nm_workspace="$1"; shift
-  tf workspace \select "$nm_workspace"
-  fogg default
+
+  if [[ ! -f ".terraform/environment" ]]; then
+    mkdir -p .terraform
+    echo "$nm_workspace" > ".terraform/environment"
+    fogg default
+    fogg init
+  else
+    tf workspace \select "$nm_workspace" # that \s is a ridiculous workaround to syntax hilighting
+    fogg default
+  fi
+
   if [[ "$#" -gt 0 ]]; then
     fogg "$@"
   fi
