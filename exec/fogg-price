@@ -1,0 +1,15 @@
+#!/usr/bin/env bash
+
+function main {
+  local shome="$(cd -P -- "${BASH_SOURCE%/*}/.." && pwd -P)"
+  source "$shome/script/profile"
+  source normalize
+
+  local nm_instance_type="${1:-c4.large}"
+
+  aws ec2 describe-spot-price-history --instance-types "$nm_instance_type" --start-time="$(date +%s)" \
+    --product-descriptions="Linux/UNIX" --query 'SpotPriceHistory[*].{az:AvailabilityZone, price:SpotPrice}' \
+    | jq -r 'sort_by(.az)[]'
+}
+
+source sub "$BASH_SOURCE" "$@"
