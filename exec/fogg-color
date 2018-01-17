@@ -81,9 +81,16 @@ function main {
       runmany 'aws autoscaling terminate-instance-in-auto-scaling-group --instance-id "$1" --should-decrement-desired-capacity' "$@"
       ;;
 
+    reset)
+      shift # reset
+      fogg "$nm_color" instances | awk '{print $1}' | xargs fogg "$nm_color" replace
+      ;;
+
     replace)
       shift # replace
-      runmany 'aws autoscaling terminate-instance-in-auto-scaling-group --instance-id "$1" --no-should-decrement-desired-capacity' "$@"
+      if [[ "$#" -gt 0 ]]; then
+        runmany 'aws autoscaling terminate-instance-in-auto-scaling-group --instance-id "$1" --no-should-decrement-desired-capacity' "$@"
+      fi
       ;;
 
     detach)
