@@ -10,7 +10,19 @@ function main {
     return 1
   fi
 
-  local nm_module="$(cat .fogg-module)"
+  local nm_module="$(cat .fogg-module 2>/dev/null || true)"
+  if [[ -z "${nm_module}" ]]; then
+    case "$(git rev-parse --show-cdup)" in
+      "") nm_module="org" ;;
+      ../) nm_module="global" ;;
+      ../../) nm_module="app" ;;
+      ../../../) nm_module="svc" ;;
+      *)
+        echo "ERROR: unknown fogg module" 1>&2
+        return 1
+        ;;
+    esac
+  fi
 
   local nm_config="$(fogg name | cut -d: -f1)"
   local nm_rest="$(echo "$nm_config" | cut -s -d: -f2)"
