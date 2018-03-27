@@ -17,10 +17,7 @@ function main {
       ../) nm_module="global" ;;
       ../../) nm_module="app" ;;
       ../../../) nm_module="svc" ;;
-      *)
-        echo "ERROR: unknown fogg module" 1>&2
-        return 1
-        ;;
+      *) nm_module="instance" ;;
     esac
   fi
 
