@@ -108,18 +108,6 @@ key = "$rp"
 dynamodb_table = "terraform_state_lock"
 EOF
   mv .backend-config.tfvars.1 .backend-config.tfvars
-
-  if [[ -f ".$(cat .terraform/environment 2>/dev/null).tfvars" ]]; then
-    ln -nfs ".$(cat .terraform/environment 2>/dev/null).tfvars" terraform.tfvars
-  else
-    rm -f terraform.tfvars
-  fi
-
-  if [[ -f ".$(cat .terraform/environment 2>/dev/null).tf" ]]; then
-    ln -nfs ".$(cat .terraform/environment 2>/dev/null).tf" terraform-workspace.tf
-  else
-    rm -f terraform-workspace.tf
-  fi
 }
 
 _main "$@"
