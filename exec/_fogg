@@ -101,13 +101,13 @@ function _main {
     | jq -S . > terraform.tf.json.1
   mv terraform.tf.json.1 terraform.tf.json
 
-  cat > terraform-init.tfvars.1 <<EOF
+  cat > .backend-config.tfvars.1 <<EOF
 region = "$rr"
 bucket = "$rb"
 key = "$rp" 
 dynamodb_table = "terraform_state_lock"
 EOF
-  mv terraform-init.tfvars.1 terraform-init.tfvars
+  mv .backend-config.tfvars.1 .backend-config.tfvars
 
   if [[ -f ".$(cat .terraform/environment 2>/dev/null).tfvars" ]]; then
     ln -nfs ".$(cat .terraform/environment 2>/dev/null).tfvars" terraform.tfvars

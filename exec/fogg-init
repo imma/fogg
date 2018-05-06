@@ -6,7 +6,7 @@ function main {
   source normalize
 
   fogg default
-  tf init -backend-config terraform-init.tfvars "$@"
+  tf init -backend-config .backend-config.tfvars "$@"
 }
 
 source sub "$BASH_SOURCE" "$@"
