@@ -21,7 +21,7 @@ function main {
     esac
   fi
 
-  ln -nfs ../module .
+  ln -nfs ../.module .
 
   local nm_config="$(fogg name | cut -d: -f1)"
   local nm_rest="$(echo "$nm_config" | cut -s -d: -f2)"
