@@ -98,8 +98,8 @@ function _main {
         --argfile config <(gen_config) \
         --argfile env <(gen_env) \
         '.variable |= . + ($config * $env)' \
-    | jq -S . > .terraform.tf.json.1
-  mv .terraform.tf.json.1 .terraform.tf.json
+    | jq -S . > terraform.tf.json.1
+  mv terraform.tf.json.1 terraform.tf.json
 
   cat > .backend-config.tfvars.1 <<EOF
 region = "$rr"
