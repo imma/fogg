@@ -7,20 +7,18 @@ function main {
 
   local nm_workspace="$1"; shift
 
-  local nm_org="$(cd ./$(git rev-parse --show-cdup) 2>/dev/null && cat .terraform/environment 2>/dev/null || true)"
-
   if [[ ! -f ".terraform/environment" ]]; then
     mkdir -p .terraform
     echo "$nm_workspace" > ".terraform/environment"
     fogg default
-    fogg init -lock=false
+    fogg account fogg init -lock=false
   else
-    ${nm_org} tf workspace \select "$nm_workspace" # that \s is a ridiculous workaround to syntax hilighting
+    fogg account tf workspace \select "$nm_workspace" # that \s is a ridiculous workaround to syntax hilighting
     fogg default
   fi
 
   if [[ "$#" -gt 0 ]]; then
-    ${nm_org} fogg "$@"
+    fogg account fogg "$@"
   fi
 }
 

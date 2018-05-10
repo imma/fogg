@@ -5,9 +5,9 @@ function main {
   source "$shome/script/profile"
   source normalize
 
-  fogg default
-
-  fogg account tf init -backend-config .backend-config.tfvars "$@"
+  local nm_org="$(cd ./$(git rev-parse --show-cdup) 2>/dev/null && cat .terraform/environment 2>/dev/null || true)"
+  
+  exec ${nm_org} "$@"
 }
 
 source sub "$BASH_SOURCE" "$@"

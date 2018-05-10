@@ -7,9 +7,7 @@ function main {
 
   fogg default
 
-  local nm_org="$(cd ./$(git rev-parse --show-cdup) 2>/dev/null && cat .terraform/environment 2>/dev/null || true)"
-
-  ${nm_org} tf plan "$@"
+  fogg account tf plan "$@"
 }
 
 source sub "$BASH_SOURCE" "$@"

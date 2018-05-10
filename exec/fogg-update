@@ -5,9 +5,7 @@ function main {
   source "$shome/script/profile"
   source normalize
 
-  local nm_org="$(cd ./$(git rev-parse --show-cdup) 2>/dev/null && cat .terraform/environment 2>/dev/null || true)"
-
-  ${nm_org} tf update
+  fogg account tf update
   fogg default
 }
 
