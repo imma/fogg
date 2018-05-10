@@ -6,7 +6,10 @@ function main {
   source normalize
 
   fogg default
-  tf init -backend-config .backend-config.tfvars "$@"
+
+  local nm_org="$(cd ./$(git rev-parse --show-cdup) 2>/dev/null && cat .terraform/environment 2>/dev/null || true)"
+
+  ${nm_org} tf init -backend-config .backend-config.tfvars "$@"
 }
 
 source sub "$BASH_SOURCE" "$@"

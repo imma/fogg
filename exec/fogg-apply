@@ -5,7 +5,9 @@ function main {
   source "$shome/script/profile"
   source normalize
 
-  tf apply "$@"
+  local nm_org="$(cd ./$(git rev-parse --show-cdup) 2>/dev/null && cat .terraform/environment 2>/dev/null || true)"
+  
+  ${nm_org} tf apply "$@"
 }
 
 source sub "$BASH_SOURCE" "$@"
