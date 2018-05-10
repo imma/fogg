@@ -5,8 +5,8 @@ function main {
   source "$shome/script/profile"
   source normalize
 
-  fogg account tf update
-  fogg default
+  fogg check
+  fogg plan
 }
 
 source sub "$BASH_SOURCE" "$@"
