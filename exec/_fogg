@@ -108,6 +108,7 @@ key = "$rp"
 dynamodb_table = "terraform_state_lock"
 EOF
   mv .backend-config.tfvars.1 .backend-config.tfvars
+  tf fmt .backend-config.tfvars
 }
 
 _main "$@"
