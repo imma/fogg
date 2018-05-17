@@ -2,4 +2,8 @@
 
 export TF_IN_AUTOMATION=1
 
+function main {
+  exec fogg account "$@"
+}
+
 source sub "$BASH_SOURCE" "$@"
