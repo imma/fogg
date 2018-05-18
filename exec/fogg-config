@@ -19,7 +19,6 @@ function main {
 
   nm_config="${nm_config#/}"
 
-  set -x
   cat "./$(git rev-parse --show-cdup)/fogg.json" | jq \
     --arg org "$(echo "$nm_fogg" | cut -d/ -f1)" \
     --arg env "$(fogg name | cut -d/ -f1)" \

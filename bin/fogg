@@ -3,6 +3,11 @@
 export TF_IN_AUTOMATION=1
 
 function main {
+  if ! type -P "${1:-}" >/dev/null; then
+    echo "ERROR: ${1} not found" 1>&2
+    return 1
+  fi
+
   exec fogg account "$@"
 }
 
