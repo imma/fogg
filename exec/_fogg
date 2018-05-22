@@ -10,9 +10,7 @@ function gen_state {
       provider: { 
         aws: { 
           region: $provider_region
-        },
-        digitalocean: {},
-        packet: {}
+        }
       },
       terraform: { 
         backend: { 
