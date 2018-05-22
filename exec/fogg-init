@@ -5,6 +5,14 @@ function main {
   source "$shome/script/profile"
   source normalize
 
+  local nm_org="${1:-}"
+
+  if [[ -n "${nm_org}" ]]; then
+    shift
+    rm -f .terraform/terraform.tfstate
+    echo "${nm_org}" > .terraform/environment
+  fi
+
   fogg default
 
   fogg account tf init -backend-config .backend-config.tfvars "$@"
