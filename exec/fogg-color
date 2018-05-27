@@ -44,14 +44,14 @@ function main {
     asg)
       shift # asg
       local jq_refine="${1:-\(.AutoScalingGroupName) min:\(.MinSize) desired:\(.DesiredCapacity) max:\(.MaxSize)}"
-      aws autoscaling describe-auto-scaling-groups --auto-scaling-group-names "$nm_asg" | jq '.AutoScalingGroups' | jq 'map("'"$jq_refine"'")' | jq -r '.[]'
+      fogg aws autoscaling describe-auto-scaling-groups --auto-scaling-group-names "$nm_asg" | jq '.AutoScalingGroups' | jq 'map("'"$jq_refine"'")' | jq -r '.[]'
       ;;
 
     instances)
       shift # instances
       local jq_refine="${1:-\(.InstanceId) \(.PrivateIpAddress)}"
       fogg "$nm_color" asg '\(.)' | jq -r '.Instances[] | "\(.InstanceId) \(.LifecycleState) \(.HealthStatus)"' | while read -r instance_id lifecycle health; do
-        echo "$(echo "$instance_id" | gxargs -r aws ec2 describe-instances --instance-ids | jq '[.Reservations[].Instances[]]' | jq 'map("'"$jq_refine"'")' | jq -r '.[]')" "$lifecycle" "$health"
+        echo "$(echo "$instance_id" | gxargs -r fogg aws ec2 describe-instances --instance-ids | jq '[.Reservations[].Instances[]]' | jq 'map("'"$jq_refine"'")' | jq -r '.[]')" "$lifecycle" "$health"
       done
       ;;
 
@@ -73,12 +73,12 @@ function main {
           ;;
       esac
 
-      aws autoscaling set-desired-capacity --auto-scaling-group-name "$nm_asg" --desired-capacity "$cnt_desired"
+      fogg aws autoscaling set-desired-capacity --auto-scaling-group-name "$nm_asg" --desired-capacity "$cnt_desired"
       ;;
 
     remove)
       shift # remove
-      runmany 'aws autoscaling terminate-instance-in-auto-scaling-group --instance-id "$1" --should-decrement-desired-capacity' "$@"
+      runmany 'fogg aws autoscaling terminate-instance-in-auto-scaling-group --instance-id "$1" --should-decrement-desired-capacity' "$@"
       ;;
 
     reset)
@@ -89,24 +89,24 @@ function main {
     replace)
       shift # replace
       if [[ "$#" -gt 0 ]]; then
-        runmany 'aws autoscaling terminate-instance-in-auto-scaling-group --instance-id "$1" --no-should-decrement-desired-capacity' "$@"
+        runmany 'fogg aws autoscaling terminate-instance-in-auto-scaling-group --instance-id "$1" --no-should-decrement-desired-capacity' "$@"
       fi
       ;;
 
     detach)
       shift # detach
-      aws autoscaling detach-instances --auto-scaling-group-name "$nm_asg" --instance-ids "$@" --should-decrement-desired-capacity
+      fogg aws autoscaling detach-instances --auto-scaling-group-name "$nm_asg" --instance-ids "$@" --should-decrement-desired-capacity
       ;;
 
     detached)
       shift # detached
       fogg "$nm_color" detach "$@"
       while true; do
-        local cnt_attached="$(aws autoscaling describe-auto-scaling-instances --instance-ids xxx "$@" | jq -r '.AutoScalingInstances[] | length')"
+        local cnt_attached="$(fogg aws autoscaling describe-auto-scaling-instances --instance-ids xxx "$@" | jq -r '.AutoScalingInstances[] | length')"
         if [[ -z "$cnt_attached" || "$cnt_attached" == 0 ]]; then
           break
         fi
-        echo "INFO: $(aws autoscaling describe-auto-scaling-instances --instance-ids xxx "$@" | jq -r '.AutoScalingInstances[] | "\(.LifecycleState) \(.HealthStatus)"') $(date)"
+        echo "INFO: $(fogg aws autoscaling describe-auto-scaling-instances --instance-ids xxx "$@" | jq -r '.AutoScalingInstances[] | "\(.LifecycleState) \(.HealthStatus)"') $(date)"
         sleep 1
       done
       ;;
@@ -115,20 +115,20 @@ function main {
       shift # attached
       fogg "$nm_color" attach "$@"
       while true; do
-        local cnt_attached="$(aws autoscaling describe-auto-scaling-instances --instance-ids xxx "$@" | jq -r '.AutoScalingInstances[] | length')"
+        local cnt_attached="$(fogg aws autoscaling describe-auto-scaling-instances --instance-ids xxx "$@" | jq -r '.AutoScalingInstances[] | length')"
         if [[ "$cnt_attached" -ge "$#" ]]; then
-          if [[ "$(aws autoscaling describe-auto-scaling-instances --instance-ids xxx "$@" | jq -r '.AutoScalingInstances[] | "\(.LifecycleState) \(.HealthStatus)"')" == "InService HEALTHY" ]]; then
+          if [[ "$(fogg aws autoscaling describe-auto-scaling-instances --instance-ids xxx "$@" | jq -r '.AutoScalingInstances[] | "\(.LifecycleState) \(.HealthStatus)"')" == "InService HEALTHY" ]]; then
             break
           fi
         fi
-        echo "INFO: $(aws autoscaling describe-auto-scaling-instances --instance-ids xxx "$@" | jq -r '.AutoScalingInstances[] | "\(.LifecycleState) \(.HealthStatus)"') $(date)"
+        echo "INFO: $(fogg aws autoscaling describe-auto-scaling-instances --instance-ids xxx "$@" | jq -r '.AutoScalingInstances[] | "\(.LifecycleState) \(.HealthStatus)"') $(date)"
         sleep 1
       done
       ;;
 
      attach)
       shift # attach
-      aws autoscaling attach-instances --auto-scaling-group-name "$nm_asg" --instance-ids "$@"
+      fogg aws autoscaling attach-instances --auto-scaling-group-name "$nm_asg" --instance-ids "$@"
       ;;
 
     receive-message)
@@ -137,13 +137,13 @@ function main {
       if [[ "$#" == 0 ]]; then
         set -- .
       fi
-      aws sqs receive-message --queue-url "$url_sqs" --max-number-of-messages 1 | jq -r '.Messages[] | { ReceiptHandle: .ReceiptHandle, Message: .Body | fromjson | .Message | fromjson }' | jq -r "$@"
+      fogg aws sqs receive-message --queue-url "$url_sqs" --max-number-of-messages 1 | jq -r '.Messages[] | { ReceiptHandle: .ReceiptHandle, Message: .Body | fromjson | .Message | fromjson }' | jq -r "$@"
       ;;
 
     delete-message)
       shift # delete-message
       export url_sqs="$(terraform output -json | jq -r --arg color "$nm_color" '.service_sqs.value | map(select(test("-\($color)$")))[0]')"
-      runmany 'aws sqs delete-message --queue-url "$url_sqs" --receipt-handle "$1"' "$@"
+      runmany 'fogg aws sqs delete-message --queue-url "$url_sqs" --receipt-handle "$1"' "$@"
       ;;
 
     queue-attributes)
@@ -152,7 +152,7 @@ function main {
       if [[ "$#" == 0 ]]; then
         set -- .
       fi
-      aws sqs get-queue-attributes --attribute-names All --queue-url "$url_sqs" | jq -r "$@"
+      fogg aws sqs get-queue-attributes --attribute-names All --queue-url "$url_sqs" | jq -r "$@"
       ;;
 
     deploy-worker)
