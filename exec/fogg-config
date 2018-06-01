@@ -4,6 +4,8 @@ function main {
   local shome="$(cd -P -- "${BASH_SOURCE%/*}/.." && pwd -P)"
   source normalize
 
+  set -x
+
   local nm_fogg="$(fogg name | cut -d/ -f2-)/"
 
   local nm_config="$(fogg name)"
