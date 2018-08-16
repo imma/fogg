@@ -2,7 +2,8 @@
   "require": [
     "python",
     "wtf",
-    "fogg-cli"
+    "fogg-cli",
+    "fogg-tf"
   ],
   "versions": {}
 }
