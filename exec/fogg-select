@@ -11,7 +11,7 @@ function main {
     mkdir -p .terraform
     echo "$nm_workspace" > ".terraform/environment"
     fogg default
-    fogg account fogg init -lock=false
+    fogg account fogg init
   else
     fogg account tf workspace \select "$nm_workspace" # that \s is a ridiculous workaround to syntax hilighting
     fogg default
